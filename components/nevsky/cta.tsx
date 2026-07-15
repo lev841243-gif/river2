@@ -1,10 +1,14 @@
+'use client'
+
 import { ArrowRight, Phone, Send } from 'lucide-react'
 import { Reveal } from './reveal'
+import { useBooking } from './booking-context'
 import { contacts, dict, type Lang } from '@/lib/i18n'
 
 export function Cta({ lang = 'ru' }: { lang?: Lang }) {
   const t = dict[lang].cta
   const c = dict[lang].contact
+  const { openBooking } = useBooking()
 
   return (
     <section id="cta" className="relative flex min-h-[80svh] items-center overflow-hidden">
@@ -28,16 +32,15 @@ export function Cta({ lang = 'ru' }: { lang?: Lang }) {
           </p>
 
           <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
-            <a
-              href={contacts.telegram}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={() => openBooking()}
               className="group inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 text-sm font-medium text-primary-foreground transition-transform duration-300 hover:scale-[1.03]"
             >
               <Send className="size-4" />
-              {c.bookTelegram}
+              {t.primary}
               <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </a>
+            </button>
             <a
               href={contacts.phoneHref}
               aria-label={c.callAdmin}

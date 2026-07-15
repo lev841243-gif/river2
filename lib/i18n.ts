@@ -358,6 +358,19 @@ export interface Dict {
   faq: { eyebrow: string; title: string; subtitle: string; items: FaqItem[] }
   cta: { eyebrow: string; title: string; subtitle: string; primary: string; secondary: string }
   footer: { tagline: string; explore: string; contact: string; follow: string; address: string[]; rights: string; privacy: string; terms: string }
+  booking: {
+    title: string; subtitle: string
+    boatLabel: string; boatPlaceholder: string
+    dateLabel: string; timeLabel: string; guestsLabel: string; guestsSuffix: string
+    nameLabel: string; namePlaceholder: string
+    phoneLabel: string; phonePlaceholder: string
+    telegramLabel: string; telegramPlaceholder: string
+    commentLabel: string; commentPlaceholder: string
+    submit: string; submitting: string; close: string
+    requiredError: string; phoneError: string
+    successTitle: string; successText: string
+    errorTitle: string; errorText: string; errorFallback: string
+  }
 }
 
 export const dict: Record<Lang, Dict> = {
@@ -492,6 +505,34 @@ export const dict: Record<Lang, Dict> = {
       privacy: 'Конфиденциальность',
       terms: 'Условия',
     },
+    booking: {
+      title: 'Забронировать катер',
+      subtitle: 'Оставьте заявку — мы свяжемся с вами и подтвердим бронь.',
+      boatLabel: 'Катер',
+      boatPlaceholder: 'Выберите катер',
+      dateLabel: 'Дата',
+      timeLabel: 'Время',
+      guestsLabel: 'Гостей',
+      guestsSuffix: 'гостей',
+      nameLabel: 'Ваше имя',
+      namePlaceholder: 'Как к вам обращаться',
+      phoneLabel: 'Телефон',
+      phonePlaceholder: '+7 (___) ___-__-__',
+      telegramLabel: 'Telegram (необязательно)',
+      telegramPlaceholder: '@username',
+      commentLabel: 'Комментарий',
+      commentPlaceholder: 'Повод, пожелания, дополнительные услуги',
+      submit: 'Отправить заявку',
+      submitting: 'Отправляем...',
+      close: 'Закрыть',
+      requiredError: 'Заполните это поле',
+      phoneError: 'Введите корректный номер телефона',
+      successTitle: 'Заявка отправлена!',
+      successText: 'Мы свяжемся с вами в ближайшее время, чтобы подтвердить бронь.',
+      errorTitle: 'Не удалось отправить заявку',
+      errorText: 'Попробуйте ещё раз чуть позже или свяжитесь с нами напрямую.',
+      errorFallback: 'Написать в Telegram',
+    },
   },
   en: {
     brand: { wordmark: 'Dno Shipping Company', tagline: 'St. Petersburg', full: 'Dno Shipping Company' },
@@ -622,6 +663,34 @@ export const dict: Record<Lang, Dict> = {
       rights: 'All rights reserved.',
       privacy: 'Privacy',
       terms: 'Terms',
+    },
+    booking: {
+      title: 'Book a Boat',
+      subtitle: 'Send us a request and we will get back to you to confirm the booking.',
+      boatLabel: 'Boat',
+      boatPlaceholder: 'Choose a boat',
+      dateLabel: 'Date',
+      timeLabel: 'Time',
+      guestsLabel: 'Guests',
+      guestsSuffix: 'guests',
+      nameLabel: 'Your name',
+      namePlaceholder: 'How should we address you',
+      phoneLabel: 'Phone',
+      phonePlaceholder: '+1 (___) ___-____',
+      telegramLabel: 'Telegram (optional)',
+      telegramPlaceholder: '@username',
+      commentLabel: 'Comment',
+      commentPlaceholder: 'Occasion, wishes, extra services',
+      submit: 'Send Request',
+      submitting: 'Sending...',
+      close: 'Close',
+      requiredError: 'Please fill in this field',
+      phoneError: 'Enter a valid phone number',
+      successTitle: 'Request sent!',
+      successText: 'We will contact you shortly to confirm the booking.',
+      errorTitle: 'Could not send the request',
+      errorText: 'Please try again shortly or reach out to us directly.',
+      errorFallback: 'Message us on Telegram',
     },
   },
 }

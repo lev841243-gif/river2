@@ -14,7 +14,8 @@ import {
   X,
 } from 'lucide-react'
 import { Reveal } from './reveal'
-import { boatImg, boats, contacts, dict, type Boat, type Lang } from '@/lib/i18n'
+import { useBooking } from './booking-context'
+import { boatImg, dict, type Boat, type Lang } from '@/lib/i18n'
 
 function priceLabel(boat: Boat, lang: Lang, t: (typeof dict)['ru']['fleet']) {
   if (boat.price == null) return t.onRequest
@@ -25,8 +26,9 @@ function priceLabel(boat: Boat, lang: Lang, t: (typeof dict)['ru']['fleet']) {
 
 const specIcons = [Ruler, Maximize2, Maximize2, Gauge, Users]
 
-export function Fleet({ lang = 'ru' }: { lang?: Lang }) {
+export function Fleet({ lang = 'ru', boats }: { lang?: Lang; boats: Boat[] }) {
   const t = dict[lang].fleet
+  const { openBooking } = useBooking()
   const [active, setActive] = useState<number | null>(null)
   const [photo, setPhoto] = useState(0)
 
@@ -115,16 +117,15 @@ export function Fleet({ lang = 'ru' }: { lang?: Lang }) {
                 </p>
 
                 <div className="mt-7 flex items-center gap-3">
-                  <a
-                    href={contacts.telegram}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={() => openBooking(b.id)}
                     className="group/btn inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-transform duration-300 hover:scale-[1.03]"
                   >
                     <Send className="size-4" />
                     {t.book}
                     <ArrowRight className="size-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
-                  </a>
+                  </button>
                   <button
                     type="button"
                     onClick={() => setActive(i)}
@@ -287,16 +288,18 @@ export function Fleet({ lang = 'ru' }: { lang?: Lang }) {
                 </div>
               </div>
 
-              <a
-                href={contacts.telegram}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
+                onClick={() => {
+                  setActive(null)
+                  openBooking(boat.id)
+                }}
                 className="mt-9 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground transition-transform duration-300 hover:scale-[1.03]"
               >
                 <Send className="size-4" />
                 {t.bookThis}
                 <ArrowRight className="size-4" />
-              </a>
+              </button>
             </div>
           </div>
         </div>

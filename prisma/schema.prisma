@@ -1,0 +1,108 @@
+// Prisma schema — Судоходная Компания «Дно»
+// БД: PostgreSQL (Beget Cloud). Источник правды для сайта, бота и админки.
+// Применение: npx prisma migrate deploy  (миграции)  /  npx prisma db seed  (наполнение)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────── Флот ───────────────────────────
+model Boat {
+  id        String   @id @default(uuid())
+  slug      String   @unique // напр. "galeon-640" — для ссылок
+  dir       String // папка с фото в /uploads/boats
+  cover     String // имя файла обложки
+  photos    String[] // имена файлов галереи
+  nameRu    String
+  nameEn    String
+  descRu    String
+  descEn    String
+  price     Int? // ₽/час; null = «по запросу»
+  specs     Json? // { ru: [длина, ширина, высота, скорость, вместимость], en: [...] }
+  amenities Json // { ru: [...], en: [...] }
+  badge     Json? // { ru: "Бомбочка!", en: "Bombshell!" }
+  isNew     Boolean  @default(false)
+  isVisible Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings Booking[]
+
+  @@index([isVisible, sortOrder])
+}
+
+// ─────────────────────────── Заявки ───────────────────────────
+enum BookingStatus {
+  NEW // Новая
+  REVIEW // На рассмотрении
+  CONFIRMED // Подтверждена
+  COMPLETED // Завершена
+  CANCELLED // Отменена
+}
+
+enum BookingSource {
+  ORGANIC // Органический поиск (Google/Яндекс)
+  ADS // Реклама (Яндекс.Директ/Google Ads)
+  SOCIAL // Соцсети (VK/Telegram)
+  REPEAT // Повторный клиент
+  MANUAL // Добавлен администратором вручную
+  UNKNOWN // Источник не определён
+}
+
+model Booking {
+  id            String        @id @default(uuid())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  boat          Boat          @relation(fields: [boatId], references: [id])
+  boatId        String
+  startAt       DateTime // дата и время начала (задел под календарь)
+  endAt         DateTime? // конец интервала (для проверки пересечений позже)
+  guests        Int           @default(1)
+  clientName    String
+  phone         String
+  telegram      String?
+  comment       String?
+  priceSnapshot Int? // стоимость на момент заявки — не переписывается
+  status        BookingStatus @default(NEW)
+  source        BookingSource @default(UNKNOWN)
+  utmSource     String?
+  utmMedium     String?
+  utmCampaign   String?
+  lang          String        @default("ru")
+
+  client        Client?                 @relation(fields: [clientId], references: [id])
+  clientId      String?
+  statusHistory BookingStatusHistory[]
+
+  @@index([status, createdAt])
+  @@index([boatId, startAt])
+  @@index([source])
+}
+
+model BookingStatusHistory {
+  id        String         @id @default(uuid())
+  booking   Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  bookingId String
+  from      BookingStatus?
+  to        BookingStatus
+  changedBy String? // кто сменил (админ)
+  changedAt DateTime       @default(now())
+
+  @@index([bookingId])
+}
+
+// ─────────────────────────── Клиенты ───────────────────────────
+model Client {
+  id        String    @id @default(uuid())
+  phone     String    @unique
+  name      String?
+  telegram  String?
+  firstSeen DateTime  @default(now())
+  bookings  Booking[]
+}

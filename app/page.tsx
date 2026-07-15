@@ -1,4 +1,6 @@
 import { SiteNav } from '@/components/nevsky/site-nav'
+import { getBoats } from '@/lib/boats-db'
+import { BookingProvider } from '@/components/nevsky/booking-context'
 import { Hero } from '@/components/nevsky/hero'
 import { OwnerBanner } from '@/components/nevsky/owner-banner'
 import { Experiences } from '@/components/nevsky/experiences'
@@ -12,16 +14,17 @@ import { Faq } from '@/components/nevsky/faq'
 import { Cta } from '@/components/nevsky/cta'
 import { SiteFooter } from '@/components/nevsky/site-footer'
 
-export default function Page() {
+export default async function Page() {
   const lang = 'ru'
+  const boats = await getBoats()
   return (
-    <>
+    <BookingProvider lang={lang} boats={boats}>
       <SiteNav lang={lang} />
       <main>
         <Hero lang={lang} />
         <OwnerBanner lang={lang} />
         <Experiences lang={lang} />
-        <Fleet lang={lang} />
+        <Fleet lang={lang} boats={boats} />
         <WhyUs lang={lang} />
         <Routes lang={lang} />
         <Expeditions lang={lang} />
@@ -31,6 +34,6 @@ export default function Page() {
         <Cta lang={lang} />
       </main>
       <SiteFooter lang={lang} />
-    </>
+    </BookingProvider>
   )
 }

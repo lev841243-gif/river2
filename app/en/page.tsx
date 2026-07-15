@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { SiteNav } from '@/components/nevsky/site-nav'
+import { getBoats } from '@/lib/boats-db'
+import { BookingProvider } from '@/components/nevsky/booking-context'
 import { Hero } from '@/components/nevsky/hero'
 import { OwnerBanner } from '@/components/nevsky/owner-banner'
 import { Experiences } from '@/components/nevsky/experiences'
@@ -19,16 +21,17 @@ export const metadata: Metadata = {
     'Private luxury boat tours along the Neva River with professional captains — romantic evenings, White Nights, celebrations and corporate events in Saint Petersburg.',
 }
 
-export default function EnPage() {
+export default async function EnPage() {
   const lang = 'en'
+  const boats = await getBoats()
   return (
-    <>
+    <BookingProvider lang={lang} boats={boats}>
       <SiteNav lang={lang} />
       <main>
         <Hero lang={lang} />
         <OwnerBanner lang={lang} />
         <Experiences lang={lang} />
-        <Fleet lang={lang} />
+        <Fleet lang={lang} boats={boats} />
         <WhyUs lang={lang} />
         <Routes lang={lang} />
         <Expeditions lang={lang} />
@@ -38,6 +41,6 @@ export default function EnPage() {
         <Cta lang={lang} />
       </main>
       <SiteFooter lang={lang} />
-    </>
+    </BookingProvider>
   )
 }
