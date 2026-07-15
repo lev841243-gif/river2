@@ -3,7 +3,31 @@
 import { useEffect, useState } from 'react'
 import { Menu, Phone, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { SocialRow } from './social-row'
 import { contacts, dict, type Lang } from '@/lib/i18n'
+
+/**
+ * Главная кнопка шапки. Блик и «дыхание» тени делают её зовущей, но без
+ * мигания — оно удешевило бы премиальную подачу. Сам блик лежит отдельным
+ * слоем поверх золота и обрезается overflow-hidden.
+ */
+function CtaButton({ label, className }: { label: string; className?: string }) {
+  return (
+    <a
+      href="#fleet"
+      className={cn(
+        'cta-alive group relative overflow-hidden rounded-full bg-primary text-sm font-medium text-primary-foreground transition-transform duration-300 hover:scale-[1.04]',
+        className,
+      )}
+    >
+      <span
+        aria-hidden="true"
+        className="cta-sheen pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-white/50 to-transparent"
+      />
+      <span className="relative">{label}</span>
+    </a>
+  )
+}
 
 function LangSwitch({ lang, className }: { lang: Lang; className?: string }) {
   return (
@@ -78,22 +102,19 @@ export function SiteNav({ lang = 'ru' }: { lang?: Lang }) {
           ))}
         </div>
 
-        <div className="hidden items-center gap-4 lg:flex">
+        <div className="hidden items-center gap-3 lg:flex">
           <LangSwitch lang={lang} />
+          <SocialRow lang={lang} idPrefix="nav" />
+          <span className="h-5 w-px bg-border" />
           <a
             href={contacts.phoneHref}
             aria-label={c.callAdmin}
             title={c.callAdmin}
-            className="flex size-10 items-center justify-center rounded-full border border-border text-primary transition-colors hover:bg-foreground/5"
+            className="flex size-9 items-center justify-center rounded-full border border-border text-primary transition-colors hover:bg-foreground/5"
           >
             <Phone className="size-4" />
           </a>
-          <a
-            href="#fleet"
-            className="rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-transform duration-300 hover:scale-[1.03]"
-          >
-            {t.cta}
-          </a>
+          <CtaButton label={t.cta} className="px-6 py-2.5" />
         </div>
 
         <div className="flex items-center gap-3 lg:hidden">
@@ -135,13 +156,9 @@ export function SiteNav({ lang = 'ru' }: { lang?: Lang }) {
               {link.label}
             </a>
           ))}
-          <a
-            href="#fleet"
-            onClick={() => setOpen(false)}
-            className="mt-2 rounded-full bg-primary px-6 py-3 text-center text-sm font-medium text-primary-foreground"
-          >
-            {t.cta}
-          </a>
+          {/* В шапку телефона ряд не влезает — живёт в раскрытом меню. */}
+          <SocialRow lang={lang} idPrefix="mobile" size="md" className="mt-3 px-3" />
+          <CtaButton label={t.cta} className="mt-3 px-6 py-3 text-center" />
         </div>
       </div>
     </header>

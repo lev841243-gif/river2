@@ -177,3 +177,95 @@
     opacity: 0;
   }
 }
+
+/* ─────────────── Соцсети в шапке: волна по композиции ───────────────
+   В покое значки приглушены до графита, чтобы не спорить с золотом
+   бренда. По ряду бежит волна: каждый значок на миг расцветает своим
+   фирменным цветом и приподнимается. Эффект «переливания» даёт не сам
+   значок, а сдвиг фазы у соседей (--wave-delay), поэтому смысл есть
+   только у группы — по одному это просто мигание. */
+@keyframes brandBloom {
+  0%,
+  70%,
+  100% {
+    filter: grayscale(1) brightness(0.75);
+    opacity: 0.55;
+    transform: translateY(0) scale(1);
+  }
+  80% {
+    filter: grayscale(0) brightness(1.1);
+    opacity: 1;
+    transform: translateY(-3px) scale(1.14);
+  }
+  90% {
+    filter: grayscale(0) brightness(1);
+    opacity: 0.95;
+    transform: translateY(-1px) scale(1.05);
+  }
+}
+
+.brand-wave {
+  animation: brandBloom 5s ease-in-out infinite;
+  animation-delay: var(--wave-delay, 0s);
+  /* backwards обязателен: без него значок ждёт свою задержку в обычном виде —
+     то есть в полном цвете — и потом дёргается в приглушённый. На загрузке
+     это выглядит как вспышка. Так первый кадр применяется сразу. */
+  animation-fill-mode: backwards;
+}
+
+/* На наведении волна не нужна: значок должен сразу отозваться живым цветом.
+   Анимация перебивает статические стили, поэтому её тут именно выключаем. */
+.brand-wave:hover {
+  animation: none;
+  filter: grayscale(0) brightness(1.15);
+  opacity: 1;
+  transform: translateY(-3px) scale(1.18);
+}
+
+/* ─────────────── Кнопка «Выбрать катер»: блик и дыхание ───────────────
+   Кнопка остаётся главной, но перестаёт быть плоской: по золоту
+   периодически проходит блик, а тень мягко дышит — взгляд цепляется
+   без мигания, которое удешевило бы премиальную подачу. */
+@keyframes ctaSheen {
+  0% {
+    transform: translateX(-160%) skewX(-18deg);
+  }
+  55%,
+  100% {
+    transform: translateX(340%) skewX(-18deg);
+  }
+}
+
+@keyframes ctaBreathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(197, 164, 109, 0);
+  }
+  50% {
+    box-shadow: 0 0 22px 1px rgba(197, 164, 109, 0.4);
+  }
+}
+
+.cta-alive {
+  animation: ctaBreathe 4.5s ease-in-out infinite;
+}
+
+.cta-sheen {
+  animation: ctaSheen 4.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-wave,
+  .cta-alive,
+  .cta-sheen {
+    animation: none !important;
+  }
+  /* Без анимации значки остались бы серыми навсегда — показываем их живыми. */
+  .brand-wave {
+    filter: grayscale(0);
+    opacity: 1;
+  }
+  .cta-sheen {
+    display: none;
+  }
+}

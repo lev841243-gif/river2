@@ -16,6 +16,8 @@ export const contacts = {
   whatsapp: 'https://wa.me/79219994996',
   /** Instagram ещё не заведён — кнопка не кликается, показывает «в разработке». */
   instagram: null as string | null,
+  /** MAX: нужен и адрес канала, и официальный логотип (сейчас — монограмма-заглушка). */
+  max: null as string | null,
 }
 
 export interface Boat {
