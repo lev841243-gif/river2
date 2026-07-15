@@ -85,7 +85,7 @@ export function Fleet({ lang = 'ru' }: { lang?: Lang }) {
                   className="size-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                {b.specs && (
+                {b.specs && b.specs[lang][4] !== '—' && (
                   <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-background/70 px-3 py-1.5 text-xs text-foreground backdrop-blur-md">
                     <Users className="size-3.5 text-primary" />
                     {b.specs[lang][4]}
@@ -94,6 +94,11 @@ export function Fleet({ lang = 'ru' }: { lang?: Lang }) {
                 {b.isNew && (
                   <span className="absolute right-4 top-4 inline-flex items-center rounded-full bg-primary px-3 py-1.5 text-xs font-medium uppercase tracking-wide text-primary-foreground">
                     {t.isNew}
+                  </span>
+                )}
+                {b.badge && (
+                  <span className="absolute right-4 top-4 inline-flex -rotate-3 items-center rounded-full bg-gradient-to-r from-primary to-[#e0c485] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-primary-foreground shadow-lg shadow-primary/30">
+                    {b.badge[lang]}
                   </span>
                 )}
               </button>
@@ -196,6 +201,11 @@ export function Fleet({ lang = 'ru' }: { lang?: Lang }) {
                   </div>
                 </>
               )}
+              {boat.badge && (
+                <span className="absolute left-4 top-4 inline-flex -rotate-3 items-center rounded-full bg-gradient-to-r from-primary to-[#e0c485] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-primary-foreground shadow-lg shadow-primary/30">
+                  {boat.badge[lang]}
+                </span>
+              )}
               {boat.isNew && (
                 <span className="absolute left-4 top-4 inline-flex items-center rounded-full bg-primary px-3 py-1.5 text-xs font-medium uppercase tracking-wide text-primary-foreground">
                   {t.isNew}
@@ -223,6 +233,7 @@ export function Fleet({ lang = 'ru' }: { lang?: Lang }) {
               {boat.specs ? (
                 <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-5">
                   {boat.specs[lang].map((value, idx) => {
+                    if (value === '—') return null
                     const Icon = specIcons[idx]
                     return (
                       <div
@@ -261,6 +272,20 @@ export function Fleet({ lang = 'ru' }: { lang?: Lang }) {
                   </div>
                 </div>
               )}
+
+              <div className="mt-8">
+                <p className="text-xs uppercase tracking-[0.3em] text-primary">{t.extrasTitle}</p>
+                <div className="mt-4 flex flex-wrap gap-2.5">
+                  {t.extras.map((extra) => (
+                    <span
+                      key={extra}
+                      className="rounded-full bg-primary/10 px-3.5 py-1.5 text-sm text-primary"
+                    >
+                      {extra}
+                    </span>
+                  ))}
+                </div>
+              </div>
 
               <a
                 href={contacts.telegram}

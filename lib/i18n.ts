@@ -17,6 +17,7 @@ export interface Boat {
   photos: string[]
   price: number | null
   isNew?: boolean
+  badge?: Record<Lang, string>
   name: Record<Lang, string>
   desc: Record<Lang, string>
   /** [length, beam, height, speed, capacity] — localized display strings */
@@ -26,6 +27,48 @@ export interface Boat {
 
 export const boats: Boat[] = [
   {
+    id: 'princess-68',
+    dir: 'princess 68',
+    cover: 'cover.webp',
+    photos: ['01.webp', '02.webp', '03.webp', '04.webp'],
+    price: 55000,
+    name: { ru: 'Princess 68', en: 'Princess 68' },
+    badge: { ru: 'Конфетка!', en: 'Beauty!' },
+    desc: {
+      ru: 'Двухпалубная премиум-яхта длиной 23 метра для по-настоящему грандиозного вечера. Караоке, простор для вечеринки и даже возможность подать гидроцикл — устройте феерию на воде для компании до 10 человек.',
+      en: 'A 23-metre two-deck premium yacht for a truly grand evening. Karaoke, room to party and even the option to bring a jet-ski — an unforgettable celebration on the water for up to 10 guests.',
+    },
+    specs: {
+      ru: ['23 м', '5,3 м', '5,5 м', 'до 55 км/ч', 'до 10 гостей'],
+      en: ['23 m', '5.3 m', '5.5 m', 'up to 55 km/h', 'up to 10 guests'],
+    },
+    amenities: {
+      ru: ['Караоке', 'Две палубы', 'Место под гидроцикл', 'Премиум-салон'],
+      en: ['Karaoke', 'Two decks', 'Jet-ski option', 'Premium saloon'],
+    },
+  },
+  {
+    id: 'galeon-640',
+    dir: 'GALEON 640',
+    cover: 'cover.webp',
+    photos: ['01.webp', '02.webp', '03.webp', '04.webp', '05.webp', '06.webp', '07.webp', '08.webp', '09.webp', '10.webp', '11.webp', '12.webp', '13.webp', '14.webp'],
+    price: 50000,
+    name: { ru: 'Galeon 640', en: 'Galeon 640' },
+    badge: { ru: 'Бомбочка!', en: 'Bombshell!' },
+    desc: {
+      ru: 'Премиальная двухпалубная супер-яхта — вершина нашего флота. Кожаный салон и дорогие материалы, отдельные каюты, камбуз, душ и санузел. Максимум простора и статуса для особого события.',
+      en: 'A premium two-deck super-yacht — the pinnacle of our fleet. A leather saloon and fine materials, private cabins, a galley, shower and washroom. Ultimate space and prestige for a special occasion.',
+    },
+    specs: {
+      ru: ['20 м', '5,3 м', '5,5 м', 'до 55 км/ч', 'до 12 гостей'],
+      en: ['20 m', '5.3 m', '5.5 m', 'up to 55 km/h', 'up to 12 guests'],
+    },
+    amenities: {
+      ru: ['Две палубы', 'Кожаный салон', 'Каюты', 'Камбуз', 'Душ', 'Санузел', 'Место под гидроцикл'],
+      en: ['Two decks', 'Leather saloon', 'Cabins', 'Galley', 'Shower', 'Washroom', 'Jet-ski option'],
+    },
+  },
+  {
     id: 'formula-34',
     dir: 'АРЕНДА КАТЕРА FORMULA 34',
     cover: 'cover.webp',
@@ -33,8 +76,8 @@ export const boats: Boat[] = [
     price: 25000,
     name: { ru: 'Formula 34', en: 'Formula 34' },
     desc: {
-      ru: 'Флагман нашего флота. Скоростной 12-метровый катер с просторным кожаным салоном и большой кроватью — для тех, кто привык к лучшему. Дойдёт до Петергофа, фортов и Ладоги.',
-      en: 'The flagship of our fleet. A 12-metre speedster with a spacious leather saloon and a full-size bed — for those used to the best. It reaches Peterhof, the forts and Lake Ladoga.',
+      ru: 'Скоростной 12-метровый катер с просторным кожаным салоном и большой кроватью — для тех, кто привык к лучшему. Дойдёт до Петергофа, фортов и Ладоги.',
+      en: 'A 12-metre speedster with a spacious leather saloon and a full-size bed — for those used to the best. It reaches Peterhof, the forts and Lake Ladoga.',
     },
     specs: {
       ru: ['12 м', '3,4 м', '2,6 м', 'до 90 км/ч', 'до 10 гостей'],
@@ -43,6 +86,27 @@ export const boats: Boat[] = [
     amenities: {
       ru: ['Большая кровать', 'Кожаный салон', 'Мобильный стол', 'Мощная аудиосистема с USB', 'Туалет', 'Холодильник'],
       en: ['Full-size bed', 'Leather saloon', 'Portable table', 'Powerful USB sound system', 'Toilet', 'Fridge'],
+    },
+  },
+  {
+    id: 'formula-310ss',
+    dir: 'АРЕНДА КАТЕРА Formula 310ss (НОВИНКА!)',
+    cover: 'cover.webp',
+    photos: ['01.webp', '02.webp', '03.webp'],
+    price: 20000,
+    isNew: true,
+    name: { ru: 'Formula 310 SS', en: 'Formula 310 SS' },
+    desc: {
+      ru: 'Новинка сезона — быстрый, мощный и совершенно новый. Эксклюзивное предложение на рынке Петербурга для тех, кто ценит безупречный комфорт.',
+      en: 'New this season — fast, powerful and brand-new. An exclusive on the St. Petersburg market for those who value flawless comfort.',
+    },
+    specs: {
+      ru: ['10,7 м', '3,3 м', '4 м', 'до 100 км/ч', 'до 11 гостей'],
+      en: ['10.7 m', '3.3 m', '4 m', 'up to 100 km/h', 'up to 11 guests'],
+    },
+    amenities: {
+      ru: ['Аудио/видео аппаратура', 'Кожаный салон', 'Мощная аудиосистема с USB', 'Санузел', 'Холодильник'],
+      en: ['Audio / video system', 'Leather saloon', 'Powerful USB sound system', 'Washroom', 'Fridge'],
     },
   },
   {
@@ -63,27 +127,6 @@ export const boats: Boat[] = [
     amenities: {
       ru: ['2 холодильника', 'Душ', 'Климат-контроль', 'Кофемашина', 'Мощная аудиосистема с USB', 'Розетка 220В', 'Телевизор', 'Тент (на случай дождя)', 'Туалет'],
       en: ['Two fridges', 'Shower', 'Climate control', 'Coffee machine', 'Powerful USB sound system', '220V socket', 'TV', 'Rain canopy', 'Toilet'],
-    },
-  },
-  {
-    id: 'formula-310ss',
-    dir: 'АРЕНДА КАТЕРА Formula 310ss (НОВИНКА!)',
-    cover: 'cover.webp',
-    photos: ['01.webp', '02.webp', '03.webp'],
-    price: 19000,
-    isNew: true,
-    name: { ru: 'Formula 310 SS', en: 'Formula 310 SS' },
-    desc: {
-      ru: 'Новинка сезона — быстрый, мощный и совершенно новый. Эксклюзивное предложение на рынке Петербурга для тех, кто ценит безупречный комфорт.',
-      en: 'New this season — fast, powerful and brand-new. An exclusive on the St. Petersburg market for those who value flawless comfort.',
-    },
-    specs: {
-      ru: ['10,7 м', '3,3 м', '4 м', 'до 100 км/ч', 'до 11 гостей'],
-      en: ['10.7 m', '3.3 m', '4 m', 'up to 100 km/h', 'up to 11 guests'],
-    },
-    amenities: {
-      ru: ['Аудио/видео аппаратура', 'Кожаный салон', 'Мощная аудиосистема с USB', 'Санузел', 'Холодильник'],
-      en: ['Audio / video system', 'Leather saloon', 'Powerful USB sound system', 'Washroom', 'Fridge'],
     },
   },
   {
@@ -167,6 +210,23 @@ export const boats: Boat[] = [
     },
   },
   {
+    id: 'tsaritsa',
+    dir: 'Царица',
+    cover: 'cover.webp',
+    photos: ['01.webp', '02.webp', '03.webp', '04.webp'],
+    price: 12000,
+    name: { ru: '«Царица»', en: 'Tsaritsa' },
+    desc: {
+      ru: 'Уютный катер с кожаным салоном, тёплыми пледами и хорошей музыкой — приятная прогулка по рекам и каналам Петербурга в любой компании.',
+      en: 'A cosy boat with a leather saloon, warm blankets and good music — a pleasant cruise along the rivers and canals of St. Petersburg in any company.',
+    },
+    specs: null,
+    amenities: {
+      ru: ['Кожаный салон', 'Пледы', 'Музыкальная подготовка'],
+      en: ['Leather saloon', 'Blankets', 'Music setup'],
+    },
+  },
+  {
     id: 'formula-206ls',
     dir: 'Аренда катера Formula 206 LS',
     cover: 'cover.webp',
@@ -210,7 +270,7 @@ export const boats: Boat[] = [
     id: 'bayliner-pohuhol',
     dir: 'Аренда катера «BayLiner 2350» (Похухоль)',
     cover: 'cover.webp',
-    photos: ['01.webp', '02.webp', '03.webp', '04.webp', '05.webp'],
+    photos: ['01.webp', '02.webp', '03.webp', '04.webp'],
     price: 9000,
     name: { ru: 'Bayliner 2350 «Похухоль»', en: 'Bayliner 2350 “Pokhukhol”' },
     desc: {
@@ -224,6 +284,26 @@ export const boats: Boat[] = [
     amenities: {
       ru: ['Кожаный салон', 'Мобильный стол', 'Мощная аудиосистема с USB', 'Открытая корма', 'Открытый нос', 'Спасательный жилет на каждого', 'Тёплые пледы'],
       en: ['Leather saloon', 'Portable table', 'Powerful USB sound system', 'Open stern', 'Open bow', 'Life vest for every guest', 'Warm blankets'],
+    },
+  },
+  {
+    id: 'taho-52',
+    dir: 'Тахо 52',
+    cover: 'cover.webp',
+    photos: ['01.webp'],
+    price: 8000,
+    name: { ru: 'Тахо 52', en: 'Taho 52' },
+    desc: {
+      ru: 'Компактный катер для уютной прогулки небольшой компанией до 6 человек. Кожаный салон, тёплые пледы и любимая музыка — всё для комфортного вечера на воде.',
+      en: 'A compact boat for a cosy trip with a small group of up to 6. A leather saloon, warm blankets and your favourite music — everything for a comfortable evening on the water.',
+    },
+    specs: {
+      ru: ['—', '—', '—', '—', 'до 6 гостей'],
+      en: ['—', '—', '—', '—', 'up to 6 guests'],
+    },
+    amenities: {
+      ru: ['Кожаный салон', 'Пледы', 'Музыкальная подготовка'],
+      en: ['Leather saloon', 'Blankets', 'Music setup'],
     },
   },
   {
@@ -259,6 +339,7 @@ export interface Dict {
   brand: { wordmark: string; tagline: string; full: string }
   contact: { bookTelegram: string; call: string; callAdmin: string }
   nav: { links: NavLink[]; cta: string; city: string }
+  owner: { highlight: string; line: string; points: string[] }
   hero: { eyebrow: string; title: string; subtitle: string; primary: string; secondary: string }
   experiences: { eyebrow: string; title: string; subtitle: string; items: ExperienceItem[] }
   fleet: {
@@ -267,9 +348,11 @@ export interface Dict {
     isNew: string; captainOnly: string
     specLabels: [string, string, string, string, string]
     amenitiesTitle: string; bookThis: string; specsOnRequest: string; close: string
+    extrasTitle: string; extras: string[]
   }
   why: { eyebrow: string; title: string; reasons: Reason[]; rating: string; ratingText: string }
   routes: { eyebrow: string; title: string; items: RouteItem[] }
+  expeditions: { eyebrow: string; title: string; subtitle: string; items: string[]; note: string; cta: string }
   gallery: { eyebrow: string; title: string }
   testimonials: { eyebrow: string; title: string; reviews: Review[] }
   faq: { eyebrow: string; title: string; subtitle: string; items: FaqItem[] }
@@ -296,6 +379,11 @@ export const dict: Record<Lang, Dict> = {
       ],
       cta: 'Выбрать катер',
       city: 'Санкт-Петербург',
+    },
+    owner: {
+      highlight: 'Собственники флота.',
+      line: 'Работаем с вами напрямую, без посредников — и предлагаем эксклюзивные условия на рынке Петербурга уже более 20 лет.',
+      points: ['Собственный флот', 'Без посредников', 'Эксклюзив на рынке'],
     },
     hero: {
       eyebrow: 'Частные прогулки по Неве',
@@ -332,6 +420,8 @@ export const dict: Record<Lang, Dict> = {
       bookThis: 'Забронировать этот катер',
       specsOnRequest: 'Характеристики и стоимость — по запросу',
       close: 'Закрыть',
+      extrasTitle: 'Организуем праздник под ключ',
+      extras: ['Украшение шарами', 'Гендер-пати', 'Девичник', 'Мальчишник', 'Кейтеринг', 'Профессиональный фотограф', 'Музыкант'],
     },
     why: {
       eyebrow: 'Почему «Дно»',
@@ -340,7 +430,7 @@ export const dict: Record<Lang, Dict> = {
         { title: 'Профессиональные капитаны', text: 'Опытные и лицензированные — знают каждое течение и каждый вид.' },
         { title: 'Современный флот', text: 'Безупречно обслуженные катера, обновляем каждый сезон для комфорта и безопасности.' },
         { title: 'Лицензированная компания', text: 'Полностью сертифицированы и застрахованы — вам остаётся только закат.' },
-        { title: 'Более 10 лет опыта', text: 'Тысячи незабываемых вечеров, созданных на Неве.' },
+        { title: 'Более 20 лет опыта', text: 'Тысячи незабываемых вечеров, созданных на Неве.' },
         { title: 'Премиальный сервис', text: 'Шампанское, цветы, музыка, кейтеринг — всё готово ещё до вашего прихода.' },
       ],
       rating: '4,9',
@@ -354,6 +444,14 @@ export const dict: Record<Lang, Dict> = {
         { title: 'Белые ночи и разводные мосты', description: 'Ночная прогулка, выверенная под развод мостов. Стойте на палубе под небом, которое не темнеет, и смотрите, как Нева расступается перед вами.', image: '/images/route-bridges.png', duration: '3 часа', price: 'от 36 000 ₽', stops: 'Дворцовый мост · Троицкий мост · Нева' },
         { title: 'Тайные каналы старого города', description: 'Скользите по тихим внутренним каналам к куполам Спаса на Крови — камерный, неспешный маршрут, который мало кто видел.', image: '/images/route-canals.png', duration: '1,5 часа', price: 'от 18 000 ₽', stops: 'Мойка · Грибоедова · Фонтанка' },
       ],
+    },
+    expeditions: {
+      eyebrow: 'Поездки-приключения',
+      title: 'Мини-экспедиции',
+      subtitle: 'Уходим за черту города — к старинным крепостям и морским фортам. Полный день на воде, живописные острова и история Балтики.',
+      items: ['Крепость Орешек', 'Петрокрепость', 'Шлиссельбург', 'Кронштадт', 'Форты Кронштадта', 'Форт Тотлебен', 'Петергоф'],
+      note: 'Стоимость оговаривается индивидуально',
+      cta: 'Обсудить маршрут',
     },
     gallery: { eyebrow: 'Моменты', title: 'Галерея вечеров' },
     testimonials: {
@@ -414,6 +512,11 @@ export const dict: Record<Lang, Dict> = {
       cta: 'Choose Your Boat',
       city: 'St. Petersburg',
     },
+    owner: {
+      highlight: 'We own our fleet.',
+      line: 'You deal with us directly — no intermediaries, and we have offered exclusive terms on the St. Petersburg market for over 20 years.',
+      points: ['Fleet owners', 'No middlemen', 'Exclusive on the market'],
+    },
     hero: {
       eyebrow: 'Private cruises on the Neva',
       title: 'Experience Saint Petersburg from the Water',
@@ -449,6 +552,8 @@ export const dict: Record<Lang, Dict> = {
       bookThis: 'Book this boat',
       specsOnRequest: 'Specs and pricing on request',
       close: 'Close',
+      extrasTitle: 'We arrange the whole celebration',
+      extras: ['Balloon decoration', 'Gender-reveal party', 'Hen party', 'Stag party', 'Catering', 'Professional photographer', 'Musician'],
     },
     why: {
       eyebrow: 'Why Dno',
@@ -457,7 +562,7 @@ export const dict: Record<Lang, Dict> = {
         { title: 'Professional Captains', text: 'Licensed, seasoned and quietly attentive — they know every current and every view.' },
         { title: 'Modern Fleet', text: 'Impeccably maintained yachts, refreshed each season for comfort and safety.' },
         { title: 'Licensed Company', text: 'Fully certified and insured, so your only concern is the sunset.' },
-        { title: '10+ Years Experience', text: 'Thousands of unforgettable evenings crafted along the Neva River.' },
+        { title: '20+ Years Experience', text: 'Thousands of unforgettable evenings crafted along the Neva River.' },
         { title: 'Premium Service', text: 'Champagne, flowers, music, catering — every detail arranged before you arrive.' },
       ],
       rating: '4.9',
@@ -471,6 +576,14 @@ export const dict: Record<Lang, Dict> = {
         { title: 'White Nights & Open Bridges', description: 'A midnight cruise timed to the raising of the drawbridges. Stand on deck beneath a sky that never fully darkens and watch the Neva part before you.', image: '/images/route-bridges.png', duration: '3 hours', price: 'from ₽36,000', stops: 'Palace Bridge · Trinity Bridge · Neva' },
         { title: 'Hidden Canals of the Old City', description: 'Slip through the quiet inner canals toward the domes of the Savior on Spilled Blood — an intimate, unhurried route few ever experience.', image: '/images/route-canals.png', duration: '1.5 hours', price: 'from ₽18,000', stops: 'Moyka · Griboyedov · Fontanka' },
       ],
+    },
+    expeditions: {
+      eyebrow: 'Adventure trips',
+      title: 'Mini-expeditions',
+      subtitle: 'We head beyond the city — to ancient fortresses and sea forts. A full day on the water, scenic islands and the history of the Baltic.',
+      items: ['Oreshek Fortress', 'Petrokrepost', 'Shlisselburg', 'Kronstadt', 'Kronstadt Forts', 'Fort Totleben', 'Peterhof'],
+      note: 'Price agreed individually',
+      cta: 'Discuss the route',
     },
     gallery: { eyebrow: 'Moments', title: 'A gallery of evenings' },
     testimonials: {

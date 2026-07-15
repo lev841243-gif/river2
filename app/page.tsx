@@ -1,9 +1,11 @@
 import { SiteNav } from '@/components/nevsky/site-nav'
 import { Hero } from '@/components/nevsky/hero'
+import { OwnerBanner } from '@/components/nevsky/owner-banner'
 import { Experiences } from '@/components/nevsky/experiences'
 import { Fleet } from '@/components/nevsky/fleet'
 import { WhyUs } from '@/components/nevsky/why-us'
 import { Routes } from '@/components/nevsky/routes'
+import { Expeditions } from '@/components/nevsky/expeditions'
 import { Gallery } from '@/components/nevsky/gallery'
 import { Testimonials } from '@/components/nevsky/testimonials'
 import { Faq } from '@/components/nevsky/faq'
@@ -17,10 +19,12 @@ export default function Page() {
       <SiteNav lang={lang} />
       <main>
         <Hero lang={lang} />
+        <OwnerBanner lang={lang} />
         <Experiences lang={lang} />
         <Fleet lang={lang} />
         <WhyUs lang={lang} />
         <Routes lang={lang} />
+        <Expeditions lang={lang} />
         <Gallery lang={lang} />
         <Testimonials lang={lang} />
         <Faq lang={lang} />
