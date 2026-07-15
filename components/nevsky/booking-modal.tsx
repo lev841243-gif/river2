@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { AlertCircle, CalendarClock, CheckCircle2, Loader2, Send, X } from 'lucide-react'
+import { AlertCircle, CalendarClock, CheckCircle2, Loader2, X } from 'lucide-react'
 import { contacts, dict, type Boat, type Lang } from '@/lib/i18n'
 import { readUtmCookie } from '@/lib/utm'
 import { MAX_GUESTS, type Interval } from '@/lib/booking-rules'
@@ -427,7 +427,7 @@ export function BookingModal({
                 disabled={submitting}
                 className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground transition-transform duration-300 hover:scale-[1.03] disabled:pointer-events-none disabled:opacity-60"
               >
-                {submitting ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+                {submitting && <Loader2 className="size-4 animate-spin" />}
                 {submitting ? t.submitting : t.submit}
               </button>
             </div>
