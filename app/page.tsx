@@ -11,21 +11,22 @@ import { Cta } from '@/components/nevsky/cta'
 import { SiteFooter } from '@/components/nevsky/site-footer'
 
 export default function Page() {
+  const lang = 'ru'
   return (
     <>
-      <SiteNav />
+      <SiteNav lang={lang} />
       <main>
-        <Hero />
-        <Experiences />
-        <Fleet />
-        <WhyUs />
-        <Routes />
-        <Gallery />
-        <Testimonials />
-        <Faq />
-        <Cta />
+        <Hero lang={lang} />
+        <Experiences lang={lang} />
+        <Fleet lang={lang} />
+        <WhyUs lang={lang} />
+        <Routes lang={lang} />
+        <Gallery lang={lang} />
+        <Testimonials lang={lang} />
+        <Faq lang={lang} />
+        <Cta lang={lang} />
       </main>
-      <SiteFooter />
+      <SiteFooter lang={lang} />
     </>
   )
 }

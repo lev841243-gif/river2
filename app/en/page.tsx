@@ -1,0 +1,39 @@
+import type { Metadata } from 'next'
+import { SiteNav } from '@/components/nevsky/site-nav'
+import { Hero } from '@/components/nevsky/hero'
+import { Experiences } from '@/components/nevsky/experiences'
+import { Fleet } from '@/components/nevsky/fleet'
+import { WhyUs } from '@/components/nevsky/why-us'
+import { Routes } from '@/components/nevsky/routes'
+import { Gallery } from '@/components/nevsky/gallery'
+import { Testimonials } from '@/components/nevsky/testimonials'
+import { Faq } from '@/components/nevsky/faq'
+import { Cta } from '@/components/nevsky/cta'
+import { SiteFooter } from '@/components/nevsky/site-footer'
+
+export const metadata: Metadata = {
+  title: 'Dno Shipping Company — Private Boat Tours in Saint Petersburg',
+  description:
+    'Private luxury boat tours along the Neva River with professional captains — romantic evenings, White Nights, celebrations and corporate events in Saint Petersburg.',
+}
+
+export default function EnPage() {
+  const lang = 'en'
+  return (
+    <>
+      <SiteNav lang={lang} />
+      <main>
+        <Hero lang={lang} />
+        <Experiences lang={lang} />
+        <Fleet lang={lang} />
+        <WhyUs lang={lang} />
+        <Routes lang={lang} />
+        <Gallery lang={lang} />
+        <Testimonials lang={lang} />
+        <Faq lang={lang} />
+        <Cta lang={lang} />
+      </main>
+      <SiteFooter lang={lang} />
+    </>
+  )
+}

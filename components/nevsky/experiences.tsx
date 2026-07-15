@@ -1,60 +1,23 @@
 import { Reveal } from './reveal'
+import { dict, type Lang } from '@/lib/i18n'
 
-const experiences = [
-  {
-    title: 'Romantic Evening',
-    caption: 'Just the two of you',
-    image: '/images/exp-romantic.png',
-    span: 'lg:col-span-2 lg:row-span-2',
-  },
-  {
-    title: 'White Nights & Bridge Opening',
-    caption: 'The city that never sleeps',
-    image: '/images/exp-white-nights.png',
-    span: 'lg:col-span-2',
-  },
-  {
-    title: 'Birthday Celebration',
-    caption: 'A night to remember',
-    image: '/images/exp-birthday.png',
-    span: '',
-  },
-  {
-    title: 'Corporate Event',
-    caption: 'Impress every guest',
-    image: '/images/exp-corporate.png',
-    span: '',
-  },
-  {
-    title: 'Photo Session',
-    caption: 'Golden-hour on the water',
-    image: '/images/exp-photo.png',
-    span: '',
-  },
-  {
-    title: 'Family Cruise',
-    caption: 'Together, unhurried',
-    image: '/images/exp-family.png',
-    span: '',
-  },
-]
+export function Experiences({ lang = 'ru' }: { lang?: Lang }) {
+  const t = dict[lang].experiences
 
-export function Experiences() {
   return (
     <section id="experiences" className="mx-auto max-w-7xl px-6 py-28 lg:px-10 lg:py-40">
       <Reveal className="max-w-2xl">
-        <p className="text-xs uppercase tracking-[0.4em] text-primary">The experience</p>
-        <h2 className="mt-5 text-balance text-4xl font-medium leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-          What experience are you looking for?
+        <p className="text-xs uppercase tracking-[0.4em] text-primary">{t.eyebrow}</p>
+        <h2 className="mt-5 text-balance font-[family-name:var(--font-display)] text-4xl font-medium leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+          {t.title}
         </h2>
         <p className="mt-6 text-pretty text-lg leading-relaxed text-muted-foreground">
-          You are not booking a boat. You are choosing a feeling — and we will
-          craft the entire evening around it.
+          {t.subtitle}
         </p>
       </Reveal>
 
       <div className="mt-14 grid auto-rows-[220px] grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
-        {experiences.map((exp, i) => (
+        {t.items.map((exp, i) => (
           <Reveal
             key={exp.title}
             delay={i * 70}

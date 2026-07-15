@@ -4,49 +4,27 @@ import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Reveal } from './reveal'
+import { dict, type Lang } from '@/lib/i18n'
 
-const faqs = [
-  {
-    q: 'How far in advance should I book?',
-    a: 'For White Nights and weekend evenings we recommend booking two to three weeks ahead. For last-minute requests, reach out on Telegram or WhatsApp — we will always try to make it happen.',
-  },
-  {
-    q: 'What is included in a private cruise?',
-    a: 'Every cruise includes a professional licensed captain, fuel, and full use of the yacht. Champagne, flowers, catering, music and photography can be arranged as add-ons before your evening.',
-  },
-  {
-    q: 'Can we bring our own food and drinks?',
-    a: 'Absolutely. You are welcome to bring your own refreshments, or let our concierge arrange premium catering and a sommelier-selected wine list for you.',
-  },
-  {
-    q: 'What happens if the weather is poor?',
-    a: 'Your safety and comfort come first. If conditions are unsuitable, we will reschedule your cruise at no cost or offer a full refund.',
-  },
-  {
-    q: 'Are the bridge openings guaranteed?',
-    a: 'Bridge openings follow the official city schedule during the navigation season. Our captains time the route precisely so you are in the perfect spot as the bridges rise.',
-  },
-]
-
-export function Faq() {
+export function Faq({ lang = 'ru' }: { lang?: Lang }) {
+  const t = dict[lang].faq
   const [open, setOpen] = useState<number | null>(0)
 
   return (
     <section id="faq" className="border-t border-border">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-14 px-6 py-28 lg:grid-cols-[0.8fr_1.2fr] lg:px-10 lg:py-40">
         <Reveal>
-          <p className="text-xs uppercase tracking-[0.4em] text-primary">Good to know</p>
-          <h2 className="mt-5 text-balance text-4xl font-medium leading-tight tracking-tight text-foreground sm:text-5xl">
-            Frequently asked
+          <p className="text-xs uppercase tracking-[0.4em] text-primary">{t.eyebrow}</p>
+          <h2 className="mt-5 text-balance font-[family-name:var(--font-display)] text-4xl font-medium leading-tight tracking-tight text-foreground sm:text-5xl">
+            {t.title}
           </h2>
           <p className="mt-6 max-w-sm text-pretty leading-relaxed text-muted-foreground">
-            Still have a question? Message us any time — we reply within minutes
-            during the season.
+            {t.subtitle}
           </p>
         </Reveal>
 
         <Reveal className="flex flex-col gap-4">
-          {faqs.map((faq, i) => {
+          {t.items.map((faq, i) => {
             const isOpen = open === i
             return (
               <div

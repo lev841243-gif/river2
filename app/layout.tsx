@@ -1,22 +1,24 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Playfair_Display, Inter } from 'next/font/google'
 import './globals.css'
 
-const geistSans = Geist({
-  subsets: ['latin'],
-  variable: '--font-geist-sans',
+const playfair = Playfair_Display({
+  subsets: ['latin', 'cyrillic'],
+  variable: '--font-playfair',
+  display: 'swap',
 })
 
-const geistMono = Geist_Mono({
-  subsets: ['latin'],
-  variable: '--font-geist-mono',
+const inter = Inter({
+  subsets: ['latin', 'cyrillic'],
+  variable: '--font-inter',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
-  title: 'Nevsky — Private Luxury Boat Tours in Saint Petersburg',
+  title: 'Судоходная компания «Дно» — аренда катера с капитаном в Санкт-Петербурге',
   description:
-    'Experience Saint Petersburg from the water. Private luxury boat tours along the Neva River with professional captains — romantic evenings, White Nights, celebrations and more.',
+    'Частные прогулки на катере по Неве с профессиональным капитаном. Романтические вечера, белые ночи, праздники и корпоративы. Private luxury boat tours in Saint Petersburg.',
   generator: 'v0.app',
 }
 
@@ -31,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} bg-background`}>
+    <html lang="ru" className={`${inter.variable} ${playfair.variable} bg-background`}>
       <body className="font-sans antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}

@@ -1,46 +1,48 @@
 import { ArrowRight } from 'lucide-react'
+import { dict, type Lang } from '@/lib/i18n'
 
-export function Hero() {
+export function Hero({ lang = 'ru' }: { lang?: Lang }) {
+  const t = dict[lang].hero
+
   return (
     <section id="top" className="relative flex min-h-[100svh] items-center overflow-hidden">
-      {/* Background image with slow cinematic zoom */}
+      {/* Background image with slow, continuous cinematic drift */}
       <div className="absolute inset-0 z-0">
         <img
           src="/images/hero-neva.png"
-          alt="A luxury yacht cruising the Neva River in Saint Petersburg at sunset with a raised drawbridge"
-          className="size-full animate-[heroZoom_18s_ease-out_forwards] object-cover"
+          alt="Роскошный катер на Неве в Санкт-Петербурге на закате с разведённым мостом"
+          className="hero-motion size-full object-cover"
         />
-        {/* Cinematic overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-background/60" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/70 to-transparent" />
+        {/* Cinematic overlays — light, so the photo/mini-video stays the hero */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-background/35" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/50 via-background/5 to-transparent" />
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-24 pt-40 lg:px-10">
-        <div className="max-w-3xl">
-          <p className="mb-6 animate-[fadeUp_1s_ease-out_both] text-xs uppercase tracking-[0.4em] text-primary [animation-delay:200ms]">
-            Private cruises on the Neva
+        <div className="max-w-md">
+          <p className="mb-4 animate-[fadeUp_1s_ease-out_both] text-[15px] uppercase tracking-[0.3em] text-primary [animation-delay:200ms]">
+            {t.eyebrow}
           </p>
-          <h1 className="text-balance text-5xl font-medium leading-[1.02] tracking-tight text-foreground animate-[fadeUp_1.1s_ease-out_both] [animation-delay:350ms] sm:text-6xl lg:text-8xl">
-            Experience Saint Petersburg from the Water
+          <h1 className="text-balance font-[family-name:var(--font-display)] text-4xl font-medium leading-[1.1] tracking-tight text-foreground animate-[fadeUp_1.1s_ease-out_both] [animation-delay:350ms] sm:text-5xl">
+            {t.title}
           </h1>
-          <p className="mt-8 max-w-xl text-pretty text-lg leading-relaxed text-foreground/70 animate-[fadeUp_1.1s_ease-out_both] [animation-delay:600ms]">
-            Private luxury boat tours with professional captains. An evening on
-            the river that stays with you long after you step ashore.
+          <p className="mt-5 max-w-sm text-pretty text-xl leading-relaxed text-foreground/70 animate-[fadeUp_1.1s_ease-out_both] [animation-delay:600ms]">
+            {t.subtitle}
           </p>
 
-          <div className="mt-10 flex flex-col gap-4 animate-[fadeUp_1.1s_ease-out_both] [animation-delay:800ms] sm:flex-row sm:items-center">
+          <div className="mt-8 flex flex-col gap-3 animate-[fadeUp_1.1s_ease-out_both] [animation-delay:800ms] sm:flex-row sm:items-center">
             <a
               href="#fleet"
-              className="group inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 text-sm font-medium text-primary-foreground transition-transform duration-300 hover:scale-[1.03]"
+              className="group inline-flex items-center justify-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground transition-transform duration-300 hover:scale-[1.03]"
             >
-              Choose Your Boat
+              {t.primary}
               <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
             </a>
             <a
               href="#fleet"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-foreground/5 px-8 py-4 text-sm font-medium text-foreground backdrop-blur-md transition-colors duration-300 hover:bg-foreground/10"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-foreground/5 px-7 py-3.5 text-sm font-medium text-foreground backdrop-blur-md transition-colors duration-300 hover:bg-foreground/10"
             >
-              View Fleet
+              {t.secondary}
             </a>
           </div>
         </div>
