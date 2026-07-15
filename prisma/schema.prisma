@@ -29,8 +29,8 @@ model Boat {
   isNew     Boolean  @default(false)
   isVisible Boolean  @default(true)
   sortOrder Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
   bookings Booking[]
 
@@ -57,12 +57,14 @@ enum BookingSource {
 
 model Booking {
   id            String        @id @default(uuid())
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt     DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime      @updatedAt @db.Timestamptz(3)
   boat          Boat          @relation(fields: [boatId], references: [id])
   boatId        String
-  startAt       DateTime // дата и время начала (задел под календарь)
-  endAt         DateTime? // конец интервала (для проверки пересечений позже)
+  // timestamptz, а не timestamp: на этих полях строится exclusion-констрейнт
+  // (tstzrange требует таймзону), и заявки приходят из разных поясов.
+  startAt       DateTime      @db.Timestamptz(3) // начало прогулки
+  endAt         DateTime      @db.Timestamptz(3) // конец; обязателен — на нём держится проверка пересечений
   guests        Int           @default(1)
   clientName    String
   phone         String
@@ -92,7 +94,7 @@ model BookingStatusHistory {
   from      BookingStatus?
   to        BookingStatus
   changedBy String? // кто сменил (админ)
-  changedAt DateTime       @default(now())
+  changedAt DateTime       @default(now()) @db.Timestamptz(3)
 
   @@index([bookingId])
 }
@@ -103,6 +105,6 @@ model Client {
   phone     String    @unique
   name      String?
   telegram  String?
-  firstSeen DateTime  @default(now())
+  firstSeen DateTime  @default(now()) @db.Timestamptz(3)
   bookings  Booking[]
 }

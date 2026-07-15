@@ -3,11 +3,17 @@ export type Lang = 'ru' | 'en'
 /** Build a public URL for a boat photo, encoding the Cyrillic folder name. */
 export const boatImg = (dir: string, file: string) => `/boats/${encodeURI(dir)}/${file}`
 
+/**
+ * Каналы связи с менеджером. Бронирование идёт формой на сайте — эти ссылки
+ * нужны только для живого контакта (вопросы, нестандартные запросы).
+ */
 export const contacts = {
   /** Номер администратора для звонка. На сайте не отображается — только набирается при клике. */
   phoneHref: 'tel:+79219994996',
-  /** TODO: подтвердить/заменить на реальный @username Telegram для бронирования. */
+  /** TODO: подтвердить/заменить на реальный @username Telegram менеджера. */
   telegram: 'https://t.me/prokatkaterov',
+  /** TODO: подтвердить номер WhatsApp менеджера (сейчас — номер администратора). */
+  whatsapp: 'https://wa.me/79219994996',
 }
 
 export interface Boat {
@@ -337,7 +343,7 @@ interface FaqItem { q: string; a: string }
 
 export interface Dict {
   brand: { wordmark: string; tagline: string; full: string }
-  contact: { bookTelegram: string; call: string; callAdmin: string }
+  contact: { call: string; callAdmin: string; telegram: string; whatsapp: string; managerNote: string }
   nav: { links: NavLink[]; cta: string; city: string }
   owner: { highlight: string; line: string; points: string[] }
   hero: { eyebrow: string; title: string; subtitle: string; primary: string; secondary: string }
@@ -361,15 +367,23 @@ export interface Dict {
   booking: {
     title: string; subtitle: string
     boatLabel: string; boatPlaceholder: string
-    dateLabel: string; timeLabel: string; guestsLabel: string; guestsSuffix: string
+    dateLabel: string; timeFromLabel: string; timeToLabel: string
+    guestsLabel: string
     nameLabel: string; namePlaceholder: string
     phoneLabel: string; phonePlaceholder: string
     telegramLabel: string; telegramPlaceholder: string
     commentLabel: string; commentPlaceholder: string
-    submit: string; submitting: string; close: string
-    requiredError: string; phoneError: string
+    next: string; back: string; submit: string; submitting: string; close: string
+    requiredError: string; phoneError: string; nameError: string
+    pickDateFirst: string; pickTimeFirst: string
+    loadingSlots: string; noSlots: string
+    durationLabel: string; hoursShort: string
+    priceLabel: string; priceOnRequest: string
+    timeNote: string
     successTitle: string; successText: string
-    errorTitle: string; errorText: string; errorFallback: string
+    errorTitle: string; errorText: string; contactManager: string
+    busyTitle: string; busyText: string
+    rejection: { PAST: string; TOO_SHORT: string; TOO_LONG: string; OUTSIDE_HOURS: string; TOO_FAR: string; BOAT_BUSY: string }
   }
 }
 
@@ -377,9 +391,11 @@ export const dict: Record<Lang, Dict> = {
   ru: {
     brand: { wordmark: 'Судоходная Компания Дно', tagline: 'Санкт-Петербург', full: 'Судоходная Компания Дно' },
     contact: {
-      bookTelegram: 'Забронировать в Telegram',
       call: 'Позвонить',
       callAdmin: 'Позвонить администратору',
+      telegram: 'Написать в Telegram',
+      whatsapp: 'Написать в WhatsApp',
+      managerNote: 'Есть вопрос? Напишите менеджеру — ответим в рабочее время.',
     },
     nav: {
       links: [
@@ -507,13 +523,13 @@ export const dict: Record<Lang, Dict> = {
     },
     booking: {
       title: 'Забронировать катер',
-      subtitle: 'Оставьте заявку — мы свяжемся с вами и подтвердим бронь.',
+      subtitle: 'Выберите дату и время — свободные слоты показаны в календаре.',
       boatLabel: 'Катер',
       boatPlaceholder: 'Выберите катер',
-      dateLabel: 'Дата',
-      timeLabel: 'Время',
+      dateLabel: 'Дата прогулки',
+      timeFromLabel: 'Время с',
+      timeToLabel: 'Время до',
       guestsLabel: 'Гостей',
-      guestsSuffix: 'гостей',
       nameLabel: 'Ваше имя',
       namePlaceholder: 'Как к вам обращаться',
       phoneLabel: 'Телефон',
@@ -522,24 +538,48 @@ export const dict: Record<Lang, Dict> = {
       telegramPlaceholder: '@username',
       commentLabel: 'Комментарий',
       commentPlaceholder: 'Повод, пожелания, дополнительные услуги',
+      next: 'Далее',
+      back: 'Назад',
       submit: 'Отправить заявку',
       submitting: 'Отправляем...',
       close: 'Закрыть',
       requiredError: 'Заполните это поле',
       phoneError: 'Введите корректный номер телефона',
+      nameError: 'Укажите имя полностью',
+      pickDateFirst: 'Сначала выберите дату',
+      pickTimeFirst: 'Выберите время начала и окончания',
+      loadingSlots: 'Загружаем занятость...',
+      noSlots: 'На этот день свободных слотов нет — выберите другую дату.',
+      durationLabel: 'Длительность',
+      hoursShort: 'ч',
+      priceLabel: 'Стоимость',
+      priceOnRequest: 'По запросу',
+      timeNote: 'Время петербургское (МСК)',
       successTitle: 'Заявка отправлена!',
       successText: 'Мы свяжемся с вами в ближайшее время, чтобы подтвердить бронь.',
       errorTitle: 'Не удалось отправить заявку',
-      errorText: 'Попробуйте ещё раз чуть позже или свяжитесь с нами напрямую.',
-      errorFallback: 'Написать в Telegram',
+      errorText: 'Попробуйте ещё раз чуть позже или свяжитесь с менеджером.',
+      contactManager: 'Связаться с менеджером',
+      busyTitle: 'Катер уже занят',
+      busyText: 'Этот интервал только что заняли. Выберите другое время или дату.',
+      rejection: {
+        PAST: 'Это время уже прошло — выберите другое.',
+        TOO_SHORT: 'Минимальная аренда — 2 часа.',
+        TOO_LONG: 'Максимальная аренда за одну заявку — 12 часов.',
+        OUTSIDE_HOURS: 'Прогулки возможны с 10:00 до 02:00.',
+        TOO_FAR: 'Бронирование открыто на 180 дней вперёд.',
+        BOAT_BUSY: 'Катер занят в это время — выберите другой интервал.',
+      },
     },
   },
   en: {
     brand: { wordmark: 'Dno Shipping Company', tagline: 'St. Petersburg', full: 'Dno Shipping Company' },
     contact: {
-      bookTelegram: 'Book on Telegram',
       call: 'Call',
       callAdmin: 'Call the manager',
+      telegram: 'Message on Telegram',
+      whatsapp: 'Message on WhatsApp',
+      managerNote: 'Got a question? Message our manager — we reply during working hours.',
     },
     nav: {
       links: [
@@ -666,13 +706,13 @@ export const dict: Record<Lang, Dict> = {
     },
     booking: {
       title: 'Book a Boat',
-      subtitle: 'Send us a request and we will get back to you to confirm the booking.',
+      subtitle: 'Pick a date and time — available slots are shown in the calendar.',
       boatLabel: 'Boat',
       boatPlaceholder: 'Choose a boat',
-      dateLabel: 'Date',
-      timeLabel: 'Time',
+      dateLabel: 'Cruise date',
+      timeFromLabel: 'From',
+      timeToLabel: 'To',
       guestsLabel: 'Guests',
-      guestsSuffix: 'guests',
       nameLabel: 'Your name',
       namePlaceholder: 'How should we address you',
       phoneLabel: 'Phone',
@@ -681,16 +721,38 @@ export const dict: Record<Lang, Dict> = {
       telegramPlaceholder: '@username',
       commentLabel: 'Comment',
       commentPlaceholder: 'Occasion, wishes, extra services',
+      next: 'Next',
+      back: 'Back',
       submit: 'Send Request',
       submitting: 'Sending...',
       close: 'Close',
       requiredError: 'Please fill in this field',
       phoneError: 'Enter a valid phone number',
+      nameError: 'Please enter your full name',
+      pickDateFirst: 'Choose a date first',
+      pickTimeFirst: 'Choose start and end time',
+      loadingSlots: 'Loading availability...',
+      noSlots: 'No free slots on this day — please pick another date.',
+      durationLabel: 'Duration',
+      hoursShort: 'h',
+      priceLabel: 'Price',
+      priceOnRequest: 'On request',
+      timeNote: 'Times are St. Petersburg local (MSK)',
       successTitle: 'Request sent!',
       successText: 'We will contact you shortly to confirm the booking.',
       errorTitle: 'Could not send the request',
-      errorText: 'Please try again shortly or reach out to us directly.',
-      errorFallback: 'Message us on Telegram',
+      errorText: 'Please try again shortly or reach out to our manager.',
+      contactManager: 'Contact the manager',
+      busyTitle: 'Boat is already booked',
+      busyText: 'This slot has just been taken. Please pick another time or date.',
+      rejection: {
+        PAST: 'That time has already passed — please pick another.',
+        TOO_SHORT: 'Minimum rental is 2 hours.',
+        TOO_LONG: 'Maximum rental per request is 12 hours.',
+        OUTSIDE_HOURS: 'Cruises run between 10:00 and 02:00.',
+        TOO_FAR: 'Bookings open 180 days ahead.',
+        BOAT_BUSY: 'The boat is busy at that time — please pick another slot.',
+      },
     },
   },
 }

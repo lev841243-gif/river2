@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, Phone, Send } from 'lucide-react'
+import { ArrowRight, MessageCircle, Phone, Send } from 'lucide-react'
 import { Reveal } from './reveal'
 import { useBooking } from './booking-context'
 import { contacts, dict, type Lang } from '@/lib/i18n'
@@ -48,6 +48,29 @@ export function Cta({ lang = 'ru' }: { lang?: Lang }) {
             >
               <Phone className="size-4 text-primary" />
               {c.call}
+            </a>
+          </div>
+
+          {/* Связь с менеджером — не канал брони, а живой контакт для вопросов. */}
+          <p className="mt-8 text-sm text-foreground/60">{c.managerNote}</p>
+          <div className="mt-3 flex flex-wrap gap-3">
+            <a
+              href={contacts.telegram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-foreground/5 px-5 py-2.5 text-sm text-foreground backdrop-blur-md transition-colors duration-300 hover:bg-foreground/10"
+            >
+              <Send className="size-4 text-primary" />
+              {c.telegram}
+            </a>
+            <a
+              href={contacts.whatsapp}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-foreground/5 px-5 py-2.5 text-sm text-foreground backdrop-blur-md transition-colors duration-300 hover:bg-foreground/10"
+            >
+              <MessageCircle className="size-4 text-primary" />
+              {c.whatsapp}
             </a>
           </div>
         </Reveal>
