@@ -37,7 +37,6 @@ export function Cta({ lang = 'ru' }: { lang?: Lang }) {
               onClick={() => openBooking()}
               className="group inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 text-sm font-medium text-primary-foreground transition-transform duration-300 hover:scale-[1.03]"
             >
-              <Send className="size-4" />
               {t.primary}
               <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
             </button>

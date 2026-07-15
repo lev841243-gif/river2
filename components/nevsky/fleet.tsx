@@ -9,7 +9,6 @@ import {
   Maximize2,
   Moon,
   Ruler,
-  Send,
   Users,
   X,
 } from 'lucide-react'
@@ -122,7 +121,6 @@ export function Fleet({ lang = 'ru', boats }: { lang?: Lang; boats: Boat[] }) {
                     onClick={() => openBooking(b.id)}
                     className="group/btn inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-transform duration-300 hover:scale-[1.03]"
                   >
-                    <Send className="size-4" />
                     {t.book}
                     <ArrowRight className="size-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
                   </button>
@@ -296,7 +294,6 @@ export function Fleet({ lang = 'ru', boats }: { lang?: Lang; boats: Boat[] }) {
                 }}
                 className="mt-9 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground transition-transform duration-300 hover:scale-[1.03]"
               >
-                <Send className="size-4" />
                 {t.bookThis}
                 <ArrowRight className="size-4" />
               </button>
