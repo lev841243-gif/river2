@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { AlertCircle, CalendarClock, CheckCircle2, Loader2, X } from 'lucide-react'
+import { AlertCircle, CalendarClock, Clock, Loader2, X } from 'lucide-react'
 import { contacts, dict, type Boat, type Lang } from '@/lib/i18n'
 import { readUtmCookie } from '@/lib/utm'
 import { MAX_GUESTS, type Interval } from '@/lib/booking-rules'
@@ -212,9 +212,13 @@ export function BookingModal({
 
         {step === 'success' && (
           <div className="flex flex-col items-center gap-3 p-10 text-center">
-            <CheckCircle2 className="size-10 text-primary" />
+            {/* Часы, а не галочка: бронь ещё не подтверждена, а ждёт менеджера. */}
+            <Clock className="size-10 text-primary" />
             <p className="text-lg font-medium text-foreground">{t.successTitle}</p>
             <p className="text-sm text-muted-foreground">{t.successText}</p>
+            <p className="mt-1 rounded-2xl border border-border bg-background/40 px-4 py-2.5 text-xs text-muted-foreground">
+              {t.successNote}
+            </p>
             <button
               type="button"
               onClick={onClose}

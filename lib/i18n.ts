@@ -380,7 +380,7 @@ export interface Dict {
     durationLabel: string; hoursShort: string
     priceLabel: string; priceOnRequest: string
     timeNote: string
-    successTitle: string; successText: string
+    successTitle: string; successText: string; successNote: string
     errorTitle: string; errorText: string; contactManager: string
     busyTitle: string; busyText: string
     rejection: { PAST: string; TOO_SHORT: string; TOO_LONG: string; OUTSIDE_HOURS: string; TOO_FAR: string; BOAT_BUSY: string }
@@ -555,8 +555,9 @@ export const dict: Record<Lang, Dict> = {
       priceLabel: 'Стоимость',
       priceOnRequest: 'По запросу',
       timeNote: 'Время петербургское (МСК)',
-      successTitle: 'Заявка отправлена!',
-      successText: 'Мы свяжемся с вами в ближайшее время, чтобы подтвердить бронь.',
+      successTitle: 'Ожидайте подтверждения брони',
+      successText: 'Заявка принята, катер на это время придержан за вами. Менеджер свяжется с вами и подтвердит бронь.',
+      successNote: 'Бронь считается подтверждённой только после ответа менеджера.',
       errorTitle: 'Не удалось отправить заявку',
       errorText: 'Попробуйте ещё раз чуть позже или свяжитесь с менеджером.',
       contactManager: 'Связаться с менеджером',
@@ -738,8 +739,9 @@ export const dict: Record<Lang, Dict> = {
       priceLabel: 'Price',
       priceOnRequest: 'On request',
       timeNote: 'Times are St. Petersburg local (MSK)',
-      successTitle: 'Request sent!',
-      successText: 'We will contact you shortly to confirm the booking.',
+      successTitle: 'Awaiting booking confirmation',
+      successText: 'Your request is in. The boat is held for that time. Our manager will contact you to confirm the booking.',
+      successNote: 'The booking counts as confirmed only once the manager replies.',
       errorTitle: 'Could not send the request',
       errorText: 'Please try again shortly or reach out to our manager.',
       contactManager: 'Contact the manager',
