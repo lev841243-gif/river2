@@ -10,10 +10,12 @@ export const boatImg = (dir: string, file: string) => `/boats/${encodeURI(dir)}/
 export const contacts = {
   /** Номер администратора для звонка. На сайте не отображается — только набирается при клике. */
   phoneHref: 'tel:+79219994996',
-  /** TODO: подтвердить/заменить на реальный @username Telegram менеджера. */
+  /** ЗАГЛУШКА: подтвердить/заменить на реальный @username Telegram менеджера. */
   telegram: 'https://t.me/prokatkaterov',
-  /** TODO: подтвердить номер WhatsApp менеджера (сейчас — номер администратора). */
+  /** Номер администратора — тот же, что и для звонка. */
   whatsapp: 'https://wa.me/79219994996',
+  /** Instagram ещё не заведён — кнопка не кликается, показывает «в разработке». */
+  instagram: null as string | null,
 }
 
 export interface Boat {
@@ -343,7 +345,7 @@ interface FaqItem { q: string; a: string }
 
 export interface Dict {
   brand: { wordmark: string; tagline: string; full: string }
-  contact: { call: string; callAdmin: string; telegram: string; whatsapp: string; managerNote: string }
+  contact: { call: string; callAdmin: string; telegram: string; whatsapp: string; managerNote: string; inDevelopment: string }
   nav: { links: NavLink[]; cta: string; city: string }
   owner: { highlight: string; line: string; points: string[] }
   hero: { eyebrow: string; title: string; subtitle: string; primary: string; secondary: string }
@@ -396,6 +398,7 @@ export const dict: Record<Lang, Dict> = {
       telegram: 'Написать в Telegram',
       whatsapp: 'Написать в WhatsApp',
       managerNote: 'Есть вопрос? Напишите менеджеру — ответим в рабочее время.',
+      inDevelopment: 'В разработке',
     },
     nav: {
       links: [
@@ -581,6 +584,7 @@ export const dict: Record<Lang, Dict> = {
       telegram: 'Message on Telegram',
       whatsapp: 'Message on WhatsApp',
       managerNote: 'Got a question? Message our manager — we reply during working hours.',
+      inDevelopment: 'Coming soon',
     },
     nav: {
       links: [

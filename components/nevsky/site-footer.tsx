@@ -1,16 +1,40 @@
-import { Camera, MapPin, MessageCircle, Send } from 'lucide-react'
+import type { ReactNode } from 'react'
+import { BRAND_COLORS, InstagramIcon, TelegramIcon, WhatsappIcon } from '@/components/icons/brands'
 import { contacts, dict, type Lang } from '@/lib/i18n'
+
+interface Social {
+  label: string
+  /** null = канал ещё не заведён: кнопка не кликается и показывает «в разработке». */
+  href: string | null
+  icon: ReactNode
+  /** Фирменный цвет; у Instagram знак градиентный, поэтому цвет не задаём. */
+  color?: string
+}
 
 export function SiteFooter({ lang = 'ru' }: { lang?: Lang }) {
   const t = dict[lang].footer
   const c = dict[lang].contact
   const nav = dict[lang].nav.links
   const brand = dict[lang].brand
-  const socials = [
-    { label: 'Telegram', href: contacts.telegram, icon: Send },
-    { label: 'WhatsApp', href: '#', icon: MessageCircle },
-    { label: 'Instagram', href: '#', icon: Camera },
-    { label: 'Google Maps', href: '#', icon: MapPin },
+
+  const socials: Social[] = [
+    {
+      label: 'WhatsApp',
+      href: contacts.whatsapp,
+      icon: <WhatsappIcon className="size-4" />,
+      color: BRAND_COLORS.whatsapp,
+    },
+    {
+      label: 'Telegram',
+      href: contacts.telegram,
+      icon: <TelegramIcon className="size-4" />,
+      color: BRAND_COLORS.telegram,
+    },
+    {
+      label: 'Instagram',
+      href: contacts.instagram,
+      icon: <InstagramIcon className="size-4" gradientId="ig-footer" />,
+    },
   ]
 
   return (
@@ -74,21 +98,42 @@ export function SiteFooter({ lang = 'ru' }: { lang?: Lang }) {
             <div className="col-span-2 sm:col-span-1">
               <p className="text-xs uppercase tracking-[0.3em] text-primary">{t.follow}</p>
               <ul className="mt-5 flex flex-col gap-3">
-                {socials.map((social) => (
-                  <li key={social.label}>
-                    <a
-                      href={social.href}
-                      target={social.href.startsWith('http') ? '_blank' : undefined}
-                      rel={social.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                      className="group inline-flex items-center gap-3 text-sm text-foreground/70 transition-colors hover:text-foreground"
-                    >
-                      <span className="flex size-9 items-center justify-center rounded-full border border-border text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                        <social.icon className="size-4" />
+                {socials.map((social) =>
+                  social.href ? (
+                    <li key={social.label}>
+                      <a
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group inline-flex items-center gap-3 text-sm text-foreground/70 transition-colors hover:text-foreground"
+                      >
+                        <span
+                          style={{ color: social.color }}
+                          className="flex size-9 items-center justify-center rounded-full border border-border transition-transform group-hover:scale-110"
+                        >
+                          {social.icon}
+                        </span>
+                        {social.label}
+                      </a>
+                    </li>
+                  ) : (
+                    // Канала ещё нет — не ссылка, а подпись с подсказкой при наведении.
+                    <li key={social.label} className="group relative w-fit">
+                      <span className="inline-flex cursor-default items-center gap-3 text-sm text-foreground/40">
+                        <span className="flex size-9 items-center justify-center rounded-full border border-border opacity-60 grayscale transition-all group-hover:opacity-100 group-hover:grayscale-0">
+                          {social.icon}
+                        </span>
+                        {social.label}
                       </span>
-                      {social.label}
-                    </a>
-                  </li>
-                ))}
+                      <span
+                        role="tooltip"
+                        className="pointer-events-none absolute -top-8 left-0 whitespace-nowrap rounded-lg border border-border bg-card px-2.5 py-1 text-xs text-foreground opacity-0 shadow-lg transition-opacity group-hover:opacity-100"
+                      >
+                        {c.inDevelopment}
+                      </span>
+                    </li>
+                  ),
+                )}
               </ul>
             </div>
           </div>
