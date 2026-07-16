@@ -10,6 +10,7 @@
 
 import { MAX_DURATION_HOURS, MIN_DURATION_HOURS, validateInterval } from '@/lib/booking-rules'
 import { durationLabel } from '@/lib/booking-slots'
+import { applyReschedule } from '@/lib/booking-workflow'
 import { BoatBusyError, createBooking } from '@/lib/bookings-db'
 import { dropDraft, getDraft, startDraft, updateDraft, type DraftData } from '@/lib/bot-draft'
 import { prisma } from '@/lib/prisma'
@@ -79,11 +80,36 @@ export async function pickBoat(chatId: string, slug: string) {
   const boat = await prisma.boat.findUnique({ where: { slug }, select: { nameRu: true } })
   if (!boat) return say('❌ Катер не найден. Начните заново: /bron')
 
-  await updateDraft(chatId, 'date', { boatSlug: slug, boatName: boat.nameRu })
-  await askDate(chatId, boat.nameRu)
+  await updateDraft(chatId, 'date', { mode: 'new', boatSlug: slug, boatName: boat.nameRu })
+  await askDate(chatId, boat.nameRu, 'new')
 }
 
-async function askDate(chatId: string, boatName: string) {
+/**
+ * Начать перенос времени существующей брони.
+ *
+ * Раньше кнопка «Изменить время» просто показывала подсказку «ответьте
+ * сообщением в формате ДД.ММ ЧЧ:ММ-ЧЧ:ММ». Набор руками — самое хрупкое место
+ * диалога, на нём уже застревали; поэтому перенос идёт теми же кнопками, что и
+ * новая бронь. Ответ на карточку текстом по-прежнему работает — как быстрый путь.
+ */
+export async function beginRetime(chatId: string, userId: string, bookingId: string) {
+  const b = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    select: { boat: { select: { nameRu: true } } },
+  })
+  if (!b) return say('❌ Заявка не найдена.')
+
+  await startDraft(chatId, userId)
+  await updateDraft(chatId, 'date', { mode: 'retime', bookingId, boatName: b.boat.nameRu })
+  await askDate(chatId, b.boat.nameRu, 'retime')
+}
+
+/** Подпись шага: у переноса своя нумерация — шагов про клиента у него нет. */
+function stepLabel(mode: DraftData['mode'], newLabel: string, retimeLabel: string): string {
+  return mode === 'retime' ? retimeLabel : newLabel
+}
+
+async function askDate(chatId: string, boatName: string, mode: DraftData['mode']) {
   const todayKey = spbTodayKey()
   const base = spbDayStart(todayKey).getTime()
   const keys = Array.from({ length: DAY_BUTTONS }, (_, i) => spbDayKey(new Date(base + i * 86_400_000)))
@@ -102,7 +128,8 @@ async function askDate(chatId: string, boatName: string) {
   rows.push([{ text: '✍️ Другая дата', callback_data: 'mb_manual:x' }])
   rows.push([{ text: '✖️ Отмена', callback_data: 'mb_cancel:x' }])
 
-  await say(`🛥 <b>${escapeHtml(boatName)}</b>\n\nШаг 2 из 8 — какой день?`, {
+  const title = stepLabel(mode, 'Шаг 2 из 8 — какой день?', 'Перенос — шаг 1 из 4: какой день?')
+  await say(`🛥 <b>${escapeHtml(boatName)}</b>\n\n${title}`, {
     reply_markup: { inline_keyboard: rows },
   })
 }
@@ -110,7 +137,7 @@ async function askDate(chatId: string, boatName: string) {
 // ─────────────────────────── Шаг 3: час ───────────────────────────
 
 export async function pickDate(chatId: string, dayKey: string) {
-  await updateDraft(chatId, 'hour', { dayKey })
+  const data = await updateDraft(chatId, 'hour', { dayKey })
 
   const rows: unknown[][] = []
   for (let h = 0; h < 24; h += 4) {
@@ -121,7 +148,8 @@ export async function pickDate(chatId: string, dayKey: string) {
   rows.push([{ text: '✖️ Отмена', callback_data: 'mb_cancel:x' }])
 
   const { year, month, day } = parseDayKey(dayKey)
-  await say(`📅 <b>${pad(day)}.${pad(month)}.${year}</b>\n\nШаг 3 из 8 — во сколько начало?`, {
+  const title = stepLabel(data.mode, 'Шаг 3 из 8 — во сколько начало?', 'Шаг 2 из 4 — во сколько?')
+  await say(`📅 <b>${pad(day)}.${pad(month)}.${year}</b>\n\n${title}`, {
     reply_markup: { inline_keyboard: rows },
   })
 }
@@ -129,13 +157,15 @@ export async function pickDate(chatId: string, dayKey: string) {
 // ─────────────────────────── Шаг 4: минуты ───────────────────────────
 
 export async function pickHour(chatId: string, hour: number) {
-  await updateDraft(chatId, 'minute', { hour })
+  const data = await updateDraft(chatId, 'minute', { hour })
 
   const rows = [
     [0, 15, 30, 45].map((m) => ({ text: `${pad(hour)}:${pad(m)}`, callback_data: `mb_min:${m}` })),
     [{ text: '✖️ Отмена', callback_data: 'mb_cancel:x' }],
   ]
-  await say(`Шаг 4 из 8 — минуты?`, { reply_markup: { inline_keyboard: rows } })
+  await say(stepLabel(data.mode, 'Шаг 4 из 8 — минуты?', 'Шаг 3 из 4 — минуты?'), {
+    reply_markup: { inline_keyboard: rows },
+  })
 }
 
 export async function pickMinute(chatId: string, minute: number) {
@@ -212,7 +242,7 @@ function buildStart(
 // ─────────────────────────── Шаг 3: длительность ───────────────────────────
 
 export async function pickWhen(chatId: string, startAt: Date) {
-  await updateDraft(chatId, 'duration', { startAt: startAt.toISOString() })
+  const data = await updateDraft(chatId, 'duration', { startAt: startAt.toISOString() })
 
   const quick = [2, 3, 4, 6, 8, 12, 24, 48, 72]
   const rows: unknown[][] = []
@@ -227,9 +257,10 @@ export async function pickWhen(chatId: string, startAt: Date) {
   rows.push([{ text: '✖️ Отмена', callback_data: 'mb_cancel:x' }])
 
   const s = toSpbParts(startAt)
+  const title = stepLabel(data.mode, 'Шаг 5 из 8 — на сколько?', 'Шаг 4 из 4 — на сколько?')
   await say(
     `📅 Начало: <b>${pad(s.day)}.${pad(s.month)}.${s.year}, ${pad(s.hour)}:${pad(s.minute)}</b>\n\n` +
-      'Шаг 5 из 8 — на сколько?\n\n' +
+      `${title}\n\n` +
       `<i>Или ответьте числом часов, например <code>5</code> (от ${MIN_DURATION_HOURS} до ${MAX_DURATION_HOURS / 24} суток).</i>`,
     { reply_markup: { inline_keyboard: rows } },
   )
@@ -238,10 +269,10 @@ export async function pickWhen(chatId: string, startAt: Date) {
 // ─────────────────────────── Шаги 4–6: клиент ───────────────────────────
 
 export async function pickDuration(chatId: string, hours: number) {
-  const data = await updateDraft(chatId, 'name', { hours })
-  if (!data.startAt) return say('❌ Черновик потерян. Начните заново: /bron')
+  const draft = await getDraft(chatId)
+  if (!draft?.data.startAt) return say('❌ Черновик потерян. Начните заново: /bron')
 
-  const start = new Date(data.startAt)
+  const start = new Date(draft.data.startAt)
   const end = new Date(start.getTime() + hours * 3_600_000)
 
   const rejection = validateInterval({ start, end })
@@ -257,12 +288,48 @@ export async function pickDuration(chatId: string, hours: number) {
     return say(`❌ Не выйдет: ${why[rejection]}. Пришлите другую длительность.`)
   }
 
+  // Перенос на этом и заканчивается: клиент у брони уже есть.
+  if (draft.data.mode === 'retime') {
+    return finishRetime(chatId, draft.data, start, end)
+  }
+
+  await updateDraft(chatId, 'name', { hours })
   // Имя и телефон кнопками не выбрать — их всегда набирают. Отсюда force_reply:
   // ответ на сообщение бота доходит даже при включённом режиме приватности.
   await say(
     `🕐 ${formatInterval(start, end)}\n\nШаг 6 из 8 — имя клиента?`,
     { reply_markup: { force_reply: true } },
   )
+}
+
+/**
+ * Применить перенос.
+ *
+ * Идёт через applyReschedule — тот же путь, что у ответа текстом на карточку и
+ * у админки: перерисовать карточку в группе и пересчитать цену. Дублировать
+ * это здесь значило бы развести три интерфейса.
+ */
+async function finishRetime(chatId: string, d: DraftData, start: Date, end: Date) {
+  if (!d.bookingId) {
+    await dropDraft(chatId)
+    return say('❌ Потеряна заявка. Нажмите «Изменить время» на карточке заново.')
+  }
+
+  const res = await applyReschedule(d.bookingId, start, end)
+
+  if (res === 'busy') {
+    // Не бросаем на полпути: катер известен, менять надо только время.
+    await updateDraft(chatId, 'date', {})
+    await say('❌ Катер занят в это время. Выберите другой день.')
+    return askDate(chatId, d.boatName ?? 'Катер', 'retime')
+  }
+  if (res === 'not_found') {
+    await dropDraft(chatId)
+    return say('❌ Заявка не найдена.')
+  }
+
+  await dropDraft(chatId)
+  await say(`✅ Перенесено: ${formatInterval(start, end)}`)
 }
 
 export async function pickName(chatId: string, name: string) {
@@ -340,7 +407,7 @@ export async function finishDraft(chatId: string, comment: string | undefined, w
       // (катер, имя, телефон) в черновике уже есть, менять надо только время.
       await updateDraft(chatId, 'date', {})
       await say('❌ Катер уже занят в это время. Выберите другой день.')
-      return askDate(chatId, d.boatName ?? 'Катер')
+      return askDate(chatId, d.boatName ?? 'Катер', 'new')
     }
     await dropDraft(chatId)
     console.error('[bot-flow] не удалось создать бронь:', e)

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { findBookingIdByTgMessage, getBookingForMessage } from '@/lib/bookings-db'
+import { findBookingIdByTgMessage } from '@/lib/bookings-db'
 import { applyReschedule, applyStatusChange } from '@/lib/booking-workflow'
 import { MAX_DURATION_HOURS, MIN_DURATION_HOURS, validateInterval } from '@/lib/booking-rules'
 import {
@@ -15,6 +15,7 @@ import {
 import {
   askManualDate,
   beginManualBooking,
+  beginRetime,
   cancelDraft,
   finishDraft,
   parseDayOnly,
@@ -134,21 +135,12 @@ async function handleCallback(cb: TgCallbackQuery) {
   }
 
   if (action === 'retime') {
-    const b = await getBookingForMessage(bookingId)
-    if (!b) return answerCallback(cb.id, 'Заявка не найдена', true)
-
-    const s = toSpbParts(b.startAt)
-    const e = toSpbParts(b.endAt)
-    const example = `${pad(s.day)}.${pad(s.month)} ${pad(s.hour)}:${pad(s.minute)}-${pad(e.hour)}:${pad(e.minute)}`
-
-    // Всплывающая подсказка вместо нового сообщения: менеджер отвечает прямо
-    // на карточку, и заявка находится по её tgMessageId. Так в чате не копятся
-    // служебные сообщения, а id заявки не надо прятать в тексте.
-    await answerCallback(
-      cb.id,
-      `Ответьте на эту карточку новым временем.\n\nФормат: ДД.ММ ЧЧ:ММ-ЧЧ:ММ\nСейчас: ${example}`,
-      true,
-    )
+    // Раньше здесь была подсказка «ответьте сообщением в формате ДД.ММ ЧЧ:ММ-ЧЧ:ММ».
+    // Теперь перенос идёт кнопками, как и новая бронь: набор руками — самое
+    // хрупкое место диалога, на нём уже застревали. Ответ текстом на карточку
+    // продолжает работать как быстрый путь.
+    await answerCallback(cb.id)
+    await beginRetime(String(chatId), String(cb.from?.id ?? ''), bookingId)
     return
   }
 
@@ -348,8 +340,6 @@ export function parseNewTime(text: string, now = new Date()): { start: Date; end
 }
 
 // ─────────────────────────── Вспомогательное ───────────────────────────
-
-const pad = (n: number) => String(n).padStart(2, '0')
 
 async function reply(msg: TgMessage, text: string) {
   await callTelegram('sendMessage', {
