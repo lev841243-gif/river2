@@ -7,7 +7,9 @@ import {
   answerCallback,
   callTelegram,
   formatInterval,
-  MAIN_KEYBOARD,
+  mainKeyboard,
+  PANEL_HELP,
+  PANEL_NEW,
   telegramConfigured,
 } from '@/lib/telegram'
 import {
@@ -165,7 +167,16 @@ async function handleMessage(msg: TgMessage) {
   // Команды: в группе режим приватности пропускает их всегда.
   // Telegram дописывает @имя_бота, если в группе несколько ботов.
   const command = text.split(/[\s@]/)[0].toLowerCase()
-  if (command === '/start' || command === '/help') {
+
+  // Кнопки панели шлют обычный текст со своей подписью — узнаём их по ней.
+  // Доходит это только при выключенном режиме приватности; тогда же панель и
+  // рисуется с такими подписями (см. mainKeyboard).
+  if (text === PANEL_NEW) {
+    await dropStaleDrafts()
+    return beginManualBooking(chat, String(msg.from?.id ?? ''))
+  }
+
+  if (command === '/start' || command === '/help' || text === PANEL_HELP) {
     await dropStaleDrafts()
     // Панель показываем здесь: reply_markup с клавиатурой живёт до замены, и
     // одного сообщения хватает, чтобы она осталась под полем ввода навсегда.
@@ -179,9 +190,9 @@ async function handleMessage(msg: TgMessage) {
         'Кнопки на карточке заявки: подтвердить, отменить, вернуть в работу.\n' +
         'Чтобы перенести бронь — ответьте на её карточку новым временем, ' +
         'например <code>20.08 18:00-21:00</code>.\n\n' +
-        '<i>Панель с командами закреплена под полем ввода.</i>',
+        '<i>Панель с кнопками закреплена под полем ввода.</i>',
       parse_mode: 'HTML',
-      reply_markup: MAIN_KEYBOARD,
+      reply_markup: await mainKeyboard(),
     })
   }
 
@@ -191,7 +202,13 @@ async function handleMessage(msg: TgMessage) {
   }
 
   // Шаг незаконченного диалога создания брони.
-  if (await handleDraftStep(chat, text, who)) return
+  //
+  // Принимаем только ОТВЕТ на сообщение бота. При включённой приватности иначе
+  // и не бывает — обычный текст до бота не доходит. А если приватность выключат
+  // ради красивых подписей на панели, бот начнёт видеть всю переписку, и без
+  // этой проверки любая реплика менеджера на шаге «имя клиента» стала бы именем.
+  const isReplyToBot = Boolean(msg.reply_to_message?.from?.is_bot)
+  if (isReplyToBot && (await handleDraftStep(chat, text, who))) return
 
   // Ждём ответ на карточку заявки. Режим приватности бота как раз это и
   // пропускает: ответы на собственные сообщения бот видит, обычную болтовню — нет.
@@ -351,6 +368,8 @@ interface TgChat {
 }
 interface TgUser {
   id?: number
+  /** Отличает ответ на сообщение бота от ответа коллеге. */
+  is_bot?: boolean
   username?: string
   first_name?: string
 }

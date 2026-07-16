@@ -195,23 +195,55 @@ export function renderBooking(b: BookingMessage): string {
   return lines.join('\n')
 }
 
+// ─────────────────────── Панель под полем ввода ───────────────────────
+
+/** Подписи кнопок панели, когда режим приватности выключен. */
+export const PANEL_NEW = '➕ Создать бронь'
+export const PANEL_HELP = '❓ Помощь'
+
+let readsAll: { value: boolean; at: number } | null = null
+const READS_ALL_TTL_MS = 5 * 60_000
+
 /**
- * Постоянная панель под полем ввода — не уходит с экрана.
+ * Видит ли бот обычные сообщения в группе (то есть выключен ли режим приватности).
  *
- * ⚠️ Подписи кнопок — это КОМАНДЫ, и иначе нельзя. Нажатие кнопки такой панели
- * шлёт в чат обычное текстовое сообщение с её подписью, а бот в группе работает
- * с включённым режимом приватности и обычный текст не видит — до него доходят
- * только команды и ответы на его же сообщения. Кнопка с подписью «Новая бронь»
- * молча не работала бы.
+ * Это решает, какими быть подписям на панели, поэтому спрашиваем у Telegram, а
+ * не держим в голове: нажатие кнопки reply-панели шлёт в чат ОБЫЧНЫЙ текст с её
+ * подписью. При включённой приватности бот такого текста не видит — до него
+ * доходят только команды и ответы на его же сообщения, — и кнопка «Создать
+ * бронь» молча не работала бы.
  *
- * Хотите подписи по-человечески — надо выключить режим приватности у
- * @BotFather (/setprivacy → Disable), но тогда бот начнёт видеть всю переписку
- * в группе.
+ * Ответ кэшируем на 5 минут: переключение приватности у @BotFather подхватится
+ * само, без перезапуска, а на каждое сообщение лишний запрос не уходит.
+ * При ошибке считаем, что приватность включена: подписи-команды работают всегда.
  */
-export const MAIN_KEYBOARD = {
-  keyboard: [[{ text: '/bron' }], [{ text: '/help' }]],
-  resize_keyboard: true, // иначе панель занимает пол-экрана
-  is_persistent: true, // не прячется после нажатия
+export async function botReadsAllMessages(): Promise<boolean> {
+  if (readsAll && Date.now() - readsAll.at < READS_ALL_TTL_MS) return readsAll.value
+  try {
+    const me = await callTelegram<{ can_read_all_group_messages?: boolean }>('getMe', {})
+    readsAll = { value: Boolean(me.can_read_all_group_messages), at: Date.now() }
+  } catch {
+    readsAll = { value: false, at: Date.now() }
+  }
+  return readsAll.value
+}
+
+/**
+ * Постоянная панель под полем ввода — не уходит с экрана (`is_persistent`).
+ *
+ * Подписи зависят от режима приватности (см. botReadsAllMessages). Выключена —
+ * человеческие названия; включена — голые команды, потому что иначе кнопка не
+ * дойдёт до бота.
+ */
+export async function mainKeyboard(): Promise<Record<string, unknown>> {
+  const pretty = await botReadsAllMessages()
+  return {
+    keyboard: pretty
+      ? [[{ text: PANEL_NEW }], [{ text: PANEL_HELP }]]
+      : [[{ text: '/bron' }], [{ text: '/help' }]],
+    resize_keyboard: true, // иначе панель занимает пол-экрана
+    is_persistent: true, // не прячется после нажатия
+  }
 }
 
 /** Данные кнопок — префикс отличает действие, дальше id заявки. */
