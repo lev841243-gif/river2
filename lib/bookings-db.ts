@@ -1,4 +1,4 @@
-import type { BookingSource } from '@prisma/client'
+import type { BookingSource, BookingStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import {
   BLOCKING_STATUSES,
@@ -134,6 +134,86 @@ export async function createBooking(args: CreateBookingArgs) {
     })
   } catch (e) {
     if (isExclusionViolation(e)) throw new BoatBusyError()
+    throw e
+  }
+}
+
+/** Заявка со всем, что нужно для сообщения в Telegram. */
+export async function getBookingForMessage(id: string) {
+  const b = await prisma.booking.findUnique({
+    where: { id },
+    include: { boat: { select: { nameRu: true } } },
+  })
+  if (!b) return null
+  return {
+    id: b.id,
+    boatName: b.boat.nameRu,
+    startAt: b.startAt,
+    endAt: b.endAt,
+    guests: b.guests,
+    clientName: b.clientName,
+    phone: b.phone,
+    telegram: b.telegram,
+    comment: b.comment,
+    priceSnapshot: b.priceSnapshot,
+    status: b.status,
+    source: b.source,
+    utmSource: b.utmSource,
+    utmMedium: b.utmMedium,
+    lang: b.lang,
+    tgMessageId: b.tgMessageId,
+  }
+}
+
+export async function setTgMessageId(id: string, messageId: number) {
+  await prisma.booking.update({ where: { id }, data: { tgMessageId: messageId } })
+}
+
+/**
+ * Сменить статус и записать переход в журнал (ТЗ, п. 6.4).
+ * Возвращает null, если заявки нет или статус уже такой — тогда нечего писать
+ * в историю и незачем дёргать Telegram.
+ */
+export async function changeBookingStatus(
+  id: string,
+  to: BookingStatus,
+  changedBy: string,
+): Promise<{ from: BookingStatus } | null> {
+  return prisma.$transaction(async (tx) => {
+    const current = await tx.booking.findUnique({ where: { id }, select: { status: true } })
+    if (!current || current.status === to) return null
+
+    await tx.booking.update({ where: { id }, data: { status: to } })
+    await tx.bookingStatusHistory.create({
+      data: { bookingId: id, from: current.status, to, changedBy },
+    })
+    return { from: current.status }
+  })
+}
+
+/**
+ * Перенести заявку на другое время.
+ * От пересечения защищает тот же exclusion-констрейнт, что и при создании:
+ * перенос на занятый слот отбивается базой, а не только проверкой в коде.
+ */
+export async function rescheduleBooking(
+  id: string,
+  startAt: Date,
+  endAt: Date,
+): Promise<'ok' | 'busy' | 'not_found'> {
+  const b = await prisma.booking.findUnique({
+    where: { id },
+    select: { boatId: true, boat: { select: { price: true } } },
+  })
+  if (!b) return 'not_found'
+
+  try {
+    // Цена пересчитывается: изменилась длительность — изменилась и стоимость.
+    const priceSnapshot = calcPrice(b.boat.price, durationHours({ start: startAt, end: endAt }))
+    await prisma.booking.update({ where: { id }, data: { startAt, endAt, priceSnapshot } })
+    return 'ok'
+  } catch (e) {
+    if (isExclusionViolation(e)) return 'busy'
     throw e
   }
 }

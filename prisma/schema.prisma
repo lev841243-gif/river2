@@ -77,6 +77,10 @@ model Booking {
   utmMedium     String?
   utmCampaign   String?
   lang          String        @default("ru")
+  // id сообщения в группе Telegram — чтобы редактировать его же при смене
+  // статуса, а не слать новое. null = уведомление не ушло (Telegram не
+  // настроен или был недоступен).
+  tgMessageId   Int?
 
   client        Client?                 @relation(fields: [clientId], references: [id])
   clientId      String?

@@ -5,8 +5,33 @@ import {
   validateInterval,
   type BookingRejection,
 } from '@/lib/booking-rules'
-import { BoatBusyError, BoatNotFoundError, createBooking, getBusyIntervals } from '@/lib/bookings-db'
+import {
+  BoatBusyError,
+  BoatNotFoundError,
+  createBooking,
+  getBookingForMessage,
+  getBusyIntervals,
+  setTgMessageId,
+} from '@/lib/bookings-db'
 import { clientIp, rateLimit } from '@/lib/rate-limit'
+import { sendBookingNotification, telegramConfigured } from '@/lib/telegram'
+
+/**
+ * Уведомить менеджера. Ошибки только логируются: заявка уже в базе, и ронять
+ * ответ клиенту из-за недоступного Telegram нельзя — он увидел бы ошибку и
+ * отправил бронь повторно.
+ */
+async function notifyManager(bookingId: string): Promise<void> {
+  if (!telegramConfigured()) return
+  try {
+    const b = await getBookingForMessage(bookingId)
+    if (!b) return
+    const messageId = await sendBookingNotification(b)
+    await setTgMessageId(bookingId, messageId)
+  } catch (e) {
+    console.error('[notifyManager] уведомление не ушло:', e)
+  }
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -82,6 +107,10 @@ export async function POST(req: Request) {
       utmCampaign: input.utmCampaign,
       referer: req.headers.get('referer'),
     })
+
+    // Ждём отправку: на serverless фоновая задача не переживёт ответ, а
+    // потерянное уведомление — это потерянный клиент. Секунда терпима.
+    await notifyManager(booking.id)
 
     return NextResponse.json(
       { ok: true, bookingId: booking.id, priceSnapshot: booking.priceSnapshot },
