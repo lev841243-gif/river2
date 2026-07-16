@@ -89,8 +89,19 @@ async function handleCallback(cb: TgCallbackQuery) {
 
   // ── Диалог «Создать бронь» (префикс mb_) ──
   if (action.startsWith('mb_')) {
-    await answerCallback(cb.id)
     const chat = String(chatId)
+
+    // Кнопки живут в чате вечно, а черновик — нет: заброшенные чистятся через
+    // 30 минут. Нажатие в старом сообщении роняло prisma.botDraft.update()
+    // ошибкой P2025, вебхук глотал её в лог, и кнопка молча не делала ничего.
+    // Ловим это здесь и говорим человеку, что делать. Поймано в логах боевого.
+    const needsDraft = action !== 'mb_start' && action !== 'mb_cancel'
+    if (needsDraft && !(await getDraft(chat))) {
+      await answerCallback(cb.id, 'Этот диалог уже устарел. Начните заново: /bron', true)
+      return
+    }
+
+    await answerCallback(cb.id)
     if (action === 'mb_start') await beginManualBooking(chat, String(cb.from?.id ?? ''))
     else if (action === 'mb_boat') await pickBoat(chat, arg)
     else if (action === 'mb_date') await pickDate(chat, arg)
