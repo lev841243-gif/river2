@@ -29,12 +29,32 @@ export function HeroVideo({ poster, alt }: { poster: string; alt: string }) {
   useEffect(() => {
     const v = videoRef.current
     if (!v) return
-    if (motionOk) {
-      // play() может отклониться (экономия трафика, политика браузера) —
-      // тогда просто останется постер, страница из-за этого падать не должна.
-      v.play().catch(() => {})
-    } else {
+
+    if (!motionOk) {
       v.pause()
+      return
+    }
+
+    // play() может отклониться — тогда останется постер, страница не падает.
+    const tryPlay = () => v.play().catch(() => {})
+    tryPlay()
+
+    /**
+     * В режиме энергосбережения iOS запрещает автозапуск — видео так и стоит
+     * на постере. Но запуск по жесту пользователя он разрешает, поэтому
+     * пробуем ещё раз при первом касании или прокрутке. once: true — слушатель
+     * снимается сам, повторно не мешает.
+     */
+    const retry = () => tryPlay()
+    const opts = { once: true, passive: true } as const
+    window.addEventListener('touchstart', retry, opts)
+    window.addEventListener('scroll', retry, opts)
+    window.addEventListener('click', retry, { once: true })
+
+    return () => {
+      window.removeEventListener('touchstart', retry)
+      window.removeEventListener('scroll', retry)
+      window.removeEventListener('click', retry)
     }
   }, [motionOk])
 

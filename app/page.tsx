@@ -22,7 +22,6 @@ export default async function Page() {
       <SiteNav lang={lang} />
       <main>
         <Hero lang={lang} />
-        <OwnerBanner lang={lang} />
         <Experiences lang={lang} />
         <Fleet lang={lang} boats={boats} />
         <WhyUs lang={lang} />
@@ -32,6 +31,8 @@ export default async function Page() {
         <Testimonials lang={lang} />
         <Faq lang={lang} />
         <Cta lang={lang} />
+        {/* Баннер собственников — внизу: он перебивал первый экран синей полосой. */}
+        <OwnerBanner lang={lang} />
       </main>
       <SiteFooter lang={lang} />
     </BookingProvider>
