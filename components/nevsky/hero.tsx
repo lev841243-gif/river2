@@ -5,7 +5,7 @@ export function Hero({ lang = 'ru' }: { lang?: Lang }) {
   const t = dict[lang].hero
 
   return (
-    <section id="top" className="relative flex min-h-[100svh] items-center overflow-hidden">
+    <section id="top" className="screen-full relative flex items-center overflow-hidden">
       {/* Background image with slow, continuous cinematic drift */}
       <div className="absolute inset-0 z-0">
         <img

@@ -11,27 +11,24 @@ import { contacts, dict, type Lang } from '@/lib/i18n'
  * круга, а трубка периодически вздрагивает. Цикл 2 секунды — полторы паузы
  * и короткая тряска, как у настоящего звонка.
  */
-function CallButton({ label, size = 'md' }: { label: string; size?: 'md' | 'lg' }) {
-  const box = size === 'lg' ? 'size-12' : 'size-11'
+function CallButton({ label }: { label: string }) {
   return (
     <a
       href={contacts.phoneHref}
       aria-label={label}
       title={label}
-      className={cn(
-        'group relative flex shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary ring-1 ring-primary/40 transition-transform duration-300 hover:scale-110 hover:bg-primary hover:text-primary-foreground',
-        box,
-      )}
+      // touch-manipulation убирает задержку 300мс на тап в мобильных браузерах.
+      className="group relative flex size-11 shrink-0 touch-manipulation items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-transform duration-300 hover:scale-110 active:scale-95"
     >
-      {/* Круги-волны под кнопкой: pointer-events-none, чтобы не перехватывать клик. */}
+      {/* Круги-волны: pointer-events-none, иначе перехватывали бы тап по трубке. */}
       <span
         aria-hidden="true"
-        className="phone-pulse pointer-events-none absolute inset-0 rounded-full bg-primary/40"
+        className="phone-pulse pointer-events-none absolute inset-0 -z-10 rounded-full bg-primary/50"
       />
       <span
         aria-hidden="true"
         style={{ '--pulse-delay': '1s' } as React.CSSProperties}
-        className="phone-pulse pointer-events-none absolute inset-0 rounded-full bg-primary/40"
+        className="phone-pulse pointer-events-none absolute inset-0 -z-10 rounded-full bg-primary/50"
       />
       <Phone className="phone-ring relative size-5" />
     </a>
