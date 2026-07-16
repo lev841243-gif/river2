@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react'
+import { HeroVideo } from './hero-video'
 import { dict, type Lang } from '@/lib/i18n'
 
 export function Hero({ lang = 'ru' }: { lang?: Lang }) {
@@ -6,12 +7,11 @@ export function Hero({ lang = 'ru' }: { lang?: Lang }) {
 
   return (
     <section id="top" className="screen-full relative flex items-center overflow-hidden">
-      {/* Background image with slow, continuous cinematic drift */}
+      {/* Фоновое видео. Ken-burns больше не нужен — движение даёт сам ролик. */}
       <div className="absolute inset-0 z-0">
-        <img
-          src="/images/hero-neva.png"
-          alt="Роскошный катер на Неве в Санкт-Петербурге на закате с разведённым мостом"
-          className="hero-motion size-full object-cover"
+        <HeroVideo
+          poster="/images/hero-poster.webp"
+          alt="Катер на Неве в Санкт-Петербурге"
         />
         {/* Cinematic overlays — light, so the photo/mini-video stays the hero */}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-background/35" />
