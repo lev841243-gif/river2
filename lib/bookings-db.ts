@@ -170,25 +170,53 @@ export async function setTgMessageId(id: string, messageId: number) {
 }
 
 /**
+ * Найти заявку по id её карточки в Telegram.
+ * Нужно, чтобы менеджер мог просто ответить на карточку новым временем —
+ * без спрятанных id в тексте и без хранения состояния диалога.
+ */
+export async function findBookingIdByTgMessage(messageId: number): Promise<string | null> {
+  const b = await prisma.booking.findFirst({
+    where: { tgMessageId: messageId },
+    select: { id: true },
+    // Один и тот же message_id теоретически не повторится, но порядок
+    // фиксируем, чтобы выбор был предсказуемым.
+    orderBy: { createdAt: 'desc' },
+  })
+  return b?.id ?? null
+}
+
+export type StatusChangeResult =
+  | { ok: true; from: BookingStatus }
+  | { ok: false; reason: 'same' | 'not_found' | 'busy' }
+
+/**
  * Сменить статус и записать переход в журнал (ТЗ, п. 6.4).
- * Возвращает null, если заявки нет или статус уже такой — тогда нечего писать
- * в историю и незачем дёргать Telegram.
+ *
+ * Возврат отменённой заявки в работу может упереться в exclusion-констрейнт:
+ * пока она была отменена, слот мог занять другой клиент, а NEW/REVIEW/CONFIRMED
+ * слот держат. Поэтому 23P01 здесь — не сбой, а осмысленный ответ «занято».
  */
 export async function changeBookingStatus(
   id: string,
   to: BookingStatus,
   changedBy: string,
-): Promise<{ from: BookingStatus } | null> {
-  return prisma.$transaction(async (tx) => {
-    const current = await tx.booking.findUnique({ where: { id }, select: { status: true } })
-    if (!current || current.status === to) return null
+): Promise<StatusChangeResult> {
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const current = await tx.booking.findUnique({ where: { id }, select: { status: true } })
+      if (!current) return { ok: false, reason: 'not_found' } as const
+      if (current.status === to) return { ok: false, reason: 'same' } as const
 
-    await tx.booking.update({ where: { id }, data: { status: to } })
-    await tx.bookingStatusHistory.create({
-      data: { bookingId: id, from: current.status, to, changedBy },
+      await tx.booking.update({ where: { id }, data: { status: to } })
+      await tx.bookingStatusHistory.create({
+        data: { bookingId: id, from: current.status, to, changedBy },
+      })
+      return { ok: true, from: current.status } as const
     })
-    return { from: current.status }
-  })
+  } catch (e) {
+    if (isExclusionViolation(e)) return { ok: false, reason: 'busy' }
+    throw e
+  }
 }
 
 /**

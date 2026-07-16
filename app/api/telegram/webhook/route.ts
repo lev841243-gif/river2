@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import {
   changeBookingStatus,
+  findBookingIdByTgMessage,
   getBookingForMessage,
   rescheduleBooking,
 } from '@/lib/bookings-db'
@@ -16,9 +17,6 @@ import {
 import { fromSpbParts, toSpbParts } from '@/lib/spb-time'
 
 export const dynamic = 'force-dynamic'
-
-/** Подсказка, которую бот присылает в ответ на «Изменить время». */
-const RETIME_PROMPT = 'Отправьте новое время ответом на это сообщение.'
 
 /**
  * Приём событий от Telegram.
@@ -72,15 +70,30 @@ async function handleCallback(cb: TgCallbackQuery) {
 
   const who = cb.from?.username ? `@${cb.from.username}` : (cb.from?.first_name ?? 'менеджер')
 
-  if (action === 'confirm' || action === 'cancel') {
-    const to = action === 'confirm' ? 'CONFIRMED' : 'CANCELLED'
-    const changed = await changeBookingStatus(bookingId, to, who)
-    if (!changed) {
-      await answerCallback(cb.id, 'Статус уже такой', false)
+  const STATUS_BY_ACTION = {
+    confirm: 'CONFIRMED',
+    cancel: 'CANCELLED',
+    // Возврат в работу: слот снова держится за клиентом (REVIEW — блокирующий статус).
+    reopen: 'REVIEW',
+  } as const
+
+  if (action in STATUS_BY_ACTION) {
+    const to = STATUS_BY_ACTION[action as keyof typeof STATUS_BY_ACTION]
+    const res = await changeBookingStatus(bookingId, to, who)
+
+    if (!res.ok) {
+      const why = {
+        same: 'Статус уже такой',
+        not_found: 'Заявка не найдена',
+        busy: 'Не вышло: слот уже занят другой бронью',
+      }[res.reason]
+      await answerCallback(cb.id, why, res.reason === 'busy')
       return
     }
-    await answerCallback(cb.id, action === 'confirm' ? 'Подтверждено' : 'Отменено')
-    await refreshMessage(bookingId, cb.message!.message_id)
+
+    const said = { confirm: 'Подтверждено', cancel: 'Отменено', reopen: 'Возвращено в работу' }
+    await answerCallback(cb.id, said[action as keyof typeof said])
+    await refreshCard(bookingId, cb.message!.message_id)
     return
   }
 
@@ -89,18 +102,17 @@ async function handleCallback(cb: TgCallbackQuery) {
     if (!b) return answerCallback(cb.id, 'Заявка не найдена', true)
 
     const s = toSpbParts(b.startAt)
-    const example = `${pad(s.day)}.${pad(s.month)} ${pad(s.hour)}:${pad(s.minute)}-${pad(toSpbParts(b.endAt).hour)}:${pad(toSpbParts(b.endAt).minute)}`
+    const e = toSpbParts(b.endAt)
+    const example = `${pad(s.day)}.${pad(s.month)} ${pad(s.hour)}:${pad(s.minute)}-${pad(e.hour)}:${pad(e.minute)}`
 
-    await answerCallback(cb.id)
-    // force_reply — у менеджера сразу откроется поле ответа; ответ мы
-    // опознаём по этой подсказке и вытаскиваем из неё id заявки.
-    await callTelegram('sendMessage', {
-      chat_id: adminChatId(),
-      reply_to_message_id: cb.message!.message_id,
-      text: `${RETIME_PROMPT}\n\nФормат: <code>ДД.ММ ЧЧ:ММ-ЧЧ:ММ</code>\nСейчас: <code>${example}</code>\n\n#${bookingId}`,
-      parse_mode: 'HTML',
-      reply_markup: { force_reply: true, selective: true },
-    })
+    // Всплывающая подсказка вместо нового сообщения: менеджер отвечает прямо
+    // на карточку, и заявка находится по её tgMessageId. Так в чате не копятся
+    // служебные сообщения, а id заявки не надо прятать в тексте.
+    await answerCallback(
+      cb.id,
+      `Ответьте на эту карточку новым временем.\n\nФормат: ДД.ММ ЧЧ:ММ-ЧЧ:ММ\nСейчас: ${example}`,
+      true,
+    )
     return
   }
 
@@ -112,18 +124,18 @@ async function handleCallback(cb: TgCallbackQuery) {
 async function handleMessage(msg: TgMessage) {
   if (String(msg.chat?.id) !== adminChatId()) return
 
+  // Ждём ответ на карточку заявки. Режим приватности бота как раз это и
+  // пропускает: ответы на собственные сообщения бот видит, обычную болтовню — нет.
   const replyTo = msg.reply_to_message
-  if (!replyTo?.text?.startsWith(RETIME_PROMPT)) return
+  if (!replyTo) return
 
-  // id заявки спрятан в подсказке — так не нужно помнить состояние диалога.
-  const id = replyTo.text.match(/#([0-9a-f-]{36})/i)?.[1]
+  const id = await findBookingIdByTgMessage(replyTo.message_id)
   if (!id) return
 
   const parsed = parseNewTime(msg.text ?? '')
-  if (!parsed) {
-    await reply(msg, '❌ Не понял время. Формат: <code>20.08 18:00-21:00</code>')
-    return
-  }
+  // Ответ не про время — молчим: в группе могут просто обсуждать заявку,
+  // и бот не должен встревать с «не понял».
+  if (!parsed) return
 
   const rejection = validateInterval(parsed)
   if (rejection) {
@@ -136,9 +148,7 @@ async function handleMessage(msg: TgMessage) {
   if (result === 'busy') return reply(msg, '❌ Катер уже занят в это время')
 
   await reply(msg, `✅ Перенесено: ${formatInterval(parsed.start, parsed.end)}`)
-  if (replyTo.reply_to_message?.message_id) {
-    await refreshMessage(id, replyTo.reply_to_message.message_id)
-  }
+  await refreshCard(id)
 }
 
 const REJECTION_TEXT: Record<string, string> = {
@@ -196,10 +206,18 @@ async function reply(msg: TgMessage, text: string) {
   })
 }
 
-/** Перерисовать карточку заявки после изменений. */
-async function refreshMessage(bookingId: string, messageId: number) {
+/**
+ * Перерисовать карточку заявки после изменений.
+ *
+ * id сообщения берём из БД, а не из update: Telegram не вкладывает
+ * reply_to_message рекурсивно, поэтому у ответа на подсказку до карточки
+ * не дотянуться. tgMessageId у нас и так сохранён при отправке.
+ */
+async function refreshCard(bookingId: string, fallbackMessageId?: number) {
   const fresh = await getBookingForMessage(bookingId)
-  if (fresh) await updateBookingMessage(messageId, fresh)
+  if (!fresh) return
+  const messageId = fresh.tgMessageId ?? fallbackMessageId
+  if (messageId) await updateBookingMessage(messageId, fresh)
 }
 
 // ─────────────────────────── Типы Telegram ───────────────────────────

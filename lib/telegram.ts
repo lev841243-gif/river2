@@ -160,6 +160,8 @@ export const CB = {
   confirm: (id: string) => `confirm:${id}`,
   cancel: (id: string) => `cancel:${id}`,
   retime: (id: string) => `retime:${id}`,
+  /** Вернуть в работу — страховка от случайного нажатия. */
+  reopen: (id: string) => `reopen:${id}`,
 } as const
 
 export function bookingKeyboard(b: BookingMessage) {
@@ -185,7 +187,10 @@ export function bookingKeyboard(b: BookingMessage) {
     rows.push([{ text: '🕐 Изменить время', callback_data: CB.retime(b.id) }])
   } else {
     // Решение принято, но время ещё можно поправить — планы у клиентов меняются.
-    rows.push([{ text: '🕐 Изменить время', callback_data: CB.retime(b.id) }])
+    rows.push([
+      { text: '🕐 Изменить время', callback_data: CB.retime(b.id) },
+      { text: '↩️ Вернуть в работу', callback_data: CB.reopen(b.id) },
+    ])
   }
 
   return { inline_keyboard: rows }
