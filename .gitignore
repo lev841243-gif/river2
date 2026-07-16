@@ -16,3 +16,7 @@ node_modules
 # Prisma / secrets
 .env
 !.env.example
+
+# Артефакт сборки TypeScript. Был закоммичен и ломал деплой: на сервере
+# его меняет каждый npm run build, после чего git pull отказывался работать.
+*.tsbuildinfo
