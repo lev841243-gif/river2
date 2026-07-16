@@ -39,23 +39,63 @@ interface TelegramResponse<T = unknown> {
   error_code?: number
 }
 
-/** Вызов метода Bot API. Бросает исключение — вызывающий решает, критично ли это. */
+/**
+ * Вызов метода Bot API с повторами.
+ *
+ * Повторяем только то, что имеет шанс пройти со второй попытки: обрыв сети,
+ * таймаут, 5xx и 429. На 4xx не повторяем — это наша ошибка в запросе, и
+ * повтор лишь задержит ответ. Без повторов моргнувшая сеть означала бы
+ * неувиденную заявку: она молча легла бы в БД, и менеджер о ней не узнал.
+ */
+export class TelegramApiError extends Error {
+  constructor(
+    readonly code: number,
+    message: string,
+  ) {
+    super(message)
+    this.name = 'TelegramApiError'
+  }
+
+  /** 4xx — наш кривой запрос: повтор ничего не изменит. 429 и 5xx стоит повторить. */
+  get retryable(): boolean {
+    return this.code === 429 || this.code >= 500
+  }
+}
+
 export async function callTelegram<T = unknown>(
   method: string,
   payload: Record<string, unknown>,
+  attempts = 3,
 ): Promise<T> {
-  const res = await fetch(`${API}${token()}/${method}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-    // Telegram может тупить — не держим запрос клиента вечно.
-    signal: AbortSignal.timeout(10_000),
-  })
-  const data = (await res.json()) as TelegramResponse<T>
-  if (!data.ok) {
-    throw new Error(`Telegram ${method}: ${data.error_code} ${data.description}`)
+  let lastError: unknown
+
+  for (let i = 0; i < attempts; i++) {
+    try {
+      const res = await fetch(`${API}${token()}/${method}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        // Telegram может тупить — не держим запрос клиента вечно.
+        signal: AbortSignal.timeout(10_000),
+      })
+      const data = (await res.json()) as TelegramResponse<T>
+      if (data.ok) return data.result as T
+
+      throw new TelegramApiError(
+        data.error_code ?? 0,
+        `Telegram ${method}: ${data.error_code} ${data.description}`,
+      )
+    } catch (e) {
+      // Ошибку в самом запросе не повторяем — только сетевые сбои и 429/5xx.
+      if (e instanceof TelegramApiError && !e.retryable) throw e
+      lastError = e
+    }
+
+    // Растущая пауза: 300мс, затем 900мс. После последней попытки не ждём.
+    if (i < attempts - 1) await new Promise((r) => setTimeout(r, 300 * 3 ** i))
   }
-  return data.result as T
+
+  throw lastError
 }
 
 /**
