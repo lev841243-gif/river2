@@ -8,12 +8,32 @@
 
 import { prisma } from '@/lib/prisma'
 
-/** Шаги диалога по порядку. */
-export type DraftStep = 'boat' | 'when' | 'duration' | 'name' | 'phone' | 'guests' | 'comment'
+/**
+ * Шаги диалога по порядку.
+ *
+ * Дата, час и минуты разнесены по кнопкам: набор «ДД.ММ ЧЧ:ММ» руками — самое
+ * хрупкое место диалога. Менеджер уже застревал, введя «18.00» вместо «18:00».
+ * `when` остался как запасной путь «другая дата» — для дат дальше двух недель.
+ */
+export type DraftStep =
+  | 'boat'
+  | 'date'
+  | 'hour'
+  | 'minute'
+  | 'when'
+  | 'duration'
+  | 'name'
+  | 'phone'
+  | 'guests'
+  | 'comment'
 
 export interface DraftData {
   boatSlug?: string
   boatName?: string
+  /** Выбранный день по Петербургу, «2026-07-17». */
+  dayKey?: string
+  /** Выбранный час, 0–23. Минуты дожидаются отдельного шага. */
+  hour?: number
   /** ISO-строка: в JSON Date не переживает сериализацию. */
   startAt?: string
   hours?: number

@@ -13,7 +13,7 @@ import { durationLabel } from '@/lib/booking-slots'
 import { BoatBusyError, createBooking } from '@/lib/bookings-db'
 import { dropDraft, getDraft, startDraft, updateDraft, type DraftData } from '@/lib/bot-draft'
 import { prisma } from '@/lib/prisma'
-import { fromSpbParts, toSpbParts } from '@/lib/spb-time'
+import { fromSpbParts, parseDayKey, spbDayKey, spbDayStart, spbTodayKey, toSpbParts } from '@/lib/spb-time'
 import { adminChatId, callTelegram, escapeHtml, formatInterval } from '@/lib/telegram'
 
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -57,37 +57,146 @@ export async function beginManualBooking(chatId: string, userId: string) {
   })
 }
 
-// ─────────────────────────── Шаг 2: дата и время ───────────────────────────
+// ─────────────────────────── Шаг 2: дата ───────────────────────────
+
+/** Сколько дней показать кнопками. Две недели закрывают почти все брони. */
+const DAY_BUTTONS = 14
+
+const WEEKDAY_RU = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб']
+
+/** Подпись дня: «Сегодня», «Завтра» или «19.07 сб». */
+function dayLabel(key: string, todayKey: string, tomorrowKey: string): string {
+  if (key === todayKey) return 'Сегодня'
+  if (key === tomorrowKey) return 'Завтра'
+  const { year, month, day } = parseDayKey(key)
+  // Date.UTC + getUTCDay даёт день недели самой календарной даты, без оглядки
+  // на пояс машины.
+  const wd = WEEKDAY_RU[new Date(Date.UTC(year, month - 1, day)).getUTCDay()]
+  return `${pad(day)}.${pad(month)} ${wd}`
+}
 
 export async function pickBoat(chatId: string, slug: string) {
   const boat = await prisma.boat.findUnique({ where: { slug }, select: { nameRu: true } })
   if (!boat) return say('❌ Катер не найден. Начните заново: /bron')
 
-  await updateDraft(chatId, 'when', { boatSlug: slug, boatName: boat.nameRu })
+  await updateDraft(chatId, 'date', { boatSlug: slug, boatName: boat.nameRu })
+  await askDate(chatId, boat.nameRu)
+}
 
+async function askDate(chatId: string, boatName: string) {
+  const todayKey = spbTodayKey()
+  const base = spbDayStart(todayKey).getTime()
+  const keys = Array.from({ length: DAY_BUTTONS }, (_, i) => spbDayKey(new Date(base + i * 86_400_000)))
+  const tomorrowKey = keys[1]
+
+  const rows: unknown[][] = []
+  for (let i = 0; i < keys.length; i += 3) {
+    rows.push(
+      keys.slice(i, i + 3).map((k) => ({
+        text: dayLabel(k, todayKey, tomorrowKey),
+        callback_data: `mb_date:${k}`,
+      })),
+    )
+  }
+  // Кнопками показаны только две недели — дальше редко, но бывает.
+  rows.push([{ text: '✍️ Другая дата', callback_data: 'mb_manual:x' }])
+  rows.push([{ text: '✖️ Отмена', callback_data: 'mb_cancel:x' }])
+
+  await say(`🛥 <b>${escapeHtml(boatName)}</b>\n\nШаг 2 из 8 — какой день?`, {
+    reply_markup: { inline_keyboard: rows },
+  })
+}
+
+// ─────────────────────────── Шаг 3: час ───────────────────────────
+
+export async function pickDate(chatId: string, dayKey: string) {
+  await updateDraft(chatId, 'hour', { dayKey })
+
+  const rows: unknown[][] = []
+  for (let h = 0; h < 24; h += 4) {
+    rows.push(
+      [0, 1, 2, 3].map((i) => ({ text: `${pad(h + i)}:__`, callback_data: `mb_hour:${h + i}` })),
+    )
+  }
+  rows.push([{ text: '✖️ Отмена', callback_data: 'mb_cancel:x' }])
+
+  const { year, month, day } = parseDayKey(dayKey)
+  await say(`📅 <b>${pad(day)}.${pad(month)}.${year}</b>\n\nШаг 3 из 8 — во сколько начало?`, {
+    reply_markup: { inline_keyboard: rows },
+  })
+}
+
+// ─────────────────────────── Шаг 4: минуты ───────────────────────────
+
+export async function pickHour(chatId: string, hour: number) {
+  await updateDraft(chatId, 'minute', { hour })
+
+  const rows = [
+    [0, 15, 30, 45].map((m) => ({ text: `${pad(hour)}:${pad(m)}`, callback_data: `mb_min:${m}` })),
+    [{ text: '✖️ Отмена', callback_data: 'mb_cancel:x' }],
+  ]
+  await say(`Шаг 4 из 8 — минуты?`, { reply_markup: { inline_keyboard: rows } })
+}
+
+export async function pickMinute(chatId: string, minute: number) {
+  const draft = await getDraft(chatId)
+  if (!draft?.data.dayKey || draft.data.hour == null) {
+    return say('❌ Черновик потерян. Начните заново: /bron')
+  }
+
+  const { year, month, day } = parseDayKey(draft.data.dayKey)
+  const start = fromSpbParts({ year, month, day, hour: draft.data.hour, minute })
+  await pickWhen(chatId, start)
+}
+
+/** «Другая дата» — единственное место, где дату всё же набирают руками. */
+export async function askManualDate(chatId: string) {
+  await updateDraft(chatId, 'when', {})
   const now = toSpbParts(new Date())
   await say(
-    `🛥 <b>${escapeHtml(boat.nameRu)}</b>\n\n` +
-      'Шаг 2 из 6 — когда начало?\n\n' +
-      `Ответьте: <code>ДД.ММ ЧЧ:ММ</code>\n` +
-      `Например: <code>${pad(now.day)}.${pad(now.month)} 18:00</code>\n\n` +
+    'Пришлите дату и время.\n\n' +
+      `Например: <code>${pad(now.day)}.${pad(now.month)} 18:00</code> — или только дату: <code>${pad(now.day)}.${pad(now.month)}</code>\n\n` +
       '<i>Время московское. Год можно не писать.</i>',
     { reply_markup: { force_reply: true } },
   )
 }
 
-/** «20.08 18:00» или «20.08.2026 18:00». Год необязателен — берём ближайший будущий. */
+/**
+ * Разбор даты со временем: «20.08 18:00», «20.08.2026 18:00», «20.08 18.00».
+ *
+ * Разделитель времени — двоеточие, точка, дефис или пробел, а минуты вообще
+ * можно не писать. Раньше принималось ТОЛЬКО двоеточие: менеджер прислал
+ * «17.07 18.00», разбор молча вернул null, и диалог встал намертво — бот в
+ * группе не отвечает на непонятное, чтобы не встревать в разговор.
+ */
 export function parseStart(text: string, now = new Date()): Date | null {
   const m = text
     .trim()
-    .match(/^(\d{1,2})[.\/](\d{1,2})(?:[.\/](\d{2,4}))?\s+(\d{1,2}):(\d{2})$/)
+    .match(/^(\d{1,2})[.\/](\d{1,2})(?:[.\/](\d{2,4}))?\s+(\d{1,2})(?:[:.\-\s](\d{2}))?$/)
   if (!m) return null
 
   const [, dd, mm, yy, hh, mi] = m
-  const day = +dd
-  const month = +mm
-  const hour = +hh
-  const minute = +mi
+  return buildStart(+dd, +mm, yy, +hh, mi ? +mi : 0, now)
+}
+
+/** Разбор одной даты: «20.08» или «20.08.2026». Время спросим кнопками. */
+export function parseDayOnly(text: string, now = new Date()): string | null {
+  const m = text.trim().match(/^(\d{1,2})[.\/](\d{1,2})(?:[.\/](\d{2,4}))?$/)
+  if (!m) return null
+
+  const [, dd, mm, yy] = m
+  const d = buildStart(+dd, +mm, yy, 12, 0, now) // полдень — лишь бы день не съехал
+  return d ? spbDayKey(d) : null
+}
+
+function buildStart(
+  day: number,
+  month: number,
+  yy: string | undefined,
+  hour: number,
+  minute: number,
+  now: Date,
+): Date | null {
   if (month < 1 || month > 12 || day < 1 || day > 31 || hour > 23 || minute > 59) return null
 
   let year = yy ? (yy.length === 2 ? 2000 + +yy : +yy) : toSpbParts(now).year
@@ -120,7 +229,7 @@ export async function pickWhen(chatId: string, startAt: Date) {
   const s = toSpbParts(startAt)
   await say(
     `📅 Начало: <b>${pad(s.day)}.${pad(s.month)}.${s.year}, ${pad(s.hour)}:${pad(s.minute)}</b>\n\n` +
-      'Шаг 3 из 6 — на сколько?\n\n' +
+      'Шаг 5 из 8 — на сколько?\n\n' +
       `<i>Или ответьте числом часов, например <code>5</code> (от ${MIN_DURATION_HOURS} до ${MAX_DURATION_HOURS / 24} суток).</i>`,
     { reply_markup: { inline_keyboard: rows } },
   )
@@ -148,15 +257,17 @@ export async function pickDuration(chatId: string, hours: number) {
     return say(`❌ Не выйдет: ${why[rejection]}. Пришлите другую длительность.`)
   }
 
+  // Имя и телефон кнопками не выбрать — их всегда набирают. Отсюда force_reply:
+  // ответ на сообщение бота доходит даже при включённом режиме приватности.
   await say(
-    `🕐 ${formatInterval(start, end)}\n\nШаг 4 из 6 — имя клиента?`,
+    `🕐 ${formatInterval(start, end)}\n\nШаг 6 из 8 — имя клиента?`,
     { reply_markup: { force_reply: true } },
   )
 }
 
 export async function pickName(chatId: string, name: string) {
   await updateDraft(chatId, 'phone', { clientName: name })
-  await say(`👤 ${escapeHtml(name)}\n\nШаг 5 из 6 — телефон?`, {
+  await say(`👤 ${escapeHtml(name)}\n\nШаг 7 из 8 — телефон?`, {
     reply_markup: { force_reply: true },
   })
 }
@@ -168,7 +279,7 @@ export async function pickPhone(chatId: string, phone: string) {
     [5, 6, 8, 10].map((g) => ({ text: String(g), callback_data: `mb_guests:${g}` })),
     [12, 15, 20].map((g) => ({ text: String(g), callback_data: `mb_guests:${g}` })),
   ]
-  await say(`📞 ${escapeHtml(phone)}\n\nШаг 6 из 6 — сколько гостей?`, {
+  await say(`📞 ${escapeHtml(phone)}\n\nШаг 8 из 8 — сколько гостей?`, {
     reply_markup: { inline_keyboard: rows },
   })
 }
@@ -225,8 +336,11 @@ export async function finishDraft(chatId: string, comment: string | undefined, w
     await mirrorToSheet(booking.id)
   } catch (e) {
     if (e instanceof BoatBusyError) {
-      await updateDraft(chatId, 'when', {})
-      return say('❌ Катер уже занят в это время. Пришлите другое начало: <code>ДД.ММ ЧЧ:ММ</code>')
+      // Возвращаем к выбору дня кнопками, а не к набору руками: всё остальное
+      // (катер, имя, телефон) в черновике уже есть, менять надо только время.
+      await updateDraft(chatId, 'date', {})
+      await say('❌ Катер уже занят в это время. Выберите другой день.')
+      return askDate(chatId, d.boatName ?? 'Катер')
     }
     await dropDraft(chatId)
     console.error('[bot-flow] не удалось создать бронь:', e)

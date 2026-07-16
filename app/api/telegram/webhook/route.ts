@@ -7,16 +7,22 @@ import {
   answerCallback,
   callTelegram,
   formatInterval,
+  MAIN_KEYBOARD,
   telegramConfigured,
 } from '@/lib/telegram'
 import {
+  askManualDate,
   beginManualBooking,
   cancelDraft,
   finishDraft,
+  parseDayOnly,
   parseStart,
   pickBoat,
+  pickDate,
   pickDuration,
   pickGuests,
+  pickHour,
+  pickMinute,
   pickName,
   pickPhone,
   pickWhen,
@@ -84,6 +90,10 @@ async function handleCallback(cb: TgCallbackQuery) {
     const chat = String(chatId)
     if (action === 'mb_start') await beginManualBooking(chat, String(cb.from?.id ?? ''))
     else if (action === 'mb_boat') await pickBoat(chat, arg)
+    else if (action === 'mb_date') await pickDate(chat, arg)
+    else if (action === 'mb_hour') await pickHour(chat, Number(arg))
+    else if (action === 'mb_min') await pickMinute(chat, Number(arg))
+    else if (action === 'mb_manual') await askManualDate(chat)
     else if (action === 'mb_dur') await pickDuration(chat, Number(arg))
     else if (action === 'mb_guests') await pickGuests(chat, Number(arg))
     else if (action === 'mb_skip') await finishDraft(chat, undefined, who)
@@ -155,21 +165,28 @@ async function handleMessage(msg: TgMessage) {
   // Команды: в группе режим приватности пропускает их всегда.
   // Telegram дописывает @имя_бота, если в группе несколько ботов.
   const command = text.split(/[\s@]/)[0].toLowerCase()
-  if (command === '/bron' || command === '/new' || command === '/start') {
+  if (command === '/start' || command === '/help') {
     await dropStaleDrafts()
-    if (command === '/start') {
-      return callTelegram('sendMessage', {
-        chat_id: adminChatId(),
-        text:
-          'Сюда приходят заявки с сайта.\n\n' +
-          '<b>/bron</b> — завести бронь вручную (клиент позвонил или написал лично).\n\n' +
-          'Чтобы перенести бронь — ответьте на её карточку новым временем.',
-        parse_mode: 'HTML',
-        reply_markup: {
-          inline_keyboard: [[{ text: '➕ Создать бронь', callback_data: 'mb_start:x' }]],
-        },
-      })
-    }
+    // Панель показываем здесь: reply_markup с клавиатурой живёт до замены, и
+    // одного сообщения хватает, чтобы она осталась под полем ввода навсегда.
+    return callTelegram('sendMessage', {
+      chat_id: adminChatId(),
+      text:
+        'Сюда приходят заявки с сайта.\n\n' +
+        '<b>/bron</b> — завести бронь вручную (клиент позвонил или написал лично).\n' +
+        'Дальше всё кнопками: катер → день → время → длительность → гости.\n' +
+        'Набрать руками придётся только имя и телефон.\n\n' +
+        'Кнопки на карточке заявки: подтвердить, отменить, вернуть в работу.\n' +
+        'Чтобы перенести бронь — ответьте на её карточку новым временем, ' +
+        'например <code>20.08 18:00-21:00</code>.\n\n' +
+        '<i>Панель с командами закреплена под полем ввода.</i>',
+      parse_mode: 'HTML',
+      reply_markup: MAIN_KEYBOARD,
+    })
+  }
+
+  if (command === '/bron' || command === '/new') {
+    await dropStaleDrafts()
     return beginManualBooking(chat, String(msg.from?.id ?? ''))
   }
 
@@ -219,13 +236,24 @@ async function handleDraftStep(chat: string, text: string, who: string): Promise
   if (!draft) return false
 
   // Кнопочные шаги ждут нажатия, а не текста — не перехватываем болтовню.
-  if (draft.step === 'boat') return false
+  if (draft.step === 'boat' || draft.step === 'date' || draft.step === 'hour' || draft.step === 'minute') {
+    return false
+  }
 
   if (draft.step === 'when') {
+    // Дата со временем — ведём сразу к длительности.
     const start = parseStart(text)
-    if (!start) return false // не похоже на дату — вдруг просто разговор
-    await pickWhen(chat, start)
-    return true
+    if (start) {
+      await pickWhen(chat, start)
+      return true
+    }
+    // Одна дата без времени — время дальше спросим кнопками.
+    const dayKey = parseDayOnly(text)
+    if (dayKey) {
+      await pickDate(chat, dayKey)
+      return true
+    }
+    return false // не похоже на дату — вдруг просто разговор
   }
 
   if (draft.step === 'duration') {
