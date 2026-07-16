@@ -109,9 +109,18 @@ async function main() {
     const name = nameParts.join(' ')
     if (!email || !name) throw new Error('Нужно: add <email> <имя>')
 
-    // Адрес проверяем ДО вопроса про пароль: незачем заставлять набирать
-    // пароль дважды, чтобы потом узнать, что адрес не годится.
+    // Всё, что можно проверить без пароля, проверяем ДО вопроса о нём:
+    // человек уже набирал пароль дважды вслепую и только потом узнавал, что
+    // адрес занят. Обидно и бессмысленно.
     const validEmail = requireEmail(email)
+    const taken = await prisma.admin.findUnique({ where: { email: validEmail } })
+    if (taken) {
+      throw new Error(
+        `Админ ${validEmail} уже есть (${taken.name}).\n` +
+          `Сменить ему пароль: npx tsx scripts/admin.ts passwd ${validEmail}`,
+      )
+    }
+
     const password = await askNewPassword()
 
     const admin = await prisma.admin.create({
@@ -143,18 +152,18 @@ async function main() {
     if (!email) throw new Error('Нужно: off <email>')
     // Не удаляем: в журнале статусов остались его действия, и «кто менял»
     // должно продолжать читаться.
-    await prisma.admin.update({ where: { email: email.toLowerCase() }, data: { isActive: false } })
-    console.log(`Отключён: ${email}`)
+    const target = await mustFind(email)
+    await prisma.admin.update({ where: { id: target.id }, data: { isActive: false } })
+    console.log(`Отключён: ${target.email}`)
     return
   }
 
   if (cmd === 'rm') {
     const [email] = args
     if (!email) throw new Error('Нужно: rm <email>')
-    // Адрес НЕ проверяем правилом формы: удалять приходится в том числе
-    // криво заведённые записи, которые это правило не проходят.
-    await prisma.admin.delete({ where: { email: email.toLowerCase() } })
-    console.log(`Удалён: ${email}`)
+    const target = await mustFind(email)
+    await prisma.admin.delete({ where: { id: target.id } })
+    console.log(`Удалён: ${target.email}`)
     return
   }
 
@@ -181,6 +190,28 @@ function requireStrong(password: string) {
   if (password.length < MIN_PASSWORD) {
     throw new Error(`Пароль короче ${MIN_PASSWORD} символов — админка смотрит в открытый интернет`)
   }
+}
+
+/**
+ * Найти админа или сказать об этом по-человечески.
+ *
+ * Адрес НЕ проверяем правилом формы: убирать приходится в том числе криво
+ * заведённые записи, которые это правило не проходят.
+ *
+ * Ищем сами, вместо того чтобы дать упасть delete/update: Prisma на
+ * отсутствующей записи вываливает многострочный дамп запроса, из которого
+ * не понять, что всего-то опечатка в адресе.
+ */
+async function mustFind(email: string) {
+  const admin = await prisma.admin.findUnique({ where: { email: email.toLowerCase() } })
+  if (!admin) {
+    const all = await prisma.admin.findMany({ select: { email: true } })
+    throw new Error(
+      `Нет админа с адресом ${email}.\n` +
+        (all.length ? `Есть: ${all.map((a) => a.email).join(', ')}` : 'Админов вообще нет.'),
+    )
+  }
+  return admin
 }
 
 main()
