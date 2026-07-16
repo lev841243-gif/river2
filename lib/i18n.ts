@@ -43,6 +43,8 @@ export interface Boat {
   photos: string[]
   price: number | null
   isNew?: boolean
+  /** Флагман флота: вместо кричащего ярлыка — сдержанная золотая корона. */
+  premium?: boolean
   badge?: Record<Lang, string>
   name: Record<Lang, string>
   desc: Record<Lang, string>
@@ -59,7 +61,7 @@ export const boats: Boat[] = [
     photos: ['01.webp', '02.webp', '03.webp', '04.webp'],
     price: 55000,
     name: { ru: 'Princess 68', en: 'Princess 68' },
-    badge: { ru: 'Конфетка!', en: 'Beauty!' },
+    premium: true,
     desc: {
       ru: 'Двухпалубная премиум-яхта длиной 23 метра для по-настоящему грандиозного вечера. Караоке, простор для вечеринки и даже возможность подать гидроцикл — устройте феерию на воде для компании до 10 человек.',
       en: 'A 23-metre two-deck premium yacht for a truly grand evening. Karaoke, room to party and even the option to bring a jet-ski — an unforgettable celebration on the water for up to 10 guests.',
@@ -80,7 +82,7 @@ export const boats: Boat[] = [
     photos: ['01.webp', '02.webp', '03.webp', '04.webp', '05.webp', '06.webp', '07.webp', '08.webp', '09.webp', '10.webp', '11.webp', '12.webp', '13.webp', '14.webp'],
     price: 50000,
     name: { ru: 'Galeon 640', en: 'Galeon 640' },
-    badge: { ru: 'Бомбочка!', en: 'Bombshell!' },
+    premium: true,
     desc: {
       ru: 'Премиальная двухпалубная супер-яхта — вершина нашего флота. Кожаный салон и дорогие материалы, отдельные каюты, камбуз, душ и санузел. Максимум простора и статуса для особого события.',
       en: 'A premium two-deck super-yacht — the pinnacle of our fleet. A leather saloon and fine materials, private cabins, a galley, shower and washroom. Ultimate space and prestige for a special occasion.',
@@ -371,7 +373,7 @@ export interface Dict {
   fleet: {
     eyebrow: string; title: string; subtitle: string
     perHour: string; onRequest: string; book: string; details: string
-    isNew: string; captainOnly: string
+    isNew: string; premium: string; captainOnly: string
     specLabels: [string, string, string, string, string]
     amenitiesTitle: string; bookThis: string; specsOnRequest: string; close: string
     extrasTitle: string; extras: string[]
@@ -464,6 +466,7 @@ export const dict: Record<Lang, Dict> = {
       book: 'Забронировать',
       details: 'Подробнее',
       isNew: 'Новинка',
+      premium: 'Флагман флота',
       captainOnly: 'Только с капитаном',
       specLabels: ['Длина', 'Ширина', 'Высота', 'Скорость', 'Вместимость'],
       amenitiesTitle: 'Удобства на борту',
@@ -653,6 +656,7 @@ export const dict: Record<Lang, Dict> = {
       book: 'Book Now',
       details: 'View Details',
       isNew: 'New',
+      premium: 'Flagship of the fleet',
       captainOnly: 'With captain only',
       specLabels: ['Length', 'Beam', 'Height', 'Speed', 'Capacity'],
       amenitiesTitle: 'On-board amenities',

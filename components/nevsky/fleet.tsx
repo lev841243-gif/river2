@@ -5,6 +5,7 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
+  Crown,
   Gauge,
   Maximize2,
   Moon,
@@ -33,14 +34,22 @@ export function Fleet({ lang = 'ru', boats }: { lang?: Lang; boats: Boat[] }) {
 
   const boat = active != null ? boats[active] : null
 
+  /**
+   * Галерея = обложка + остальные фото. Раньше обложка в галерею не входила:
+   * кликаешь на фото карточки, а открывается совсем другое — выглядело как сбой.
+   * Дублей не будет: ни у одной лодки обложка не повторяет галерейное фото.
+   */
+  const gallery = boat ? [boat.cover, ...boat.photos] : []
+
   useEffect(() => {
     if (active == null) return
     setPhoto(0)
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setActive(null)
       if (boat) {
-        if (e.key === 'ArrowRight') setPhoto((p) => (p + 1) % boat.photos.length)
-        if (e.key === 'ArrowLeft') setPhoto((p) => (p - 1 + boat.photos.length) % boat.photos.length)
+        const n = boat.photos.length + 1
+        if (e.key === 'ArrowRight') setPhoto((p) => (p + 1) % n)
+        if (e.key === 'ArrowLeft') setPhoto((p) => (p - 1 + n) % n)
       }
     }
     document.body.style.overflow = 'hidden'
@@ -86,12 +95,24 @@ export function Fleet({ lang = 'ru', boats }: { lang?: Lang; boats: Boat[] }) {
                   className="size-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                {b.specs && b.specs[lang][4] !== '—' && (
-                  <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-background/70 px-3 py-1.5 text-xs text-foreground backdrop-blur-md">
-                    <Users className="size-3.5 text-primary" />
-                    {b.specs[lang][4]}
-                  </span>
-                )}
+                {/* Левый верхний угол: корона флагмана, следом вместимость — одним рядом, чтобы не наезжали. */}
+                <div className="absolute left-4 top-4 flex items-center gap-2">
+                  {b.premium && (
+                    <span
+                      title={t.premium}
+                      aria-label={t.premium}
+                      className="flex size-8 items-center justify-center rounded-full bg-background/70 ring-1 ring-primary/50 backdrop-blur-md"
+                    >
+                      <Crown className="size-4 text-primary" />
+                    </span>
+                  )}
+                  {b.specs && b.specs[lang][4] !== '—' && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-background/70 px-3 py-1.5 text-xs text-foreground backdrop-blur-md">
+                      <Users className="size-3.5 text-primary" />
+                      {b.specs[lang][4]}
+                    </span>
+                  )}
+                </div>
                 {b.isNew && (
                   <span className="absolute right-4 top-4 inline-flex items-center rounded-full bg-primary px-3 py-1.5 text-xs font-medium uppercase tracking-wide text-primary-foreground">
                     {t.isNew}
@@ -152,11 +173,19 @@ export function Fleet({ lang = 'ru', boats }: { lang?: Lang; boats: Boat[] }) {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Gallery */}
-            <div className="relative aspect-[16/10] bg-background">
+            <div className="relative aspect-[16/10] overflow-hidden bg-background">
+              {/* Размытая подложка: у части лодок фото вертикальные, и object-contain
+                  оставлял бы по бокам пустоту. Так поля выглядят задуманными. */}
               <img
-                src={boatImg(boat.dir, boat.photos[photo])}
+                src={boatImg(boat.dir, gallery[photo])}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 size-full scale-110 object-cover opacity-40 blur-2xl"
+              />
+              <img
+                src={boatImg(boat.dir, gallery[photo])}
                 alt={`${boat.name[lang]} — ${photo + 1}`}
-                className="size-full object-cover"
+                className="relative size-full object-contain"
               />
               <button
                 type="button"
@@ -167,11 +196,11 @@ export function Fleet({ lang = 'ru', boats }: { lang?: Lang; boats: Boat[] }) {
                 <X className="size-5" />
               </button>
 
-              {boat.photos.length > 1 && (
+              {gallery.length > 1 && (
                 <>
                   <button
                     type="button"
-                    onClick={() => setPhoto((p) => (p - 1 + boat.photos.length) % boat.photos.length)}
+                    onClick={() => setPhoto((p) => (p - 1 + gallery.length) % gallery.length)}
                     aria-label="prev"
                     className="absolute left-4 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-background/60 text-foreground backdrop-blur-md transition-colors hover:bg-background"
                   >
@@ -179,14 +208,14 @@ export function Fleet({ lang = 'ru', boats }: { lang?: Lang; boats: Boat[] }) {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setPhoto((p) => (p + 1) % boat.photos.length)}
+                    onClick={() => setPhoto((p) => (p + 1) % gallery.length)}
                     aria-label="next"
                     className="absolute right-4 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-background/60 text-foreground backdrop-blur-md transition-colors hover:bg-background"
                   >
                     <ChevronRight className="size-6" />
                   </button>
                   <div className="absolute inset-x-0 bottom-4 flex justify-center gap-2">
-                    {boat.photos.map((_, idx) => (
+                    {gallery.map((_, idx) => (
                       <button
                         key={idx}
                         type="button"
@@ -199,6 +228,15 @@ export function Fleet({ lang = 'ru', boats }: { lang?: Lang; boats: Boat[] }) {
                     ))}
                   </div>
                 </>
+              )}
+              {boat.premium && (
+                <span
+                  title={t.premium}
+                  aria-label={t.premium}
+                  className="absolute left-4 top-4 flex size-9 items-center justify-center rounded-full bg-background/70 ring-1 ring-primary/50 backdrop-blur-md"
+                >
+                  <Crown className="size-4 text-primary" />
+                </span>
               )}
               {boat.badge && (
                 <span className="absolute left-4 top-4 inline-flex -rotate-3 items-center rounded-full bg-gradient-to-r from-primary to-[#e0c485] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-primary-foreground shadow-lg shadow-primary/30">

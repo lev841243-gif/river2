@@ -15,9 +15,12 @@ async function main() {
       descRu: b.desc.ru,
       descEn: b.desc.en,
       price: b.price ?? null,
-      specs: (b.specs ?? undefined) as object | undefined,
+      // null, а не undefined: для Prisma undefined — «не трогать поле», и
+      // убранный из i18n ярлык навсегда остался бы в БД.
+      specs: (b.specs ?? null) as object | null,
       amenities: b.amenities as object,
-      badge: (b.badge ?? undefined) as object | undefined,
+      badge: (b.badge ?? null) as object | null,
+      premium: Boolean(b.premium),
       isNew: Boolean(b.isNew),
       isVisible: true,
       sortOrder: i,

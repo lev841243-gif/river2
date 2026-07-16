@@ -114,12 +114,14 @@ export function SiteNav({ lang = 'ru' }: { lang?: Lang }) {
           <span className="font-[family-name:var(--font-display)] text-sm font-semibold uppercase tracking-[0.12em] text-foreground sm:text-base">
             {brand.wordmark}
           </span>
-          <span className="hidden text-[10px] uppercase tracking-[0.3em] text-primary sm:inline">
+          {/* Только на самых широких: на 1280 место уже занимают меню и соцсети. */}
+          <span className="hidden text-[10px] uppercase tracking-[0.3em] text-primary 2xl:inline">
             {brand.tagline}
           </span>
         </a>
 
-        <div className="hidden items-center gap-9 lg:flex">
+        {/* Зазор был 36px — на шести пунктах это 180px, из-за них шапка и не влезала. */}
+        <div className="hidden items-center gap-5 lg:flex xl:gap-6">
           {t.links.map((link) => (
             <a
               key={link.href}
@@ -133,8 +135,12 @@ export function SiteNav({ lang = 'ru' }: { lang?: Lang }) {
 
         <div className="hidden items-center gap-3 lg:flex">
           <LangSwitch lang={lang} />
-          <SocialRow lang={lang} idPrefix="nav" />
-          <span className="h-5 w-px bg-border" />
+          {/* Соцсети — только с xl. На 1024–1280 они не влезали: шапке нужно было
+              1201px при 944 доступных, и строка разъезжалась. В футере они есть всегда. */}
+          <div className="hidden items-center gap-3 xl:flex">
+            <SocialRow lang={lang} idPrefix="nav" />
+            <span className="h-5 w-px bg-border" />
+          </div>
           <CallButton label={c.callAdmin} />
           <CtaButton label={t.cta} className="px-6 py-2.5" />
         </div>

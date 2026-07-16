@@ -25,7 +25,8 @@ model Boat {
   price     Int? // ₽/час; null = «по запросу»
   specs     Json? // { ru: [длина, ширина, высота, скорость, вместимость], en: [...] }
   amenities Json // { ru: [...], en: [...] }
-  badge     Json? // { ru: "Бомбочка!", en: "Bombshell!" }
+  badge     Json? // { ru: "Бомбочка!", en: "Bombshell!" } — кричащий ярлык
+  premium   Boolean  @default(false) // флагман: сдержанная золотая корона вместо ярлыка
   isNew     Boolean  @default(false)
   isVisible Boolean  @default(true)
   sortOrder Int      @default(0)

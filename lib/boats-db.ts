@@ -22,6 +22,7 @@ export async function getBoats(): Promise<Boat[]> {
         photos: r.photos,
         price: r.price,
         isNew: r.isNew || undefined,
+        premium: r.premium || undefined,
         badge: (r.badge as unknown as Boat['badge']) ?? undefined,
         name: { ru: r.nameRu, en: r.nameEn },
         desc: { ru: r.descRu, en: r.descEn },
