@@ -220,15 +220,35 @@ proxy_set_header X-Forwarded-For $remote_addr;
 ## 10. Обновления сайта (одна серия команд)
 
 ```bash
-cd ~/dno
+cd /root/dno
 git pull
-npm ci
-npx prisma migrate deploy   # только если менялась схема БД
+npm ci                      # если менялись зависимости
+npx prisma generate         # ⚠️ ОБЯЗАТЕЛЬНО, если менялась schema.prisma
+npx prisma migrate deploy   # если менялась схема БД
+rm -rf .next
 npm run build
-pm2 reload dno
+pm2 reload dno --update-env
 ```
 
-(Сделаю из этого один скрипт `deploy.sh`, чтобы запускать одной командой.)
+### ⚠️ Про `prisma generate` — грабли, на которых уже наступили
+
+`migrate deploy` добавляет столбец в **базу**, но не обновляет сгенерированный
+**клиент** в `node_modules`. Если пропустить `prisma generate`, приложение
+соберётся и запустится, а в рантайме упадёт:
+
+```
+Unknown argument `tgMessageId`
+```
+
+Обычно `generate` срабатывает сам через `postinstall` при `npm ci`. Но если
+зависимости не менялись и `npm ci` пропущен — клиент останется старым.
+**Менялась `schema.prisma` → запускай `prisma generate`.**
+
+### Про `.env` и переменные
+
+`pm2 reload dno --update-env` перечитывает окружение. После правки `.env`
+(токены, пароли) перезапуск обязателен — иначе процесс работает со старыми
+значениями.
 
 ---
 
