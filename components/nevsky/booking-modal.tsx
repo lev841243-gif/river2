@@ -5,8 +5,8 @@ import { AlertCircle, CalendarClock, Clock, Loader2, X } from 'lucide-react'
 import { contacts, dict, type Boat, type Lang } from '@/lib/i18n'
 import { readUtmCookie } from '@/lib/utm'
 import { MAX_GUESTS, type Interval } from '@/lib/booking-rules'
-import { dayWindow, endOptions, slotDate, startOptions } from '@/lib/booking-slots'
-import { parseDayKey, spbTodayKey } from '@/lib/spb-time'
+import { durationLabel, durationLabelEn, durationOptions, slotDate, startOptions } from '@/lib/booking-slots'
+import { parseDayKey, spbTodayKey, toSpbParts } from '@/lib/spb-time'
 import { BookingCalendar, type MonthCursor } from './booking-calendar'
 
 type Step = 'when' | 'details' | 'success'
@@ -41,7 +41,8 @@ export function BookingModal({
   })
   const [day, setDay] = useState<string | null>(null)
   const [from, setFrom] = useState<number | null>(null)
-  const [to, setTo] = useState<number | null>(null)
+  /** Длительность в часах: катер берут и на час, и на несколько суток. */
+  const [hours, setHours] = useState<number | null>(null)
 
   const [busy, setBusy] = useState<Interval[]>([])
   const [loadingBusy, setLoadingBusy] = useState(false)
@@ -99,35 +100,57 @@ export function BookingModal({
   // Смена катера или даты обнуляет выбранное время: слоты другие.
   useEffect(() => {
     setFrom(null)
-    setTo(null)
+    setHours(null)
   }, [boatSlug, day])
 
   const starts = useMemo(
     () => (day ? startOptions(day, busy, now) : []),
     [day, busy, now],
   )
-  const ends = useMemo(
-    () => (day && from != null ? endOptions(day, from, busy) : []),
+  const durations = useMemo(
+    () => (day && from != null ? durationOptions(day, from, busy) : []),
     [day, from, busy],
   )
 
   const dayIsEmpty = day != null && starts.length > 0 && starts.every((o) => o.disabled)
 
   const boat = boats.find((b) => b.id === boatSlug)
-  const hours = from != null && to != null ? (to - from) / 60 : null
   const price = boat?.price != null && hours != null ? Math.round(boat.price * hours) : null
+
+  /** Конец = начало + длительность: полночь и переход на другие сутки считаются сами. */
+  const endDate = day && from != null && hours != null
+    ? new Date(slotDate(day, from).getTime() + hours * 3_600_000)
+    : null
+
+  /**
+   * «20.08, 18:00 — 21:00 · 3 ч» или «20.08, 18:00 — 22.08, 18:00 · 2 суток».
+   * Дату конца показываем, только если она другая: иначе лишний шум.
+   */
+  const intervalSummary = useMemo(() => {
+    if (!day || from == null || hours == null || !endDate) return ''
+    const s = toSpbParts(slotDate(day, from))
+    const e = toSpbParts(endDate)
+    const p = (n: number) => String(n).padStart(2, '0')
+    const startStr = `${p(s.day)}.${p(s.month)}, ${p(s.hour)}:${p(s.minute)}`
+    const sameDay = s.day === e.day && s.month === e.month
+    const endStr = sameDay
+      ? `${p(e.hour)}:${p(e.minute)}`
+      : `${p(e.day)}.${p(e.month)}, ${p(e.hour)}:${p(e.minute)}`
+    const dur = lang === 'ru' ? durationLabel(hours) : durationLabelEn(hours)
+    return `${startStr} — ${endStr} · ${dur}`
+  }, [day, from, hours, endDate, lang])
 
   function goToDetails() {
     const next: Record<string, string> = {}
     if (!day) next.day = t.pickDateFirst
-    else if (from == null || to == null) next.time = t.pickTimeFirst
+    else if (from == null || hours == null) next.time = t.pickTimeFirst
     setErrors(next)
     if (Object.keys(next).length === 0) setStep('details')
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!day || from == null || to == null) return
+    if (!day || from == null || hours == null || !endDate) return
 
     const next: Record<string, string> = {}
     if (clientName.trim().length < 2) next.clientName = t.nameError
@@ -145,7 +168,7 @@ export function BookingModal({
         body: JSON.stringify({
           boatId: boatSlug,
           startAt: slotDate(day, from).toISOString(),
-          endAt: slotDate(day, to).toISOString(),
+          endAt: endDate.toISOString(),
           guests,
           clientName: clientName.trim(),
           phone: phone.trim(),
@@ -168,7 +191,7 @@ export function BookingModal({
         await loadBusy() // слот заняли — перечитываем календарь
         setStep('when')
         setFrom(null)
-        setTo(null)
+        setHours(null)
         return
       }
       const rejection = t.rejection[data.error as keyof typeof t.rejection]
@@ -281,7 +304,7 @@ export function BookingModal({
                       value={from ?? ''}
                       onChange={(e) => {
                         setFrom(Number(e.target.value))
-                        setTo(null)
+                        setHours(null)
                       }}
                       className={inputClass(false)}
                     >
@@ -295,19 +318,21 @@ export function BookingModal({
                       ))}
                     </select>
                   </Field>
-                  <Field label={t.timeToLabel}>
+                  {/* Длительность вместо «времени до»: катер берут и на сутки, и на
+                      несколько дней — с «до» пришлось бы гадать, какие это сутки. */}
+                  <Field label={t.durationSelectLabel}>
                     <select
-                      value={to ?? ''}
-                      onChange={(e) => setTo(Number(e.target.value))}
+                      value={hours ?? ''}
+                      onChange={(e) => setHours(Number(e.target.value))}
                       disabled={from == null}
                       className={inputClass(false)}
                     >
                       <option value="" disabled>
                         —
                       </option>
-                      {ends.map((o) => (
+                      {durations.map((o) => (
                         <option key={o.value} value={o.value} disabled={o.disabled}>
-                          {o.label}
+                          {lang === 'ru' ? durationLabel(o.value) : durationLabelEn(o.value)}
                         </option>
                       ))}
                     </select>
@@ -317,12 +342,12 @@ export function BookingModal({
                 {errors.time && <p className="-mt-2 text-xs text-destructive">{errors.time}</p>}
 
                 {hours != null && (
-                  <div className="flex items-center justify-between rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm">
+                  <div className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm">
                     <span className="flex items-center gap-2 text-muted-foreground">
-                      <CalendarClock className="size-4 text-primary" />
-                      {t.durationLabel}: {hours} {t.hoursShort}
+                      <CalendarClock className="size-4 shrink-0 text-primary" />
+                      {intervalSummary}
                     </span>
-                    <span className="font-medium text-primary">
+                    <span className="shrink-0 font-medium text-primary">
                       {price != null
                         ? `${price.toLocaleString(lang === 'ru' ? 'ru-RU' : 'en-US')} ₽`
                         : t.priceOnRequest}
@@ -349,7 +374,7 @@ export function BookingModal({
             <div className="rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm">
               <p className="font-medium text-foreground">{boat?.name[lang]}</p>
               <p className="mt-0.5 text-muted-foreground">
-                {day} · {starts.find((o) => o.value === from)?.label} — {ends.find((o) => o.value === to)?.label}
+                {intervalSummary}
                 {price != null && ` · ${price.toLocaleString(lang === 'ru' ? 'ru-RU' : 'en-US')} ₽`}
               </p>
             </div>

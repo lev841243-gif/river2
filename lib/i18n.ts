@@ -390,6 +390,7 @@ export interface Dict {
     title: string; subtitle: string
     boatLabel: string; boatPlaceholder: string
     dateLabel: string; timeFromLabel: string; timeToLabel: string
+    durationSelectLabel: string
     guestsLabel: string
     nameLabel: string; namePlaceholder: string
     phoneLabel: string; phonePlaceholder: string
@@ -405,7 +406,7 @@ export interface Dict {
     successTitle: string; successText: string; successNote: string
     errorTitle: string; errorText: string; contactManager: string
     busyTitle: string; busyText: string
-    rejection: { PAST: string; TOO_SHORT: string; TOO_LONG: string; OUTSIDE_HOURS: string; TOO_FAR: string; BOAT_BUSY: string }
+    rejection: { PAST: string; TOO_SHORT: string; TOO_LONG: string; TOO_FAR: string; BOAT_BUSY: string }
   }
 }
 
@@ -554,8 +555,9 @@ export const dict: Record<Lang, Dict> = {
       boatLabel: 'Катер',
       boatPlaceholder: 'Выберите катер',
       dateLabel: 'Дата прогулки',
-      timeFromLabel: 'Время с',
+      timeFromLabel: 'Время начала',
       timeToLabel: 'Время до',
+      durationSelectLabel: 'На сколько',
       guestsLabel: 'Гостей',
       nameLabel: 'Ваше имя',
       namePlaceholder: 'Как к вам обращаться',
@@ -581,7 +583,7 @@ export const dict: Record<Lang, Dict> = {
       hoursShort: 'ч',
       priceLabel: 'Стоимость',
       priceOnRequest: 'По запросу',
-      timeNote: 'Время петербургское (МСК)',
+      timeNote: 'Время московское (МСК)',
       successTitle: 'Ожидайте подтверждения брони',
       successText: 'Заявка принята, катер на это время придержан за вами. Менеджер свяжется с вами и подтвердит бронь.',
       successNote: 'Бронь считается подтверждённой только после ответа менеджера.',
@@ -592,11 +594,10 @@ export const dict: Record<Lang, Dict> = {
       busyText: 'Этот интервал только что заняли. Выберите другое время или дату.',
       rejection: {
         PAST: 'Это время уже прошло — выберите другое.',
-        TOO_SHORT: 'Минимальная аренда — 2 часа.',
-        TOO_LONG: 'Максимальная аренда за одну заявку — 12 часов.',
-        OUTSIDE_HOURS: 'Прогулки возможны с 10:00 до 02:00.',
+        TOO_SHORT: 'Минимальная аренда — 1 час.',
+        TOO_LONG: 'Максимум за одну заявку — 7 суток. Дольше — напишите менеджеру.',
         TOO_FAR: 'Бронирование открыто на 180 дней вперёд.',
-        BOAT_BUSY: 'Катер занят в это время — выберите другой интервал.',
+        BOAT_BUSY: 'Катер уже забронирован на это время — выберите другой интервал.',
       },
     },
   },
@@ -743,8 +744,9 @@ export const dict: Record<Lang, Dict> = {
       boatLabel: 'Boat',
       boatPlaceholder: 'Choose a boat',
       dateLabel: 'Cruise date',
-      timeFromLabel: 'From',
+      timeFromLabel: 'Start time',
       timeToLabel: 'To',
+      durationSelectLabel: 'Duration',
       guestsLabel: 'Guests',
       nameLabel: 'Your name',
       namePlaceholder: 'How should we address you',
@@ -770,7 +772,7 @@ export const dict: Record<Lang, Dict> = {
       hoursShort: 'h',
       priceLabel: 'Price',
       priceOnRequest: 'On request',
-      timeNote: 'Times are St. Petersburg local (MSK)',
+      timeNote: 'All times are Moscow time (MSK)',
       successTitle: 'Awaiting booking confirmation',
       successText: 'Your request is in. The boat is held for that time. Our manager will contact you to confirm the booking.',
       successNote: 'The booking counts as confirmed only once the manager replies.',
@@ -781,11 +783,10 @@ export const dict: Record<Lang, Dict> = {
       busyText: 'This slot has just been taken. Please pick another time or date.',
       rejection: {
         PAST: 'That time has already passed — please pick another.',
-        TOO_SHORT: 'Minimum rental is 2 hours.',
-        TOO_LONG: 'Maximum rental per request is 12 hours.',
-        OUTSIDE_HOURS: 'Cruises run between 10:00 and 02:00.',
+        TOO_SHORT: 'Minimum rental is 1 hour.',
+        TOO_LONG: 'Maximum per request is 7 days. For longer, message our manager.',
         TOO_FAR: 'Bookings open 180 days ahead.',
-        BOAT_BUSY: 'The boat is busy at that time — please pick another slot.',
+        BOAT_BUSY: 'The boat is already booked for that time — please pick another slot.',
       },
     },
   },

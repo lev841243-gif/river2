@@ -40,7 +40,6 @@ const REJECTION_STATUS: Record<BookingRejection, number> = {
   PAST: 400,
   TOO_SHORT: 400,
   TOO_LONG: 400,
-  OUTSIDE_HOURS: 400,
   TOO_FAR: 400,
   BOAT_BUSY: 409,
 }

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient } from '@prisma/client'
 import { boats } from '../lib/i18n'
 
 const prisma = new PrismaClient()
@@ -15,11 +15,12 @@ async function main() {
       descRu: b.desc.ru,
       descEn: b.desc.en,
       price: b.price ?? null,
-      // null, а не undefined: для Prisma undefined — «не трогать поле», и
-      // убранный из i18n ярлык навсегда остался бы в БД.
-      specs: (b.specs ?? null) as object | null,
-      amenities: b.amenities as object,
-      badge: (b.badge ?? null) as object | null,
+      // Prisma.DbNull, а не undefined: undefined значит «не трогать поле», и
+      // убранный из i18n ярлык навсегда остался бы в БД. Для Json-полей обычный
+      // null означал бы JSON-значение null, поэтому нужен именно DbNull.
+      specs: (b.specs ?? Prisma.DbNull) as Prisma.InputJsonValue | typeof Prisma.DbNull,
+      amenities: b.amenities as unknown as Prisma.InputJsonValue,
+      badge: (b.badge ?? Prisma.DbNull) as Prisma.InputJsonValue | typeof Prisma.DbNull,
       premium: Boolean(b.premium),
       isNew: Boolean(b.isNew),
       isVisible: true,

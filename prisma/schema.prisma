@@ -104,6 +104,21 @@ model BookingStatusHistory {
   @@index([bookingId])
 }
 
+// ─────────────────── Диалог создания брони в боте ───────────────────
+// Менеджер заполняет карточку по шагам, а Telegram не хранит состояние между
+// сообщениями. Держим черновик в БД, а не в памяти процесса: при перезапуске
+// PM2 память обнулилась бы, и менеджер потерял бы наполовину введённую бронь.
+model BotDraft {
+  /** Чат, где идёт диалог: у менеджера может быть только один черновик разом. */
+  chatId    String   @id
+  userId    String
+  step      String // boat | date | time | duration | name | phone | guests | comment
+  data      Json     @default("{}")
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([updatedAt])
+}
+
 // ─────────────────────────── Клиенты ───────────────────────────
 model Client {
   id        String    @id @default(uuid())

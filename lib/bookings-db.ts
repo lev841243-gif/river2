@@ -67,6 +67,12 @@ interface CreateBookingArgs {
   utmMedium?: string
   utmCampaign?: string
   referer?: string | null
+  /**
+   * Заявку завёл менеджер (клиент позвонил или написал лично).
+   * Тогда источник — MANUAL, а не вычисленный по UTM, и статус сразу CONFIRMED:
+   * менеджер уже поговорил с клиентом, подтверждать нечего.
+   */
+  manual?: { by: string }
 }
 
 /**
@@ -99,12 +105,19 @@ export async function createBooking(args: CreateBookingArgs) {
             data: { phone: args.phone, name: args.clientName, telegram: args.telegram },
           })
 
-      const source = detectSource({
-        isRepeat: Boolean(existing),
-        utmSource: args.utmSource,
-        utmMedium: args.utmMedium,
-        referer: args.referer,
-      })
+      // Заявку от менеджера не пытаемся атрибутировать по UTM — источник известен.
+      const source = args.manual
+        ? 'MANUAL'
+        : detectSource({
+            isRepeat: Boolean(existing),
+            utmSource: args.utmSource,
+            utmMedium: args.utmMedium,
+            referer: args.referer,
+          })
+
+      // Менеджер заводит бронь после разговора с клиентом — она сразу
+      // подтверждена и, как подтверждённая, держит слот.
+      const status = args.manual ? 'CONFIRMED' : 'NEW'
 
       const booking = await tx.booking.create({
         data: {
@@ -120,6 +133,7 @@ export async function createBooking(args: CreateBookingArgs) {
           priceSnapshot,
           lang: args.lang,
           source,
+          status,
           utmSource: args.utmSource,
           utmMedium: args.utmMedium,
           utmCampaign: args.utmCampaign,
@@ -127,7 +141,12 @@ export async function createBooking(args: CreateBookingArgs) {
       })
 
       await tx.bookingStatusHistory.create({
-        data: { bookingId: booking.id, from: null, to: 'NEW', changedBy: 'site' },
+        data: {
+          bookingId: booking.id,
+          from: null,
+          to: status,
+          changedBy: args.manual ? args.manual.by : 'site',
+        },
       })
 
       return booking
@@ -135,6 +154,29 @@ export async function createBooking(args: CreateBookingArgs) {
   } catch (e) {
     if (isExclusionViolation(e)) throw new BoatBusyError()
     throw e
+  }
+}
+
+/**
+ * Отправить бронь в Google Sheets — зеркало для отчётности (ТЗ, п. 6.5).
+ *
+ * Ошибки только логируются: таблица не источник правды, и ронять из-за неё
+ * подтверждение брони нельзя. Не настроен сервисный аккаунт — молча пропускаем.
+ */
+export async function mirrorToSheet(bookingId: string): Promise<void> {
+  const { googleSheetsConfigured, appendBookingRow } = await import('@/lib/google-sheets')
+  if (!googleSheetsConfigured()) return
+
+  try {
+    const b = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: { boat: { select: { slug: true, nameRu: true } } },
+    })
+    if (!b) return
+    const { toAnalyticsRecord } = await import('@/lib/analytics')
+    await appendBookingRow(toAnalyticsRecord(b))
+  } catch (e) {
+    console.error('[mirrorToSheet] не записалось в таблицу:', e)
   }
 }
 

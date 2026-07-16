@@ -3,9 +3,10 @@ import {
   changeBookingStatus,
   findBookingIdByTgMessage,
   getBookingForMessage,
+  mirrorToSheet,
   rescheduleBooking,
 } from '@/lib/bookings-db'
-import { validateInterval } from '@/lib/booking-rules'
+import { MAX_DURATION_HOURS, MIN_DURATION_HOURS, validateInterval } from '@/lib/booking-rules'
 import {
   adminChatId,
   answerCallback,
@@ -14,6 +15,19 @@ import {
   telegramConfigured,
   updateBookingMessage,
 } from '@/lib/telegram'
+import {
+  beginManualBooking,
+  cancelDraft,
+  finishDraft,
+  parseStart,
+  pickBoat,
+  pickDuration,
+  pickGuests,
+  pickName,
+  pickPhone,
+  pickWhen,
+} from '@/lib/bot-flow'
+import { dropStaleDrafts, getDraft } from '@/lib/bot-draft'
 import { fromSpbParts, toSpbParts } from '@/lib/spb-time'
 
 export const dynamic = 'force-dynamic'
@@ -65,15 +79,30 @@ async function handleCallback(cb: TgCallbackQuery) {
     return
   }
 
-  const [action, bookingId] = (cb.data ?? '').split(':')
-  if (!bookingId) return answerCallback(cb.id)
+  const [action, arg] = (cb.data ?? '').split(':')
+  if (!arg) return answerCallback(cb.id)
 
   const who = cb.from?.username ? `@${cb.from.username}` : (cb.from?.first_name ?? 'менеджер')
+
+  // ── Диалог «Создать бронь» (префикс mb_) ──
+  if (action.startsWith('mb_')) {
+    await answerCallback(cb.id)
+    const chat = String(chatId)
+    if (action === 'mb_start') await beginManualBooking(chat, String(cb.from?.id ?? ''))
+    else if (action === 'mb_boat') await pickBoat(chat, arg)
+    else if (action === 'mb_dur') await pickDuration(chat, Number(arg))
+    else if (action === 'mb_guests') await pickGuests(chat, Number(arg))
+    else if (action === 'mb_skip') await finishDraft(chat, undefined, who)
+    else if (action === 'mb_cancel') await cancelDraft(chat)
+    return
+  }
+
+  const bookingId = arg
 
   const STATUS_BY_ACTION = {
     confirm: 'CONFIRMED',
     cancel: 'CANCELLED',
-    // Возврат в работу: слот снова держится за клиентом (REVIEW — блокирующий статус).
+    // Возврат в работу. Слот при этом НЕ занимается: держит только CONFIRMED.
     reopen: 'REVIEW',
   } as const
 
@@ -94,6 +123,10 @@ async function handleCallback(cb: TgCallbackQuery) {
     const said = { confirm: 'Подтверждено', cancel: 'Отменено', reopen: 'Возвращено в работу' }
     await answerCallback(cb.id, said[action as keyof typeof said])
     await refreshCard(bookingId, cb.message!.message_id)
+
+    // Зеркалим в таблицу только подтверждённые (ТЗ, п. 6.5). Ждём, а не пускаем
+    // в фон: на serverless фоновая задача не переживёт ответ.
+    if (to === 'CONFIRMED') await mirrorToSheet(bookingId)
     return
   }
 
@@ -119,10 +152,38 @@ async function handleCallback(cb: TgCallbackQuery) {
   await answerCallback(cb.id)
 }
 
-// ─────────────────────────── Ответ с новым временем ───────────────────────────
+// ─────────────────────────── Сообщения ───────────────────────────
 
 async function handleMessage(msg: TgMessage) {
   if (String(msg.chat?.id) !== adminChatId()) return
+
+  const chat = String(msg.chat!.id)
+  const text = (msg.text ?? '').trim()
+  const who = msg.from?.username ? `@${msg.from.username}` : (msg.from?.first_name ?? 'менеджер')
+
+  // Команды: в группе режим приватности пропускает их всегда.
+  // Telegram дописывает @имя_бота, если в группе несколько ботов.
+  const command = text.split(/[\s@]/)[0].toLowerCase()
+  if (command === '/bron' || command === '/new' || command === '/start') {
+    await dropStaleDrafts()
+    if (command === '/start') {
+      return callTelegram('sendMessage', {
+        chat_id: adminChatId(),
+        text:
+          'Сюда приходят заявки с сайта.\n\n' +
+          '<b>/bron</b> — завести бронь вручную (клиент позвонил или написал лично).\n\n' +
+          'Чтобы перенести бронь — ответьте на её карточку новым временем.',
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[{ text: '➕ Создать бронь', callback_data: 'mb_start:x' }]],
+        },
+      })
+    }
+    return beginManualBooking(chat, String(msg.from?.id ?? ''))
+  }
+
+  // Шаг незаконченного диалога создания брони.
+  if (await handleDraftStep(chat, text, who)) return
 
   // Ждём ответ на карточку заявки. Режим приватности бота как раз это и
   // пропускает: ответы на собственные сообщения бот видит, обычную болтовню — нет.
@@ -153,11 +214,69 @@ async function handleMessage(msg: TgMessage) {
 
 const REJECTION_TEXT: Record<string, string> = {
   PAST: 'Это время уже прошло',
-  TOO_SHORT: 'Минимальная аренда — 2 часа',
-  TOO_LONG: 'Максимум за одну заявку — 12 часов',
-  OUTSIDE_HOURS: 'Прогулки возможны с 10:00 до 02:00',
+  TOO_SHORT: `Минимальная аренда — ${MIN_DURATION_HOURS} ч`,
+  TOO_LONG: `Максимум за одну заявку — ${MAX_DURATION_HOURS / 24} суток`,
   TOO_FAR: 'Бронирование открыто на 180 дней вперёд',
   BOAT_BUSY: 'Катер занят',
+}
+
+/**
+ * Шаг незаконченного диалога «Создать бронь».
+ * Возвращает true, если сообщение съедено диалогом.
+ */
+async function handleDraftStep(chat: string, text: string, who: string): Promise<boolean> {
+  const draft = await getDraft(chat)
+  if (!draft) return false
+
+  // Кнопочные шаги ждут нажатия, а не текста — не перехватываем болтовню.
+  if (draft.step === 'boat') return false
+
+  if (draft.step === 'when') {
+    const start = parseStart(text)
+    if (!start) return false // не похоже на дату — вдруг просто разговор
+    await pickWhen(chat, start)
+    return true
+  }
+
+  if (draft.step === 'duration') {
+    // На этом шаге есть и кнопки, поэтому текст принимаем только как число часов.
+    const h = Number(text.replace(/\s*ч(ас(ов|а)?)?$/i, '').trim())
+    if (!Number.isFinite(h) || h <= 0) return false
+    await pickDuration(chat, h)
+    return true
+  }
+
+  if (draft.step === 'name') {
+    if (text.length < 2) return false
+    await pickName(chat, text)
+    return true
+  }
+
+  if (draft.step === 'phone') {
+    if ((text.match(/\d/g)?.length ?? 0) < 10) {
+      await callTelegram('sendMessage', {
+        chat_id: adminChatId(),
+        text: '❌ Не похоже на телефон. Пришлите номер, например +7 999 123-45-67',
+      })
+      return true
+    }
+    await pickPhone(chat, text)
+    return true
+  }
+
+  if (draft.step === 'guests') {
+    const g = Number(text)
+    if (!Number.isInteger(g) || g < 1) return false
+    await pickGuests(chat, g)
+    return true
+  }
+
+  if (draft.step === 'comment') {
+    await finishDraft(chat, text, who)
+    return true
+  }
+
+  return false
 }
 
 /**
@@ -227,13 +346,16 @@ interface TgChat {
   id: number
 }
 interface TgUser {
+  id?: number
   username?: string
   first_name?: string
 }
 interface TgMessage {
   message_id: number
   chat?: TgChat
+  from?: TgUser
   text?: string
+  /** Telegram НЕ вкладывает сюда собственный reply_to_message — только один уровень. */
   reply_to_message?: TgMessage
 }
 interface TgCallbackQuery {
