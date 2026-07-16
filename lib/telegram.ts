@@ -263,10 +263,23 @@ export async function updateBookingMessage(messageId: number, b: BookingMessage)
   })
 }
 
-/** Ответ на нажатие кнопки — без него Telegram крутит «часики» на кнопке. */
+/**
+ * Ответ на нажатие кнопки — гасит «часики» на кнопке.
+ *
+ * Ошибки намеренно проглатываются: это чистая косметика, и она не должна
+ * мешать самому действию. Callback-запрос живёт около минуты — если менеджер
+ * нажал кнопку в старом сообщении или моргнула сеть, вызов упадёт с «query is
+ * too old». Раньше исключение обрывало обработчик, и нажатие не делало ничего.
+ */
 export async function answerCallback(id: string, text?: string, alert = false): Promise<void> {
-  await callTelegram('answerCallbackQuery', {
-    callback_query_id: id,
-    ...(text ? { text, show_alert: alert } : {}),
-  })
+  try {
+    await callTelegram(
+      'answerCallbackQuery',
+      { callback_query_id: id, ...(text ? { text, show_alert: alert } : {}) },
+      // Один заход: «часики» всё равно погаснут сами, а повторы задержат действие.
+      1,
+    )
+  } catch (e) {
+    console.warn('[answerCallback] не удалось ответить на нажатие:', e)
+  }
 }
