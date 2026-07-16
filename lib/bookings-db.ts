@@ -288,16 +288,28 @@ export async function rescheduleBooking(
   }
 }
 
+/**
+ * Опознать нарушение exclusion-констрейнта (пересечение броней).
+ *
+ * Prisma отдаёт эту ошибку по-разному, поэтому проверок три:
+ * 1. `code = 23P01` — нативный код Postgres;
+ * 2. `P2010` + `meta.code` — обёртка вокруг raw-запроса;
+ * 3. код в ТЕКСТЕ ошибки — внутри интерактивной транзакции ($transaction с
+ *    колбэком) Prisma 6.19 бросает PrismaClientUnknownRequestError вообще без
+ *    поля `code`, и кроме текста опознать ошибку не по чему.
+ *
+ * Третий случай — не теория: без него подтверждение брони на занятый слот
+ * падало 500-й вместо «катер занят», потому что первые две проверки его не
+ * ловят. Поймано на живом прогоне админки.
+ */
 function isExclusionViolation(e: unknown): boolean {
-  return (
-    typeof e === 'object' &&
-    e !== null &&
-    'code' in e &&
-    ((e as { code?: string }).code === PG_EXCLUSION_VIOLATION ||
-      // Prisma заворачивает нативные ошибки Postgres в P2010 с полем meta.code.
-      ((e as { code?: string }).code === 'P2010' &&
-        (e as { meta?: { code?: string } }).meta?.code === PG_EXCLUSION_VIOLATION))
-  )
+  if (typeof e !== 'object' || e === null) return false
+  const err = e as { code?: string; meta?: { code?: string }; message?: string }
+
+  if (err.code === PG_EXCLUSION_VIOLATION) return true
+  if (err.code === 'P2010' && err.meta?.code === PG_EXCLUSION_VIOLATION) return true
+
+  return typeof err.message === 'string' && err.message.includes(PG_EXCLUSION_VIOLATION)
 }
 
 /** Определение источника заявки по UTM и referer (ТЗ, п. 6.6). */

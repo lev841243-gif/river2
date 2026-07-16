@@ -21,6 +21,9 @@ export const metadata: Metadata = {
     'Private luxury boat tours along the Neva River with professional captains — romantic evenings, White Nights, celebrations and corporate events in Saint Petersburg.',
 }
 
+/** ISR — см. пояснение в app/page.tsx. Обе версии читают один и тот же флот. */
+export const revalidate = 300
+
 export default async function EnPage() {
   const lang = 'en'
   const boats = await getBoats()

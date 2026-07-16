@@ -14,6 +14,15 @@ import { Faq } from '@/components/nevsky/faq'
 import { Cta } from '@/components/nevsky/cta'
 import { SiteFooter } from '@/components/nevsky/site-footer'
 
+/**
+ * ISR (ТЗ, п. 7). Без него страница собиралась бы полностью статически, флот
+ * замерзал бы на момент сборки, и правка лодки в админке не появлялась бы на
+ * сайте до следующего деплоя. Админка дополнительно бьёт revalidatePath('/')
+ * при сохранении — эта цифра лишь потолок на случай правки мимо неё (например,
+ * прямо в базе).
+ */
+export const revalidate = 300
+
 export default async function Page() {
   const lang = 'ru'
   const boats = await getBoats()

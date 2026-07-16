@@ -119,6 +119,24 @@ model BotDraft {
   @@index([updatedAt])
 }
 
+// ─────────────────────────── Админы ───────────────────────────
+// Своя авторизация вместо Supabase Auth из ТЗ: в проекте нет Supabase, а нужен
+// ровно один провайдер «email + пароль». Пароль хранится как scrypt-хеш
+// (см. lib/auth.ts), сама сессия — в подписанной куке, без таблицы сессий:
+// админов двое, инвалидация сессий не требуется.
+model Admin {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  /** scrypt: соль и хеш в одной строке, разбор — в lib/auth.ts. */
+  passwordHash String
+  name         String
+  /** Задел на роли: сейчас все админы равны, различать некого. */
+  role         String    @default("admin")
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime? @db.Timestamptz(3)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+}
+
 // ─────────────────────────── Клиенты ───────────────────────────
 model Client {
   id        String    @id @default(uuid())

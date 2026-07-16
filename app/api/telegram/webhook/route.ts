@@ -1,11 +1,6 @@
 import { NextResponse } from 'next/server'
-import {
-  changeBookingStatus,
-  findBookingIdByTgMessage,
-  getBookingForMessage,
-  mirrorToSheet,
-  rescheduleBooking,
-} from '@/lib/bookings-db'
+import { findBookingIdByTgMessage, getBookingForMessage } from '@/lib/bookings-db'
+import { applyReschedule, applyStatusChange } from '@/lib/booking-workflow'
 import { MAX_DURATION_HOURS, MIN_DURATION_HOURS, validateInterval } from '@/lib/booking-rules'
 import {
   adminChatId,
@@ -13,7 +8,6 @@ import {
   callTelegram,
   formatInterval,
   telegramConfigured,
-  updateBookingMessage,
 } from '@/lib/telegram'
 import {
   beginManualBooking,
@@ -108,7 +102,9 @@ async function handleCallback(cb: TgCallbackQuery) {
 
   if (action in STATUS_BY_ACTION) {
     const to = STATUS_BY_ACTION[action as keyof typeof STATUS_BY_ACTION]
-    const res = await changeBookingStatus(bookingId, to, who)
+    // Карточку и Google Sheets подтягивает applyStatusChange — та же цепочка,
+    // что и в админке.
+    const res = await applyStatusChange(bookingId, to, who, cb.message?.message_id)
 
     if (!res.ok) {
       const why = {
@@ -122,11 +118,6 @@ async function handleCallback(cb: TgCallbackQuery) {
 
     const said = { confirm: 'Подтверждено', cancel: 'Отменено', reopen: 'Возвращено в работу' }
     await answerCallback(cb.id, said[action as keyof typeof said])
-    await refreshCard(bookingId, cb.message!.message_id)
-
-    // Зеркалим в таблицу только подтверждённые (ТЗ, п. 6.5). Ждём, а не пускаем
-    // в фон: на serverless фоновая задача не переживёт ответ.
-    if (to === 'CONFIRMED') await mirrorToSheet(bookingId)
     return
   }
 
@@ -204,12 +195,11 @@ async function handleMessage(msg: TgMessage) {
     return
   }
 
-  const result = await rescheduleBooking(id, parsed.start, parsed.end)
+  const result = await applyReschedule(id, parsed.start, parsed.end)
   if (result === 'not_found') return reply(msg, '❌ Заявка не найдена')
   if (result === 'busy') return reply(msg, '❌ Катер уже занят в это время')
 
   await reply(msg, `✅ Перенесено: ${formatInterval(parsed.start, parsed.end)}`)
-  await refreshCard(id)
 }
 
 const REJECTION_TEXT: Record<string, string> = {
@@ -323,20 +313,6 @@ async function reply(msg: TgMessage, text: string) {
     text,
     parse_mode: 'HTML',
   })
-}
-
-/**
- * Перерисовать карточку заявки после изменений.
- *
- * id сообщения берём из БД, а не из update: Telegram не вкладывает
- * reply_to_message рекурсивно, поэтому у ответа на подсказку до карточки
- * не дотянуться. tgMessageId у нас и так сохранён при отправке.
- */
-async function refreshCard(bookingId: string, fallbackMessageId?: number) {
-  const fresh = await getBookingForMessage(bookingId)
-  if (!fresh) return
-  const messageId = fresh.tgMessageId ?? fallbackMessageId
-  if (messageId) await updateBookingMessage(messageId, fresh)
 }
 
 // ─────────────────────────── Типы Telegram ───────────────────────────
