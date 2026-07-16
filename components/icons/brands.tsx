@@ -16,6 +16,9 @@ export const BRAND_COLORS = {
   instagram: '#E4405F',
   /** Цвет условный — см. оговорку у MaxIcon. */
   max: '#8B5CF6',
+  /** Фирменный красный Яндекса. */
+  yandex: '#FC3F1D',
+  googleMaps: '#4285F4',
 } as const
 
 type IconProps = { className?: string }
@@ -64,6 +67,49 @@ export function MaxIcon({
       />
       {/* Хвостик пузыря слева внизу — заходит под кольцо, поэтому шва не видно. */}
       <path fill="#fff" d="M8.3 15.4l2.1 2.1-5 2.9z" />
+    </svg>
+  )
+}
+
+/**
+ * Метка Яндекс.Карт — пин в фирменном красном Яндекса.
+ *
+ * ⚠️ Стилизованный знак, а не официальный логотип: вектора Яндекс.Карт у нас
+ * нет. Опознаётся по цвету и подписи рядом. Заменить, если заказчик пришлёт
+ * официальный SVG.
+ */
+export function YandexMapsIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+      <path
+        fill="#FC3F1D"
+        d="M12 1.8c-4 0-7.2 3.2-7.2 7.2 0 5.4 7.2 13.2 7.2 13.2s7.2-7.8 7.2-13.2c0-4-3.2-7.2-7.2-7.2Z"
+      />
+      <circle cx="12" cy="9" r="3.4" fill="#fff" />
+    </svg>
+  )
+}
+
+/**
+ * Метка Google Maps — пин в фирменном красном Google с белой сердцевиной.
+ *
+ * ⚠️ Стилизованный знак, а не официальный логотип (у настоящего — сложная
+ * многоцветная композиция из карты и пина). Заменить на официальный SVG.
+ */
+export function GoogleMapsIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+      <path
+        fill="#34A853"
+        d="M12 22.2s2.5-2.7 4.5-6.1l-4.5-3.4-4.5 3.4c2 3.4 4.5 6.1 4.5 6.1Z"
+      />
+      <path fill="#FBBC04" d="M4.9 13.2c.7 1.2 1.6 2.6 2.6 4.2l4.5-5.4-7.1 1.2Z" />
+      <path fill="#4285F4" d="M19.1 13.2 12 12l4.5 5.4c1-1.6 1.9-3 2.6-4.2Z" />
+      <path
+        fill="#EA4335"
+        d="M12 1.8c-4 0-7.2 3.2-7.2 7.2 0 1.5.4 2.9 1.1 4.2L12 12l6.1 1.2c.7-1.3 1.1-2.7 1.1-4.2 0-4-3.2-7.2-7.2-7.2Z"
+      />
+      <circle cx="12" cy="9" r="2.9" fill="#fff" />
     </svg>
   )
 }

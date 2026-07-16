@@ -16,8 +16,24 @@ export const contacts = {
   whatsapp: 'https://wa.me/79219994996',
   /** Instagram ещё не заведён — кнопка не кликается, показывает «в разработке». */
   instagram: null as string | null,
-  /** MAX: нужен и адрес канала, и официальный логотип (сейчас — монограмма-заглушка). */
+  /** MAX: нужен адрес канала (логотип уже есть). */
   max: null as string | null,
+  /** Организация на Яндекс.Картах — «Причал 3». */
+  yandexMaps:
+    'https://yandex.ru/maps/org/prichal_3/236930914911/?ll=30.321620%2C59.952951&z=17',
+  /** Google Maps ещё не заведён — кнопка не кликается. */
+  googleMaps: null as string | null,
+}
+
+/**
+ * Реквизиты для подвала.
+ * TODO: заказчик пришлёт ИНН и ОГРН — до этого вместо цифр стоит прочерк.
+ * Заполнить обязательно до переключения основного домена.
+ */
+export const legal = {
+  companyName: 'Судоходная Компания «Дно»',
+  inn: null as string | null,
+  ogrn: null as string | null,
 }
 
 export interface Boat {
@@ -367,7 +383,7 @@ export interface Dict {
   testimonials: { eyebrow: string; title: string; reviews: Review[] }
   faq: { eyebrow: string; title: string; subtitle: string; items: FaqItem[] }
   cta: { eyebrow: string; title: string; subtitle: string; primary: string; secondary: string }
-  footer: { tagline: string; explore: string; contact: string; follow: string; address: string[]; rights: string; privacy: string; terms: string }
+  footer: { tagline: string; explore: string; contact: string; follow: string; address: string[]; rights: string; privacy: string; terms: string; findUs: string; yandexMaps: string; googleMaps: string }
   booking: {
     title: string; subtitle: string
     boatLabel: string; boatPlaceholder: string
@@ -525,6 +541,9 @@ export const dict: Record<Lang, Dict> = {
       rights: 'Все права защищены.',
       privacy: 'Конфиденциальность',
       terms: 'Условия',
+      findUs: 'Как нас найти',
+      yandexMaps: 'Яндекс.Карты',
+      googleMaps: 'Google Maps',
     },
     booking: {
       title: 'Забронировать катер',
@@ -710,6 +729,9 @@ export const dict: Record<Lang, Dict> = {
       rights: 'All rights reserved.',
       privacy: 'Privacy',
       terms: 'Terms',
+      findUs: 'How to find us',
+      yandexMaps: 'Yandex Maps',
+      googleMaps: 'Google Maps',
     },
     booking: {
       title: 'Book a Boat',

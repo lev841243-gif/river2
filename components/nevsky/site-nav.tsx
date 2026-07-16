@@ -7,6 +7,38 @@ import { SocialRow } from './social-row'
 import { contacts, dict, type Lang } from '@/lib/i18n'
 
 /**
+ * Кнопка звонка. Заметно крупнее соседей и «звонит»: от неё расходятся два
+ * круга, а трубка периодически вздрагивает. Цикл 2 секунды — полторы паузы
+ * и короткая тряска, как у настоящего звонка.
+ */
+function CallButton({ label, size = 'md' }: { label: string; size?: 'md' | 'lg' }) {
+  const box = size === 'lg' ? 'size-12' : 'size-11'
+  return (
+    <a
+      href={contacts.phoneHref}
+      aria-label={label}
+      title={label}
+      className={cn(
+        'group relative flex shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary ring-1 ring-primary/40 transition-transform duration-300 hover:scale-110 hover:bg-primary hover:text-primary-foreground',
+        box,
+      )}
+    >
+      {/* Круги-волны под кнопкой: pointer-events-none, чтобы не перехватывать клик. */}
+      <span
+        aria-hidden="true"
+        className="phone-pulse pointer-events-none absolute inset-0 rounded-full bg-primary/40"
+      />
+      <span
+        aria-hidden="true"
+        style={{ '--pulse-delay': '1s' } as React.CSSProperties}
+        className="phone-pulse pointer-events-none absolute inset-0 rounded-full bg-primary/40"
+      />
+      <Phone className="phone-ring relative size-5" />
+    </a>
+  )
+}
+
+/**
  * Главная кнопка шапки. Блик и «дыхание» тени делают её зовущей, но без
  * мигания — оно удешевило бы премиальную подачу. Сам блик лежит отдельным
  * слоем поверх золота и обрезается overflow-hidden.
@@ -106,26 +138,13 @@ export function SiteNav({ lang = 'ru' }: { lang?: Lang }) {
           <LangSwitch lang={lang} />
           <SocialRow lang={lang} idPrefix="nav" />
           <span className="h-5 w-px bg-border" />
-          <a
-            href={contacts.phoneHref}
-            aria-label={c.callAdmin}
-            title={c.callAdmin}
-            className="flex size-9 items-center justify-center rounded-full border border-border text-primary transition-colors hover:bg-foreground/5"
-          >
-            <Phone className="size-4" />
-          </a>
+          <CallButton label={c.callAdmin} />
           <CtaButton label={t.cta} className="px-6 py-2.5" />
         </div>
 
         <div className="flex items-center gap-3 lg:hidden">
           <LangSwitch lang={lang} />
-          <a
-            href={contacts.phoneHref}
-            aria-label={c.callAdmin}
-            className="flex size-10 items-center justify-center rounded-full border border-border text-primary transition-colors hover:bg-foreground/5"
-          >
-            <Phone className="size-4" />
-          </a>
+          <CallButton label={c.callAdmin} />
           <button
             type="button"
             aria-label={open ? 'Close menu' : 'Open menu'}

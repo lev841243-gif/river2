@@ -1,14 +1,66 @@
 import type { ReactNode } from 'react'
-import { BRAND_COLORS, InstagramIcon, TelegramIcon, WhatsappIcon } from '@/components/icons/brands'
-import { contacts, dict, type Lang } from '@/lib/i18n'
+import {
+  BRAND_COLORS,
+  GoogleMapsIcon,
+  InstagramIcon,
+  MaxIcon,
+  TelegramIcon,
+  WhatsappIcon,
+  YandexMapsIcon,
+} from '@/components/icons/brands'
+import { contacts, dict, legal, type Lang } from '@/lib/i18n'
 
 interface Social {
   label: string
   /** null = канал ещё не заведён: кнопка не кликается и показывает «в разработке». */
   href: string | null
   icon: ReactNode
-  /** Фирменный цвет; у Instagram знак градиентный, поэтому цвет не задаём. */
+  /** Фирменный цвет; у Instagram, MAX и Google Maps знаки многоцветные — цвет не нужен. */
   color?: string
+}
+
+/** Список «значок + подпись». Общий для соцсетей и карт, чтобы они не разъезжались. */
+function LinkList({ items, note }: { items: Social[]; note: string }) {
+  return (
+    <ul className="mt-5 flex flex-col gap-3">
+      {items.map((item) =>
+        item.href ? (
+          <li key={item.label}>
+            <a
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-3 text-sm text-foreground/70 transition-colors hover:text-foreground"
+            >
+              <span
+                style={{ color: item.color }}
+                className="flex size-9 items-center justify-center overflow-hidden rounded-full border border-border transition-transform group-hover:scale-110"
+              >
+                {item.icon}
+              </span>
+              {item.label}
+            </a>
+          </li>
+        ) : (
+          // Канала ещё нет — не ссылка, а подпись с подсказкой при наведении.
+          <li key={item.label} className="group relative w-fit">
+            <span className="inline-flex cursor-default items-center gap-3 text-sm text-foreground/40">
+              <span className="flex size-9 items-center justify-center overflow-hidden rounded-full border border-border opacity-60 grayscale transition-all group-hover:opacity-100 group-hover:grayscale-0">
+                {item.icon}
+              </span>
+              {item.label}
+            </span>
+            <span
+              role="tooltip"
+              className="pointer-events-none absolute -top-8 left-0 z-10 whitespace-nowrap rounded-lg border border-border bg-card px-2.5 py-1 text-xs text-foreground opacity-0 shadow-lg transition-opacity group-hover:opacity-100"
+            >
+              {note}
+            </span>
+          </li>
+        ),
+      )}
+    </ul>
+  )
 }
 
 export function SiteFooter({ lang = 'ru' }: { lang?: Lang }) {
@@ -31,9 +83,28 @@ export function SiteFooter({ lang = 'ru' }: { lang?: Lang }) {
       color: BRAND_COLORS.telegram,
     },
     {
+      label: 'MAX',
+      href: contacts.max,
+      icon: <MaxIcon className="size-4" gradientId="max-footer" />,
+    },
+    {
       label: 'Instagram',
       href: contacts.instagram,
       icon: <InstagramIcon className="size-4" gradientId="ig-footer" />,
+    },
+  ]
+
+  const maps: Social[] = [
+    {
+      label: t.yandexMaps,
+      href: contacts.yandexMaps,
+      icon: <YandexMapsIcon className="size-4" />,
+      color: BRAND_COLORS.yandex,
+    },
+    {
+      label: t.googleMaps,
+      href: contacts.googleMaps,
+      icon: <GoogleMapsIcon className="size-4" />,
     },
   ]
 
@@ -97,57 +168,32 @@ export function SiteFooter({ lang = 'ru' }: { lang?: Lang }) {
 
             <div className="col-span-2 sm:col-span-1">
               <p className="text-xs uppercase tracking-[0.3em] text-primary">{t.follow}</p>
-              <ul className="mt-5 flex flex-col gap-3">
-                {socials.map((social) =>
-                  social.href ? (
-                    <li key={social.label}>
-                      <a
-                        href={social.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group inline-flex items-center gap-3 text-sm text-foreground/70 transition-colors hover:text-foreground"
-                      >
-                        <span
-                          style={{ color: social.color }}
-                          className="flex size-9 items-center justify-center rounded-full border border-border transition-transform group-hover:scale-110"
-                        >
-                          {social.icon}
-                        </span>
-                        {social.label}
-                      </a>
-                    </li>
-                  ) : (
-                    // Канала ещё нет — не ссылка, а подпись с подсказкой при наведении.
-                    <li key={social.label} className="group relative w-fit">
-                      <span className="inline-flex cursor-default items-center gap-3 text-sm text-foreground/40">
-                        <span className="flex size-9 items-center justify-center rounded-full border border-border opacity-60 grayscale transition-all group-hover:opacity-100 group-hover:grayscale-0">
-                          {social.icon}
-                        </span>
-                        {social.label}
-                      </span>
-                      <span
-                        role="tooltip"
-                        className="pointer-events-none absolute -top-8 left-0 whitespace-nowrap rounded-lg border border-border bg-card px-2.5 py-1 text-xs text-foreground opacity-0 shadow-lg transition-opacity group-hover:opacity-100"
-                      >
-                        {c.inDevelopment}
-                      </span>
-                    </li>
-                  ),
-                )}
-              </ul>
+              <LinkList items={socials} note={c.inDevelopment} />
+
+              <p className="mt-8 text-xs uppercase tracking-[0.3em] text-primary">{t.findUs}</p>
+              <LinkList items={maps} note={c.inDevelopment} />
             </div>
           </div>
         </div>
 
-        <div className="mt-16 flex flex-col gap-4 border-t border-border pt-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} {brand.full}. {t.rights}</p>
-          <div className="flex gap-6">
-            <a href="#" className="transition-colors hover:text-foreground">
-              {t.privacy}
-            </a>
-            <a href="#" className="transition-colors hover:text-foreground">
-              {t.terms}
-            </a>
+        {/* Реквизиты — скромно, отдельной строкой над копирайтом. */}
+        <div className="mt-16 border-t border-border pt-8">
+          <div className="text-xs leading-relaxed text-muted-foreground/70">
+            <p>{legal.companyName}</p>
+            <p className="mt-1 pl-4">ИНН {legal.inn ?? '—'}</p>
+            <p className="mt-1 pl-8">ОГРН {legal.ogrn ?? '—'}</p>
+          </div>
+
+          <div className="mt-8 flex flex-col gap-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+            <p>© {new Date().getFullYear()} {brand.full}. {t.rights}</p>
+            <div className="flex gap-6">
+              <a href="#" className="transition-colors hover:text-foreground">
+                {t.privacy}
+              </a>
+              <a href="#" className="transition-colors hover:text-foreground">
+                {t.terms}
+              </a>
+            </div>
           </div>
         </div>
       </div>
