@@ -15,6 +15,7 @@ import { createHmac, randomBytes, scrypt, timingSafeEqual } from 'node:crypto'
 import { promisify } from 'node:util'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { z } from 'zod'
 import { SESSION_COOKIE } from '@/lib/auth-cookie'
 import { prisma } from '@/lib/prisma'
 
@@ -25,6 +26,16 @@ const scryptAsync = promisify(scrypt) as (
 ) => Promise<Buffer>
 
 export { SESSION_COOKIE }
+
+/**
+ * Правило email — ОДНО на форму входа и на скрипт заведения админа.
+ *
+ * Пока их было два, скрипт принимал любую строку, а форма входа отбивала всё,
+ * что не проходит `.email()` — например, кириллицу в адресе. Админ заводился,
+ * рапортовал об успехе и молча не мог войти: форма отвечала «Введите email и
+ * пароль», не объясняя, что дело в самом адресе. Поймано на боевом сервере.
+ */
+export const adminEmailSchema = z.string().trim().toLowerCase().email()
 
 /** Сколько живёт сессия. Неделя: менеджер не должен логиниться каждый день. */
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000

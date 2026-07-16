@@ -4,11 +4,13 @@ import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
-import { setSessionCookie, verifyPassword } from '@/lib/auth'
+import { adminEmailSchema, setSessionCookie, verifyPassword } from '@/lib/auth'
 import { clientIp, rateLimit } from '@/lib/rate-limit'
 
 const loginSchema = z.object({
-  email: z.string().trim().toLowerCase().email(),
+  // Тот же разбор, что и у скрипта заведения админа — иначе можно завести
+  // учётку, которой нельзя войти (см. adminEmailSchema).
+  email: adminEmailSchema,
   password: z.string().min(1),
   next: z.string().optional(),
 })
