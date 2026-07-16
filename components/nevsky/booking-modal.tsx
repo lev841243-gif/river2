@@ -5,6 +5,7 @@ import { AlertCircle, CalendarClock, Clock, Loader2, X } from 'lucide-react'
 import { contacts, dict, type Boat, type Lang } from '@/lib/i18n'
 import { readUtmCookie } from '@/lib/utm'
 import { MAX_GUESTS, type Interval } from '@/lib/booking-rules'
+import { formatRuPhone, isRuPhoneEmpty, RU_PHONE_START } from '@/lib/phone'
 import { durationLabel, durationLabelEn, durationOptions, slotDate, startOptions } from '@/lib/booking-slots'
 import { parseDayKey, spbTodayKey, toSpbParts } from '@/lib/spb-time'
 import { BookingCalendar, type MonthCursor } from './booking-calendar'
@@ -50,6 +51,15 @@ export function BookingModal({
   const [guests, setGuests] = useState(2)
   const [clientName, setClientName] = useState('')
   const [phone, setPhone] = useState('')
+
+  /**
+   * Маска +7 — только на русской версии.
+   *
+   * EN-версия сделана для иностранцев, у неё и подсказка своя (+1 …).
+   * Навязать им +7 значит не дать ввести номер вообще. На русской версии
+   * зарубежный номер тоже можно ввести — начав с «+» и кода своей страны.
+   */
+  const maskPhone = lang === 'ru'
   const [telegram, setTelegram] = useState('')
   const [comment, setComment] = useState('')
   const [website, setWebsite] = useState('') // honeypot
@@ -404,9 +414,20 @@ export function BookingModal({
               <Field label={t.phoneLabel} error={errors.phone}>
                 <input
                   type="tel"
+                  autoComplete="tel"
                   placeholder={t.phonePlaceholder}
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => setPhone(maskPhone ? formatRuPhone(e.target.value) : e.target.value)}
+                  onFocus={() => {
+                    // Ставим «+7 (» сразу, чтобы от клиента требовались только цифры.
+                    if (maskPhone && phone === '') setPhone(RU_PHONE_START)
+                  }}
+                  onBlur={() => {
+                    // Ушёл, ничего не введя, — убираем код страны обратно. Иначе
+                    // вместо «заполните телефон» он получит «некорректный номер»,
+                    // хотя не набрал ни цифры, а плейсхолдер не вернётся.
+                    if (maskPhone && isRuPhoneEmpty(phone)) setPhone('')
+                  }}
                   className={inputClass(!!errors.phone)}
                 />
               </Field>
