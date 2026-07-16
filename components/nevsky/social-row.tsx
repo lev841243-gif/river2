@@ -8,8 +8,9 @@ export interface SocialItem {
   label: string
   /** null = канал не заведён: не ссылка, показывает «в разработке». */
   href: string | null
-  icon: (id: string) => React.ReactNode
-  /** Фирменный цвет фона кружка; у Instagram знак сам градиентный. */
+  /** `idPrefix` разводит id градиентов: в SVG они глобальные и не должны совпадать. */
+  icon: (idPrefix: string) => React.ReactNode
+  /** Фирменный цвет фона кружка; у Instagram и MAX знаки сами градиентные. */
   color?: string
 }
 
@@ -34,13 +35,12 @@ export function socialItems(): SocialItem[] {
     {
       label: 'MAX',
       href: contacts.max,
-      icon: () => <MaxIcon className="size-full" />,
-      color: BRAND_COLORS.max,
+      icon: (p) => <MaxIcon className="size-full" gradientId={`${p}-max`} />,
     },
     {
       label: 'Instagram',
       href: contacts.instagram,
-      icon: (id) => <InstagramIcon className="size-full" gradientId={id} />,
+      icon: (p) => <InstagramIcon className="size-full" gradientId={`${p}-ig`} />,
     },
   ]
 }
@@ -69,17 +69,16 @@ export function SocialRow({
   return (
     <div className={cn('flex items-center gap-1.5', className)}>
       {items.map((item, i) => {
-        const gradientId = `${idPrefix}-ig`
         const inner = (
           <>
             <span
               className={cn(
-                'flex items-center justify-center rounded-full border border-border transition-colors',
+                'flex items-center justify-center overflow-hidden rounded-full border border-border transition-colors',
                 box,
               )}
               style={{ color: item.color }}
             >
-              <span className={glyph}>{item.icon(gradientId)}</span>
+              <span className={glyph}>{item.icon(idPrefix)}</span>
             </span>
             {!item.href && (
               <span

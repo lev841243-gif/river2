@@ -37,21 +37,33 @@ export function TelegramIcon({ className }: IconProps) {
 }
 
 /**
- * ⚠️ ЗАГЛУШКА, А НЕ ЛОГОТИП. Мессенджер MAX появился недавно, его официального
- * знака в Simple Icons нет, и достоверного контура у нас тоже нет. Рисовать
- * «похоже по памяти» — значит подделать чужой товарный знак, поэтому здесь
- * честная монограмма в стиле сайта.
+ * Знак MAX — кольцо-речевой-пузырь с хвостиком, на сине-фиолетовом градиенте.
  *
- * TODO: заменить на официальный логотип, когда заказчик пришлёт SVG.
+ * ⚠️ Обводка по фотографии вывески, присланной заказчиком, а не официальный
+ * вектор: знака MAX нет в Simple Icons. Форма и цвета переданы верно, но для
+ * пиксельной точности нужен исходный SVG от правообладателя.
  */
-export function MaxIcon({ className }: IconProps) {
+export function MaxIcon({
+  className,
+  gradientId = 'max-gradient',
+}: IconProps & { gradientId?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className={className}>
-      <rect x="1.5" y="1.5" width="21" height="21" rx="6" fill="currentColor" />
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+      <defs>
+        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#1B4DF5" />
+          <stop offset="100%" stopColor="#8B2FE0" />
+        </linearGradient>
+      </defs>
+      <rect width="24" height="24" rx="6" fill={`url(#${gradientId})`} />
+      {/* Кольцо: внешний круг с вырезанной серединой (fillRule evenodd). */}
       <path
-        d="M6.4 16.8V7.2h2.2l3.4 5.1 3.4-5.1h2.2v9.6h-2.2v-6l-3.4 5-3.4-5v6H6.4z"
-        fill="#111111"
+        fill="#fff"
+        fillRule="evenodd"
+        d="M12 4.6a7.1 7.1 0 1 0 0 14.2 7.1 7.1 0 0 0 0-14.2Zm0 4.4a2.7 2.7 0 1 1 0 5.4 2.7 2.7 0 0 1 0-5.4Z"
       />
+      {/* Хвостик пузыря слева внизу — заходит под кольцо, поэтому шва не видно. */}
+      <path fill="#fff" d="M8.3 15.4l2.1 2.1-5 2.9z" />
     </svg>
   )
 }
