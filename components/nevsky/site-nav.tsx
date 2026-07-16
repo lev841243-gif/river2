@@ -18,17 +18,17 @@ function CallButton({ label }: { label: string }) {
       aria-label={label}
       title={label}
       // touch-manipulation убирает задержку 300мс на тап в мобильных браузерах.
-      className="group relative flex size-11 shrink-0 touch-manipulation items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-transform duration-300 hover:scale-110 active:scale-95"
+      className="phone-shake group relative flex size-11 shrink-0 touch-manipulation items-center justify-center rounded-full bg-primary/15 text-primary ring-1 ring-primary/40 transition-colors duration-300 hover:bg-primary hover:text-primary-foreground"
     >
       {/* Круги-волны: pointer-events-none, иначе перехватывали бы тап по трубке. */}
       <span
         aria-hidden="true"
-        className="phone-pulse pointer-events-none absolute inset-0 -z-10 rounded-full bg-primary/50"
+        className="phone-pulse pointer-events-none absolute inset-0 -z-10 rounded-full bg-primary/60"
       />
       <span
         aria-hidden="true"
-        style={{ '--pulse-delay': '1s' } as React.CSSProperties}
-        className="phone-pulse pointer-events-none absolute inset-0 -z-10 rounded-full bg-primary/50"
+        style={{ '--pulse-delay': '0.7s' } as React.CSSProperties}
+        className="phone-pulse pointer-events-none absolute inset-0 -z-10 rounded-full bg-primary/60"
       />
       <Phone className="phone-ring relative size-5" />
     </a>
