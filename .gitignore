@@ -20,3 +20,9 @@ node_modules
 # Артефакт сборки TypeScript. Был закоммичен и ломал деплой: на сервере
 # его меняет каждый npm run build, после чего git pull отказывался работать.
 *.tsbuildinfo
+
+# Папки выкатки: сборка идёт рядом с работающей, потом подменяется.
+# См. scripts/deploy.sh
+.next-build/
+.next-old/
+.next-bad/
