@@ -53,7 +53,7 @@ export async function beginManualBooking(chatId: string, userId: string) {
   }
   rows.push([{ text: '✖️ Отмена', callback_data: 'mb_cancel:x' }])
 
-  await say('<b>Новая бронь</b>\n\nШаг 1 из 6 — какой катер?', {
+  await say('<b>Новая бронь</b>\n\nШаг 1 из 8 — какой катер?', {
     reply_markup: { inline_keyboard: rows },
   })
 }
@@ -244,6 +244,23 @@ function buildStart(
 export async function pickWhen(chatId: string, startAt: Date) {
   const data = await updateDraft(chatId, 'duration', { startAt: startAt.toISOString() })
 
+  const s = toSpbParts(startAt)
+  await askDuration(
+    chatId,
+    `📅 Начало: <b>${pad(s.day)}.${pad(s.month)}.${s.year}, ${pad(s.hour)}:${pad(s.minute)}</b>\n\n` +
+      stepLabel(data.mode, 'Шаг 5 из 8 — на сколько?', 'Шаг 4 из 4 — на сколько?'),
+  )
+}
+
+/**
+ * Показать кнопки длительности.
+ *
+ * Отдельно от pickWhen, потому что к этому шагу возвращаются после отказа
+ * («время уже прошло», «максимум 7 суток»). Раньше отказ печатался голым
+ * текстом без кнопок — и диалог упирался в тупик: нажать нечего, а ответ
+ * текстом при включённой приватности до бота не доходит.
+ */
+async function askDuration(chatId: string, title: string) {
   const quick = [2, 3, 4, 6, 8, 12, 24, 48, 72]
   const rows: unknown[][] = []
   for (let i = 0; i < quick.length; i += 3) {
@@ -256,11 +273,8 @@ export async function pickWhen(chatId: string, startAt: Date) {
   }
   rows.push([{ text: '✖️ Отмена', callback_data: 'mb_cancel:x' }])
 
-  const s = toSpbParts(startAt)
-  const title = stepLabel(data.mode, 'Шаг 5 из 8 — на сколько?', 'Шаг 4 из 4 — на сколько?')
   await say(
-    `📅 Начало: <b>${pad(s.day)}.${pad(s.month)}.${s.year}, ${pad(s.hour)}:${pad(s.minute)}</b>\n\n` +
-      `${title}\n\n` +
+    `${title}\n\n` +
       `<i>Или ответьте числом часов, например <code>5</code> (от ${MIN_DURATION_HOURS} до ${MAX_DURATION_HOURS / 24} суток).</i>`,
     { reply_markup: { inline_keyboard: rows } },
   )
@@ -285,7 +299,9 @@ export async function pickDuration(chatId: string, hours: number) {
       BOAT_BUSY: 'катер занят',
     }
     await updateDraft(chatId, 'duration', {})
-    return say(`❌ Не выйдет: ${why[rejection]}. Пришлите другую длительность.`)
+    // Кнопки показываем заново: без них после отказа нажать нечего, а ответ
+    // текстом при включённой приватности до бота не дойдёт — тупик.
+    return askDuration(chatId, `❌ Не выйдет: ${why[rejection]}. Выберите другую длительность.`)
   }
 
   // Перенос на этом и заканчивается: клиент у брони уже есть.

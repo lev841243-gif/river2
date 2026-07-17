@@ -285,7 +285,16 @@ async function handleDraftStep(chat: string, text: string, who: string): Promise
   }
 
   if (draft.step === 'name') {
-    if (text.length < 2) return false
+    if (text.length < 2) {
+      // Отвечаем, а не молчим: сюда попадают только ответы на вопрос бота,
+      // то есть менеджер точно вводил имя. Молчание он прочитал бы как «завис».
+      await callTelegram('sendMessage', {
+        chat_id: adminChatId(),
+        text: '❌ Слишком коротко. Как зовут клиента?',
+        reply_markup: { force_reply: true },
+      })
+      return true
+    }
     await pickName(chat, text)
     return true
   }
@@ -295,6 +304,10 @@ async function handleDraftStep(chat: string, text: string, who: string): Promise
       await callTelegram('sendMessage', {
         chat_id: adminChatId(),
         text: '❌ Не похоже на телефон. Пришлите номер, например +7 999 123-45-67',
+        // force_reply обязателен: без него следующее сообщение менеджера уйдёт
+        // обычным текстом, а такой при включённой приватности до бота не
+        // доходит — диалог вставал намертво именно здесь, на ошибке ввода.
+        reply_markup: { force_reply: true },
       })
       return true
     }
