@@ -8,7 +8,7 @@ import {
   WhatsappIcon,
   YandexMapsIcon,
 } from '@/components/icons/brands'
-import { contacts, dict, legal, type Lang } from '@/lib/i18n'
+import { contacts, dict, type Lang } from '@/lib/i18n'
 
 interface Social {
   label: string
@@ -176,15 +176,8 @@ export function SiteFooter({ lang = 'ru' }: { lang?: Lang }) {
           </div>
         </div>
 
-        {/* Реквизиты — скромно, отдельной строкой над копирайтом. */}
         <div className="mt-16 border-t border-border pt-8">
-          <div className="text-xs leading-relaxed text-muted-foreground/70">
-            <p>{legal.companyName}</p>
-            <p className="mt-1 pl-4">ИНН {legal.inn ?? '—'}</p>
-            <p className="mt-1 pl-8">ОГРН {legal.ogrn ?? '—'}</p>
-          </div>
-
-          <div className="mt-8 flex flex-col gap-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
             <p>© {new Date().getFullYear()} {brand.full}. {t.rights}</p>
             <div className="flex gap-6">
               <a href="#" className="transition-colors hover:text-foreground">

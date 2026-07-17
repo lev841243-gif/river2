@@ -13,6 +13,8 @@ import { Testimonials } from '@/components/nevsky/testimonials'
 import { Faq } from '@/components/nevsky/faq'
 import { Cta } from '@/components/nevsky/cta'
 import { SiteFooter } from '@/components/nevsky/site-footer'
+import { CollapsibleSection } from '@/components/nevsky/collapsible-section'
+import { dict } from '@/lib/i18n'
 
 /**
  * ISR (ТЗ, п. 7). Без него страница собиралась бы полностью статически, флот
@@ -26,6 +28,7 @@ export const revalidate = 300
 export default async function Page() {
   const lang = 'ru'
   const boats = await getBoats()
+  const t = dict[lang]
   return (
     <BookingProvider lang={lang} boats={boats}>
       <SiteNav lang={lang} />
@@ -33,11 +36,32 @@ export default async function Page() {
         <Hero lang={lang} />
         <Experiences lang={lang} />
         <Fleet lang={lang} boats={boats} />
-        <WhyUs lang={lang} />
-        <Routes lang={lang} />
-        <Expeditions lang={lang} />
-        <Gallery lang={lang} />
-        <Testimonials lang={lang} />
+        {/* Разделы 4–8 — выпадающими окнами, чтобы страница не была такой длинной. */}
+        <CollapsibleSection eyebrow={t.why.eyebrow} title={t.why.title}>
+          <WhyUs lang={lang} />
+        </CollapsibleSection>
+        <CollapsibleSection id="routes" eyebrow={t.routes.eyebrow} title={t.routes.title}>
+          <Routes lang={lang} />
+        </CollapsibleSection>
+        <CollapsibleSection
+          id="trips"
+          eyebrow={t.expeditions.eyebrow}
+          title={t.expeditions.title}
+          className="bg-[color:var(--navy)]/25"
+        >
+          <Expeditions lang={lang} />
+        </CollapsibleSection>
+        <CollapsibleSection
+          id="gallery"
+          eyebrow={t.gallery.eyebrow}
+          title={t.gallery.title}
+          className="bg-[color:var(--navy)]/25"
+        >
+          <Gallery lang={lang} />
+        </CollapsibleSection>
+        <CollapsibleSection id="reviews" eyebrow={t.testimonials.eyebrow} title={t.testimonials.title}>
+          <Testimonials lang={lang} />
+        </CollapsibleSection>
         <Faq lang={lang} />
         <Cta lang={lang} />
         {/* Баннер собственников — внизу: он перебивал первый экран синей полосой. */}

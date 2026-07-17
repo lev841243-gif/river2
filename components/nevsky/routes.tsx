@@ -6,15 +6,7 @@ export function Routes({ lang = 'ru' }: { lang?: Lang }) {
   const t = dict[lang].routes
 
   return (
-    <section id="routes" className="border-t border-border">
-      <Reveal className="mx-auto max-w-7xl px-6 pb-4 pt-28 lg:px-10 lg:pt-40">
-        <p className="text-xs uppercase tracking-[0.4em] text-primary">{t.eyebrow}</p>
-        <h2 className="mt-5 max-w-2xl text-balance font-[family-name:var(--font-display)] text-4xl font-medium leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-          {t.title}
-        </h2>
-      </Reveal>
-
-      <div className="mt-10 flex flex-col">
+    <div className="flex flex-col">
         {t.items.map((route, i) => (
           <Reveal key={route.title}>
             <article
@@ -63,7 +55,6 @@ export function Routes({ lang = 'ru' }: { lang?: Lang }) {
             </article>
           </Reveal>
         ))}
-      </div>
-    </section>
+    </div>
   )
 }
