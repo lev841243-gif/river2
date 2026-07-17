@@ -23,6 +23,12 @@ cd "$(dirname "$0")/.."
 SITE="https://prokatkaterov.ru/"
 
 echo "→ код"
+# Сервер — не рабочее место: своих правок здесь быть не должно. Сбрасываем их
+# перед pull, потому что сборка иногда трогает файлы под git (Next дописывает
+# include в tsconfig.json), и тогда pull отказывается работать — «your local
+# changes would be overwritten». Так уже было с tsconfig.tsbuildinfo: деплой
+# тихо не доезжал, а выглядело это как «код не работает».
+git checkout -- . 2>/dev/null || true
 git pull
 
 # npm ci каждый раз: он же тянет postinstall → prisma generate. Лишние 30 секунд
