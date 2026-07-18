@@ -72,26 +72,6 @@ export const boats: Boat[] = [
     },
   },
   {
-    id: 'taho-52',
-    dir: 'Тахо 52',
-    cover: 'cover.webp',
-    photos: ['01.webp'],
-    price: 8000,
-    name: { ru: 'Тахо 52', en: 'Taho 52' },
-    desc: {
-      ru: 'Компактный катер для уютной прогулки небольшой компанией до 6 человек. Кожаный салон, тёплые пледы и любимая музыка — всё для комфортного вечера на воде.',
-      en: 'A compact boat for a cosy trip with a small group of up to 6. A leather saloon, warm blankets and your favourite music — everything for a comfortable evening on the water.',
-    },
-    specs: {
-      ru: ['—', '—', '—', '—', 'до 6 гостей'],
-      en: ['—', '—', '—', '—', 'up to 6 guests'],
-    },
-    amenities: {
-      ru: ['Кожаный салон', 'Пледы', 'Музыкальная подготовка'],
-      en: ['Leather saloon', 'Blankets', 'Music setup'],
-    },
-  },
-  {
     id: 'bayliner-nahuhol',
     dir: 'Аренда катера «BAYLINER 2350» (Нахухоль)',
     cover: 'cover.webp',
@@ -129,6 +109,27 @@ export const boats: Boat[] = [
     amenities: {
       ru: ['Кожаный салон', 'Мобильный стол', 'Мощная аудиосистема с USB', 'Открытая корма', 'Открытый нос', 'Спасательный жилет на каждого', 'Тёплые пледы'],
       en: ['Leather saloon', 'Portable table', 'Powerful USB sound system', 'Open stern', 'Open bow', 'Life vest for every guest', 'Warm blankets'],
+    },
+  },
+  {
+    id: 'formula-310ss',
+    dir: 'АРЕНДА КАТЕРА Formula 310ss (НОВИНКА!)',
+    cover: 'cover.webp',
+    photos: ['01.webp', '02.webp', '03.webp'],
+    price: 20000,
+    isNew: true,
+    name: { ru: 'Formula 310 SS', en: 'Formula 310 SS' },
+    desc: {
+      ru: 'Новинка сезона — быстрый, мощный и совершенно новый. Эксклюзивное предложение на рынке Петербурга для тех, кто ценит безупречный комфорт.',
+      en: 'New this season — fast, powerful and brand-new. An exclusive on the St. Petersburg market for those who value flawless comfort.',
+    },
+    specs: {
+      ru: ['10,7 м', '3,3 м', '4 м', 'до 100 км/ч', 'до 11 гостей'],
+      en: ['10.7 m', '3.3 m', '4 m', 'up to 100 km/h', 'up to 11 guests'],
+    },
+    amenities: {
+      ru: ['Аудио/видео аппаратура', 'Кожаный салон', 'Мощная аудиосистема с USB', 'Санузел', 'Холодильник'],
+      en: ['Audio / video system', 'Leather saloon', 'Powerful USB sound system', 'Washroom', 'Fridge'],
     },
   },
   {
@@ -269,27 +270,6 @@ export const boats: Boat[] = [
     },
   },
   {
-    id: 'formula-310ss',
-    dir: 'АРЕНДА КАТЕРА Formula 310ss (НОВИНКА!)',
-    cover: 'cover.webp',
-    photos: ['01.webp', '02.webp', '03.webp'],
-    price: 20000,
-    isNew: true,
-    name: { ru: 'Formula 310 SS', en: 'Formula 310 SS' },
-    desc: {
-      ru: 'Новинка сезона — быстрый, мощный и совершенно новый. Эксклюзивное предложение на рынке Петербурга для тех, кто ценит безупречный комфорт.',
-      en: 'New this season — fast, powerful and brand-new. An exclusive on the St. Petersburg market for those who value flawless comfort.',
-    },
-    specs: {
-      ru: ['10,7 м', '3,3 м', '4 м', 'до 100 км/ч', 'до 11 гостей'],
-      en: ['10.7 m', '3.3 m', '4 m', 'up to 100 km/h', 'up to 11 guests'],
-    },
-    amenities: {
-      ru: ['Аудио/видео аппаратура', 'Кожаный салон', 'Мощная аудиосистема с USB', 'Санузел', 'Холодильник'],
-      en: ['Audio / video system', 'Leather saloon', 'Powerful USB sound system', 'Washroom', 'Fridge'],
-    },
-  },
-  {
     id: 'formula-34',
     dir: 'АРЕНДА КАТЕРА FORMULA 34',
     cover: 'cover.webp',
@@ -307,6 +287,26 @@ export const boats: Boat[] = [
     amenities: {
       ru: ['Большая кровать', 'Кожаный салон', 'Мобильный стол', 'Мощная аудиосистема с USB', 'Туалет', 'Холодильник'],
       en: ['Full-size bed', 'Leather saloon', 'Portable table', 'Powerful USB sound system', 'Toilet', 'Fridge'],
+    },
+  },
+  {
+    id: 'taho-52',
+    dir: 'Тахо 52',
+    cover: 'cover.webp',
+    photos: ['01.webp'],
+    price: 8000,
+    name: { ru: 'Тахо 52', en: 'Taho 52' },
+    desc: {
+      ru: 'Компактный катер для уютной прогулки небольшой компанией до 6 человек. Кожаный салон, тёплые пледы и любимая музыка — всё для комфортного вечера на воде.',
+      en: 'A compact boat for a cosy trip with a small group of up to 6. A leather saloon, warm blankets and your favourite music — everything for a comfortable evening on the water.',
+    },
+    specs: {
+      ru: ['—', '—', '—', '—', 'до 6 гостей'],
+      en: ['—', '—', '—', '—', 'up to 6 guests'],
+    },
+    amenities: {
+      ru: ['Кожаный салон', 'Пледы', 'Музыкальная подготовка'],
+      en: ['Leather saloon', 'Blankets', 'Music setup'],
     },
   },
   {
