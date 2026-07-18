@@ -22,7 +22,7 @@ const prisma = new PrismaClient()
 const MB = 1024 * 1024
 
 async function main() {
-  const dir = path.join(process.cwd(), 'public', 'uploads', 'gallery')
+  const dir = path.join(process.cwd(), 'uploads', 'gallery')
   const items = await prisma.galleryItem.findMany({
     where: { kind: 'video' },
     orderBy: { sortOrder: 'asc' },

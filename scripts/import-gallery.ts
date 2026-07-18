@@ -32,7 +32,7 @@ async function main() {
     process.exit(1)
   }
 
-  const dir = path.join(process.cwd(), 'public', 'uploads', 'gallery')
+  const dir = path.join(process.cwd(), 'uploads', 'gallery')
   await mkdir(dir, { recursive: true })
 
   const last = await prisma.galleryItem.findFirst({

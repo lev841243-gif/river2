@@ -32,4 +32,7 @@ public/boats/Картье/*.jpg
 public/boats/Картье/info.txt
 
 # Загрузки из админки (галерея «Моменты»). Живут на сервере, не в git.
+# НЕ в public/: Next составляет список public/ на сборке, и всё загруженное
+# после деплоя отдавалось бы 404. Раздаёт app/media/gallery/[file].
+/uploads/
 public/uploads/
