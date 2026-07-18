@@ -35,7 +35,8 @@ export function UploadForm() {
       <div className="flex flex-wrap items-center gap-3">
         <SubmitButton />
         <span className="text-xs text-muted-foreground">
-          Можно выбрать сразу несколько. Фото: jpg, png, webp. Видео: mp4, webm, mov. До 64 МБ на файл.
+          Можно выбрать сразу несколько. Фото: jpg, png, webp — сжимаются в webp автоматически.
+          Видео: mp4, webm, mov — как есть. До 64 МБ на файл.
         </span>
       </div>
 

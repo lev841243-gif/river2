@@ -3,6 +3,7 @@
 import { randomUUID } from 'node:crypto'
 import { mkdir, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import sharp from 'sharp'
 import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
@@ -21,6 +22,15 @@ function revalidatePublicGallery() {
 }
 
 const MB = 1024 * 1024
+
+/**
+ * Фото приводим к webp: снимок с телефона — это 8–12 МБ, и без пережатия он
+ * так и уехал бы посетителям. Остальные фото на сайте (лодки) тоже webp.
+ * Видео не трогаем: пережать его быстро нельзя, а server action столько не
+ * живёт — см. разбор в Docs/stage2.md.
+ */
+const MAX_IMAGE_WIDTH = 1600
+const WEBP_QUALITY = 80
 
 export async function uploadGallery(
   _prev: GalleryState,
@@ -54,9 +64,28 @@ export async function uploadGallery(
 
     // Имя своё: файл с телефона может называться как угодно и повторяться,
     // а совпадение перезаписало бы чужую картинку.
-    const name = `${randomUUID()}${ext}`
-    await writeFile(path.join(dir, name), Buffer.from(await f.arrayBuffer()))
-    await prisma.galleryItem.create({ data: { kind, file: name, sortOrder: order++ } })
+    const id = randomUUID()
+    const buf = Buffer.from(await f.arrayBuffer())
+
+    if (kind === 'image') {
+      const name = `${id}.webp`
+      try {
+        await sharp(buf)
+          // rotate() без аргументов разворачивает по EXIF: снимки с телефона
+          // иначе лежат на боку. Заодно EXIF (в т.ч. геометки) не сохраняется.
+          .rotate()
+          .resize({ width: MAX_IMAGE_WIDTH, withoutEnlargement: true })
+          .webp({ quality: WEBP_QUALITY })
+          .toFile(path.join(dir, name))
+      } catch {
+        return { error: `«${f.name}»: не удалось обработать — файл повреждён или это не изображение` }
+      }
+      await prisma.galleryItem.create({ data: { kind, file: name, sortOrder: order++ } })
+    } else {
+      const name = `${id}${ext}`
+      await writeFile(path.join(dir, name), buf)
+      await prisma.galleryItem.create({ data: { kind, file: name, sortOrder: order++ } })
+    }
     saved++
   }
 
