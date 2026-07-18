@@ -26,3 +26,7 @@ node_modules
 .next-build/
 .next-old/
 .next-bad/
+
+# Исходные тяжёлые фото Картье — в репозитории только оптимизированные .webp
+public/boats/Картье/*.jpg
+public/boats/Картье/info.txt
