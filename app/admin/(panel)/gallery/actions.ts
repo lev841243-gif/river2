@@ -5,9 +5,11 @@ import { mkdir, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import sharp from 'sharp'
 import { revalidatePath } from 'next/cache'
+import { after } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { ALLOWED_EXT, MAX_FILE_BYTES, galleryDir } from '@/lib/gallery'
+import { compressVideoInPlace, isCompressibleVideo } from '@/lib/video'
 
 export interface GalleryState {
   error?: string
@@ -52,6 +54,9 @@ export async function uploadGallery(
   let order = (last?.sortOrder ?? -1) + 1
 
   let saved = 0
+  // Пути видео, которые надо пережать после ответа.
+  const toCompress: string[] = []
+
   for (const f of files) {
     const ext = path.extname(f.name).toLowerCase()
     const kind = ALLOWED_EXT[ext]
@@ -83,14 +88,41 @@ export async function uploadGallery(
       await prisma.galleryItem.create({ data: { kind, file: name, sortOrder: order++ } })
     } else {
       const name = `${id}${ext}`
-      await writeFile(path.join(dir, name), buf)
+      const abs = path.join(dir, name)
+      await writeFile(abs, buf)
       await prisma.galleryItem.create({ data: { kind, file: name, sortOrder: order++ } })
+      if (isCompressibleVideo(name)) toCompress.push(abs)
     }
     saved++
   }
 
   revalidatePublicGallery()
-  return { ok: `Загружено файлов: ${saved}. На сайте обновится в течение минуты.` }
+
+  if (toCompress.length > 0) {
+    // Пережатие идёт ПОСЛЕ ответа: ffmpeg тратит десятки секунд, столько
+    // server action не живёт — админка ждала бы и упёрлась в таймаут.
+    // Файл заменяется на месте, под тем же именем, поэтому до конца сжатия
+    // на сайте играет оригинал, и момент подмены незаметен.
+    after(async () => {
+      for (const abs of toCompress) {
+        try {
+          const r = await compressVideoInPlace(abs)
+          if (r) {
+            console.log(
+              `[gallery] сжато ${path.basename(abs)}: ` +
+                `${Math.round(r.before / MB)} → ${Math.round(r.after / MB)} МБ`,
+            )
+          }
+        } catch (e) {
+          // Не удалось — на сайте остаётся оригинал, это не повод падать.
+          console.error(`[gallery] не удалось сжать ${path.basename(abs)}:`, e)
+        }
+      }
+    })
+  }
+
+  const note = toCompress.length > 0 ? ' Видео сжимается в фоне.' : ''
+  return { ok: `Загружено файлов: ${saved}. На сайте обновится в течение минуты.${note}` }
 }
 
 /** Удаление: сначала запись, потом файл — «сирота» на диске безобиднее битой плитки. */
