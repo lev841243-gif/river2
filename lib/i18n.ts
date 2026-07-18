@@ -10,8 +10,8 @@ export const boatImg = (dir: string, file: string) => `/boats/${encodeURI(dir)}/
 export const contacts = {
   /** Номер администратора для звонка. На сайте не отображается — только набирается при клике. */
   phoneHref: 'tel:+79219994996',
-  /** ЗАГЛУШКА: подтвердить/заменить на реальный @username Telegram менеджера. */
-  telegram: 'https://t.me/prokatkaterov',
+  /** Личный Telegram менеджера: клик открывает диалог с ним. */
+  telegram: 'https://t.me/mariia_ulanova13',
   /** Номер администратора — тот же, что и для звонка. */
   whatsapp: 'https://wa.me/79219994996',
   /** Instagram ещё не заведён — кнопка не кликается, показывает «в разработке». */
@@ -32,8 +32,9 @@ export const contacts = {
  */
 export const legal = {
   companyName: 'Судоходная Компания «Дно»',
-  inn: null as string | null,
-  ogrn: null as string | null,
+  inn: '782615825786',
+  /** ИП, поэтому ОГРНИП (15 цифр), а не ОГРН. */
+  ogrnip: '323784700111796',
 }
 
 export interface Boat {
