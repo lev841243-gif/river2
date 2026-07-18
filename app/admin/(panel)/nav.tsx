@@ -7,6 +7,7 @@ const LINKS = [
   { href: '/admin', label: 'Сводка' },
   { href: '/admin/bookings', label: 'Заявки' },
   { href: '/admin/boats', label: 'Лодки' },
+  { href: '/admin/gallery', label: 'Моменты' },
   { href: '/admin/clients', label: 'Клиенты' },
 ]
 

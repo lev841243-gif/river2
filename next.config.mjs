@@ -15,6 +15,16 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  experimental: {
+    serverActions: {
+      /**
+       * Загрузка галереи идёт через server action, а у него лимит тела по
+       * умолчанию 1 МБ — видео с телефона (5–15 МБ) молча не проходили бы.
+       * Держать в согласии с MAX_FILE_BYTES в lib/gallery.ts.
+       */
+      bodySizeLimit: '64mb',
+    },
+  },
   /**
    * Куда собирать. По умолчанию `.next`, но на боевом сервере сборка идёт в
    * отдельную папку и потом подменяется одним `mv`.

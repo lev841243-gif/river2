@@ -146,3 +146,20 @@ model Client {
   firstSeen DateTime  @default(now()) @db.Timestamptz(3)
   bookings  Booking[]
 }
+
+// ─────────────────────── Галерея «Моменты» ───────────────────────
+// Фото и видео для раздела «Моменты» на главной. Файлы лежат на сервере в
+// public/uploads/gallery (вне git — деплой их не трогает: он делает только
+// `git checkout -- .` и `git pull`, без `git clean`). В базе — только имена
+// файлов, как и у лодок.
+model GalleryItem {
+  id        String   @id @default(uuid())
+  kind      String // 'image' | 'video'
+  file      String   @unique // имя файла в public/uploads/gallery
+  sortOrder Int      @default(0)
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([isVisible, sortOrder])
+}

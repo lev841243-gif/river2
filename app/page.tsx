@@ -15,6 +15,7 @@ import { Cta } from '@/components/nevsky/cta'
 import { SiteFooter } from '@/components/nevsky/site-footer'
 import { CollapsibleSection } from '@/components/nevsky/collapsible-section'
 import { dict } from '@/lib/i18n'
+import { getGalleryItems } from '@/lib/gallery'
 
 /**
  * ISR (ТЗ, п. 7). Без него страница собиралась бы полностью статически, флот
@@ -28,6 +29,7 @@ export const revalidate = 300
 export default async function Page() {
   const lang = 'ru'
   const boats = await getBoats()
+  const gallery = await getGalleryItems()
   const t = dict[lang]
   return (
     <BookingProvider lang={lang} boats={boats}>
@@ -38,6 +40,8 @@ export default async function Page() {
         <Fleet lang={lang} boats={boats} />
         {/* Разделы 4–8 — выпадающими окнами, чтобы страница не была такой длинной. */}
         <CollapsibleSection eyebrow={t.why.eyebrow} title={t.why.title}>
+          {/* Баннер собственников — первым внутри «Почему Дно»: это тот же довод. */}
+          <OwnerBanner lang={lang} />
           <WhyUs lang={lang} />
         </CollapsibleSection>
         <CollapsibleSection id="routes" eyebrow={t.routes.eyebrow} title={t.routes.title}>
@@ -51,21 +55,22 @@ export default async function Page() {
         >
           <Expeditions lang={lang} />
         </CollapsibleSection>
-        <CollapsibleSection
-          id="gallery"
-          eyebrow={t.gallery.eyebrow}
-          title={t.gallery.title}
-          className="bg-[color:var(--navy)]/25"
-        >
-          <Gallery lang={lang} />
-        </CollapsibleSection>
+        {/* Пусто — раздела нет: плашка без содержимого выглядела бы поломкой. */}
+        {gallery.length > 0 && (
+          <CollapsibleSection
+            id="gallery"
+            eyebrow={t.gallery.eyebrow}
+            title={t.gallery.title}
+            className="bg-[color:var(--navy)]/25"
+          >
+            <Gallery lang={lang} items={gallery} />
+          </CollapsibleSection>
+        )}
         <CollapsibleSection id="reviews" eyebrow={t.testimonials.eyebrow} title={t.testimonials.title}>
           <Testimonials lang={lang} />
         </CollapsibleSection>
         <Faq lang={lang} />
         <Cta lang={lang} />
-        {/* Баннер собственников — внизу: он перебивал первый экран синей полосой. */}
-        <OwnerBanner lang={lang} />
       </main>
       <SiteFooter lang={lang} />
     </BookingProvider>
