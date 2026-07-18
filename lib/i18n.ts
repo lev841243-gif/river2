@@ -21,6 +21,13 @@ export const contacts = {
   /** Организация на Яндекс.Картах — «Причал 3». */
   yandexMaps:
     'https://yandex.ru/maps/org/prichal_3/236930914911/?ll=30.321620%2C59.952951&z=17',
+  /**
+   * Отзывы — у другой карточки: «Судоходная компания ДНО», не «Причал 3» выше.
+   * Сюда же ведёт кнопка «Написать отзыв»: параметр вроде `add-review` Яндекс
+   * отбрасывает, форму по ссылке не открыть — но своя кнопка есть на странице.
+   */
+  yandexReviews:
+    'https://yandex.ru/maps/org/sudokhodnaya_kompaniya_dno/18284574311/reviews/',
   /** Google Maps ещё не заведён — кнопка не кликается. */
   googleMaps: null as string | null,
 }
@@ -378,7 +385,11 @@ interface NavLink { label: string; href: string }
 interface ExperienceItem { title: string; caption: string; image: string; span: string }
 interface Reason { title: string; text: string }
 interface RouteItem { title: string; description: string; image: string; duration: string; price: string; stops: string }
-interface Review { quote: string; name: string; context: string; photo: string }
+/**
+ * Отзыв с Яндекс.Карт. Тексты — дословные, править их нельзя: это чужие слова,
+ * а не маркетинговый копирайт. Аватарок у авторов нет, карточка рисует букву.
+ */
+interface Review { quote: string; name: string; date: string }
 interface FaqItem { q: string; a: string }
 
 export interface Dict {
@@ -400,7 +411,10 @@ export interface Dict {
   routes: { eyebrow: string; title: string; items: RouteItem[] }
   expeditions: { eyebrow: string; title: string; subtitle: string; items: string[]; note: string; cta: string }
   gallery: { eyebrow: string; title: string }
-  testimonials: { eyebrow: string; title: string; reviews: Review[] }
+  testimonials: {
+    eyebrow: string; title: string; reviews: Review[]
+    rating: string; ratingCount: string; allReviews: string; writeReview: string
+  }
   faq: { eyebrow: string; title: string; subtitle: string; items: FaqItem[] }
   cta: { eyebrow: string; title: string; subtitle: string; primary: string; secondary: string }
   footer: { tagline: string; explore: string; contact: string; follow: string; address: string[]; rights: string; privacy: string; terms: string; findUs: string; yandexMaps: string; googleMaps: string }
@@ -505,6 +519,8 @@ export const dict: Record<Lang, Dict> = {
         { title: 'Более 20 лет опыта', text: 'Тысячи незабываемых вечеров, созданных на Неве.' },
         { title: 'Премиальный сервис', text: 'Шампанское, цветы, музыка, кейтеринг — всё готово ещё до вашего прихода.' },
       ],
+      // Цифры заказчика по своей статистике — это не оценка Яндекса (4,3 при
+      // 8 отзывах, см. блок «Отзывы»). Не «поправлять» под Яндекс: так надо.
       rating: '4,9',
       ratingText: 'Средняя оценка гостей за 1200+ частных прогулок.',
     },
@@ -529,10 +545,17 @@ export const dict: Record<Lang, Dict> = {
     testimonials: {
       eyebrow: 'Отзывы',
       title: 'Вечера, которые не забыть',
+      rating: '4,3',
+      ratingCount: '8 оценок на Яндекс.Картах',
+      allReviews: 'Все отзывы на Яндекс.Картах',
+      writeReview: 'Написать отзыв',
+      // Дословно с Яндекс.Карт, у всех четырёх — 5 звёзд. Пунктуацию авторов
+      // не правим: это цитаты.
       reviews: [
-        { quote: 'Он сделал мне предложение на закате, когда за нами поднимались мосты. команда «Дно» продумала каждую деталь — это был самый идеальный вечер в нашей жизни.', name: 'Анастасия К.', context: 'Романтический вечер', photo: '/images/person-1.png' },
-        { quote: 'Мы пригласили 25 клиентов на прогулку в белые ночи. Безупречный сервис, потрясающий капитан и вид на город, который не сравнить ни с одним рестораном.', name: 'Даниил Р.', context: 'Корпоратив', photo: '/images/person-2.png' },
-        { quote: 'Мой день рождения на катере был как из фильма. Шампанское, музыка, разводные мосты — друзья вспоминают его до сих пор.', name: 'София М.', context: 'День рождения', photo: '/images/person-3.png' },
+        { quote: 'Оперативно подобрали катер , со всеми удобствами , вежливым капитаном . Обязательно вернемся и будем советовать другим 👍👍👍', name: 'Сергей Хомяков', date: 'июнь 2026' },
+        { quote: 'Шикарное место! Обратились с арендой катера для семейного мероприятия! Подобрали удобное время, удобный катер по бюджету! И капитан попался очень адекватный и аккуратный!', name: 'Фёдор Оревин-бруни', date: 'июнь 2026' },
+        { quote: 'Благодарим ребятам за дружелюбие и сервис 🌱Будем советовать вас нашим родным и знакомым 🙏Хороших вам клиентов и самой прекрасной погоды 🙏', name: 'Мария', date: 'июнь 2026' },
+        { quote: 'Лучшее место где я катался ! Ребята просто профессионалы своего дела! Обращусь обязательно еще раз и всем буду вас советовать !', name: 'Инкогнито 🥸', date: 'июнь 2026' },
       ],
     },
     faq: {
@@ -719,10 +742,16 @@ export const dict: Record<Lang, Dict> = {
     testimonials: {
       eyebrow: 'In their words',
       title: 'Evenings they never forgot',
+      rating: '4.3',
+      ratingCount: '8 ratings on Yandex Maps',
+      allReviews: 'All reviews on Yandex Maps',
+      writeReview: 'Write a review',
+      // Переводы русских отзывов с Яндекс.Карт — смысл сохранён, не пересказ.
       reviews: [
-        { quote: 'I proposed on the water at sunset with the bridges rising behind us. the Dno team arranged every detail — it was the most perfect night of our lives.', name: 'Anastasia K.', context: 'Romantic evening', photo: '/images/person-1.png' },
-        { quote: 'We hosted 25 clients for a White Nights cruise. Flawless service, an incredible captain and a view of the city no restaurant could ever match.', name: 'Daniel R.', context: 'Corporate event', photo: '/images/person-2.png' },
-        { quote: 'My birthday on board felt like something out of a film. Champagne, music, the open bridges — my friends still talk about it months later.', name: 'Sofia M.', context: 'Birthday celebration', photo: '/images/person-3.png' },
+        { quote: 'They found us a boat quickly, with every comfort and a courteous captain. We will definitely come back and recommend you to others 👍👍👍', name: 'Sergey Khomyakov', date: 'June 2026' },
+        { quote: 'Wonderful place! We came to them to rent a boat for a family event. They found a convenient time and a boat that fit our budget! And the captain turned out to be very level-headed and careful!', name: 'Fyodor Orevin-Bruni', date: 'June 2026' },
+        { quote: 'Thank you to the team for the friendliness and the service 🌱We will recommend you to our family and friends 🙏Wishing you good clients and the finest weather 🙏', name: 'Maria', date: 'June 2026' },
+        { quote: 'The best place I have ever been out on the water with! These people are true professionals! I will certainly come back and will recommend you to everyone!', name: 'Anonymous 🥸', date: 'June 2026' },
       ],
     },
     faq: {
