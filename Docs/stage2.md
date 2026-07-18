@@ -264,5 +264,4 @@ ssh root@85.198.68.244 'cd /root/dno && git fetch origin && git reset --hard ori
 ssh root@85.198.68.244 'bash /root/dno/scripts/deploy.sh'
 ```
 
-⚠️ `PROJECT_STATE.md` этих правок ещё не знает — при расхождении верен этот
-раздел.
+`PROJECT_STATE.md` эти правки знает — там же подробности по галерее и граблям.
