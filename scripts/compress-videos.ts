@@ -1,6 +1,12 @@
 import path from 'node:path'
 import { PrismaClient } from '@prisma/client'
-import { compressVideoInPlace, isCompressibleVideo } from '../lib/video'
+import {
+  compressVideoInPlace,
+  hasAudioTrack,
+  isCompressibleVideo,
+  stripAudioInPlace,
+  videoCodec,
+} from '../lib/video'
 
 /**
  * Разовое пережатие уже загруженных видео галереи.
@@ -32,8 +38,20 @@ async function main() {
       console.log(`пропуск (контейнер): ${it.file}`)
       continue
     }
+    const abs = path.join(dir, it.file)
     process.stdout.write(`${it.file} … `)
-    const r = await compressVideoInPlace(path.join(dir, it.file))
+
+    // Уже H.264 — полное перекодирование только отняло бы качество второй раз.
+    // Тогда достаточно снять звук копированием видеодорожки.
+    const codec = await videoCodec(abs)
+    const audio = await hasAudioTrack(abs)
+    const r =
+      codec === 'h264'
+        ? audio === false
+          ? null // и кодек верный, и звука нет — трогать нечего
+          : await stripAudioInPlace(abs)
+        : await compressVideoInPlace(abs)
+
     if (!r) {
       console.log('без изменений')
       continue

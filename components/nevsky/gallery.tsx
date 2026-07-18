@@ -28,6 +28,7 @@ export function Gallery({ lang = 'ru', items }: { lang?: Lang; items: GalleryMed
                   <video
                     src={item.src}
                     controls
+                    muted
                     playsInline
                     preload="metadata"
                     className={`w-full bg-black object-cover ${ratio}`}

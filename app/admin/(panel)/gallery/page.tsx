@@ -43,6 +43,7 @@ export default async function GalleryPage() {
                     src={galleryUrl(item.file)}
                     preload="metadata"
                     controls
+                    muted
                     playsInline
                     className="aspect-square w-full object-cover"
                   />
