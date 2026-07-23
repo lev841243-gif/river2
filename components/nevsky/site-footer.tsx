@@ -3,7 +3,6 @@ import {
   BRAND_COLORS,
   GoogleMapsIcon,
   InstagramIcon,
-  MaxIcon,
   TelegramIcon,
   WhatsappIcon,
   YandexMapsIcon,
@@ -15,7 +14,7 @@ interface Social {
   /** null = канал ещё не заведён: кнопка не кликается и показывает «в разработке». */
   href: string | null
   icon: ReactNode
-  /** Фирменный цвет; у Instagram, MAX и Google Maps знаки многоцветные — цвет не нужен. */
+  /** Фирменный цвет; у Instagram и Google Maps знаки многоцветные — цвет не нужен. */
   color?: string
 }
 
@@ -81,11 +80,6 @@ export function SiteFooter({ lang = 'ru' }: { lang?: Lang }) {
       href: contacts.telegram,
       icon: <TelegramIcon className="size-4" />,
       color: BRAND_COLORS.telegram,
-    },
-    {
-      label: 'MAX',
-      href: contacts.max,
-      icon: <MaxIcon className="size-4" gradientId="max-footer" />,
     },
     {
       label: 'Instagram',

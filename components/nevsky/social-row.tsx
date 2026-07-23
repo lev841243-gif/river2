@@ -1,6 +1,6 @@
 'use client'
 
-import { BRAND_COLORS, InstagramIcon, MaxIcon, TelegramIcon, WhatsappIcon } from '@/components/icons/brands'
+import { BRAND_COLORS, InstagramIcon, TelegramIcon, WhatsappIcon } from '@/components/icons/brands'
 import { cn } from '@/lib/utils'
 import { contacts, dict, type Lang } from '@/lib/i18n'
 
@@ -10,7 +10,7 @@ export interface SocialItem {
   href: string | null
   /** `idPrefix` разводит id градиентов: в SVG они глобальные и не должны совпадать. */
   icon: (idPrefix: string) => React.ReactNode
-  /** Фирменный цвет фона кружка; у Instagram и MAX знаки сами градиентные. */
+  /** Фирменный цвет фона кружка; у Instagram знак сам градиентный. */
   color?: string
 }
 
@@ -31,11 +31,6 @@ export function socialItems(): SocialItem[] {
       href: contacts.telegram,
       icon: () => <TelegramIcon className="size-full" />,
       color: BRAND_COLORS.telegram,
-    },
-    {
-      label: 'MAX',
-      href: contacts.max,
-      icon: (p) => <MaxIcon className="size-full" gradientId={`${p}-max`} />,
     },
     {
       label: 'Instagram',
