@@ -18,9 +18,20 @@ const TOKEN = process.env.TELEGRAM_BOT_TOKEN
 const API = `https://api.telegram.org/bot${TOKEN}`
 
 const COMMANDS = [
+  { command: 'start', description: 'В начало — справка и кнопки' },
   { command: 'bron', description: 'Завести бронь вручную' },
   { command: 'sert', description: 'Подарочный сертификат: выпуск и погашение' },
   { command: 'help', description: 'Как пользоваться ботом' },
+]
+
+// Прописываем команды сразу в три скоупа. default покрывает всё, но клиент
+// Telegram кэширует меню по чату: без явного scope группа менеджера могла
+// показывать пустое меню, пока не сбросишь кэш. all_group_chats/all_private_chats
+// адресуют оба места, где бот работает, — и меню подтягивается предсказуемо.
+const SCOPES: Array<Record<string, unknown> | undefined> = [
+  undefined, // default
+  { type: 'all_group_chats' },
+  { type: 'all_private_chats' },
 ]
 
 async function tg(method: string, payload: Record<string, unknown>) {
@@ -38,14 +49,20 @@ async function main() {
     process.exit(1)
   }
 
-  const cmds = await tg('setMyCommands', { commands: COMMANDS })
-  console.log('setMyCommands:', cmds.ok ? '✓' : `❌ ${cmds.description}`)
+  for (const scope of SCOPES) {
+    const res = await tg('setMyCommands', {
+      commands: COMMANDS,
+      ...(scope ? { scope } : {}),
+    })
+    const label = scope ? (scope.type as string) : 'default'
+    console.log(`setMyCommands (${label}):`, res.ok ? '✓' : `❌ ${res.description}`)
+  }
 
   // Кнопка «Menu» как список команд (это и так по умолчанию, но не полагаемся).
   const menu = await tg('setChatMenuButton', { menu_button: { type: 'commands' } })
   console.log('setChatMenuButton:', menu.ok ? '✓' : `❌ ${menu.description}`)
 
-  console.log('\nГотово. В боте у поля ввода появится кнопка «Menu» с /bron, /sert, /help.')
+  console.log('\nГотово. В меню бота: /start, /bron, /sert, /help.')
 }
 
 main().catch((e) => {
