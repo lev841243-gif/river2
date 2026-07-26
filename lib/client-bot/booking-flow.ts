@@ -111,8 +111,9 @@ async function askHour(chatId: number, dayKey: string) {
 
 export async function pickHour(chatId: number, hour: number) {
   await updateClientDraft(String(chatId), 'minute', { hour })
+  // Только получас: клиенту предлагаем :00 и :30, без :15/:45.
   const rows = [
-    [0, 15, 30, 45].map((m) => ({ text: `${pad(hour)}:${pad(m)}`, callback_data: `cb_min:${m}` })),
+    [0, 30].map((m) => ({ text: `${pad(hour)}:${pad(m)}`, callback_data: `cb_min:${m}` })),
     CANCEL_ROW,
   ]
   await say(chatId, 'Минуты?', { reply_markup: { inline_keyboard: rows } })
