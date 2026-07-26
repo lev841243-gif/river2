@@ -74,6 +74,23 @@ export function formatHour(hour: number, minute = 0): string {
   return `${pad(hour % 24)}:${pad(minute)}`
 }
 
+const MONTHS_RU = [
+  'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+  'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря',
+]
+
+/** «20 августа 2026» — дата по Петербургу, для страниц и карточек. */
+export function formatSpbDate(date: Date): string {
+  const { year, month, day } = toSpbParts(date)
+  return `${day} ${MONTHS_RU[month - 1]} ${year}`
+}
+
+/** «20 августа 2026, 18:30» — дата со временем по Петербургу. */
+export function formatSpbDateTime(date: Date): string {
+  const { hour, minute } = toSpbParts(date)
+  return `${formatSpbDate(date)}, ${pad(hour)}:${pad(minute)}`
+}
+
 function pad(n: number): string {
   return String(n).padStart(2, '0')
 }

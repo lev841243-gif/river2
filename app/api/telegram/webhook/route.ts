@@ -8,6 +8,7 @@ import {
   callTelegram,
   formatInterval,
   mainKeyboard,
+  PANEL_CERT,
   PANEL_HELP,
   PANEL_NEW,
   telegramConfigured,
@@ -32,6 +33,7 @@ import {
 } from '@/lib/bot-flow'
 import { dropStaleDrafts, getDraft } from '@/lib/bot-draft'
 import { fromSpbParts, toSpbParts } from '@/lib/spb-time'
+import { issueAndSend, offerIssue, redeemFromButton, showStatus } from '@/lib/certificate/bot'
 
 export const dynamic = 'force-dynamic'
 
@@ -83,9 +85,22 @@ async function handleCallback(cb: TgCallbackQuery) {
   }
 
   const [action, arg] = (cb.data ?? '').split(':')
-  if (!arg) return answerCallback(cb.id)
-
   const who = cb.from?.username ? `@${cb.from.username}` : (cb.from?.first_name ?? 'менеджер')
+
+  // ── Сертификаты ──
+  // Обрабатываем до общего гарда `!arg`: у выпуска аргумента нет (data = 'cert_issue').
+  if (action === 'cert_issue') {
+    // Отвечаем сразу — рендер и отправка фото занимают время, «часики» гаснут.
+    await answerCallback(cb.id)
+    await issueAndSend(who)
+    return
+  }
+  if (action === 'cert_redeem') {
+    await redeemFromButton(cb, arg, who)
+    return
+  }
+
+  if (!arg) return answerCallback(cb.id)
 
   // ── Диалог «Создать бронь» (префикс mb_) ──
   if (action.startsWith('mb_')) {
@@ -179,6 +194,9 @@ async function handleMessage(msg: TgMessage) {
     return beginManualBooking(chat, String(msg.from?.id ?? ''))
   }
 
+  // Кнопка панели «🎟 Сертификат» (при выключенной приватности шлёт эту подпись).
+  if (text === PANEL_CERT) return offerIssue()
+
   if (command === '/start' || command === '/help' || text === PANEL_HELP) {
     await dropStaleDrafts()
     // Панель показываем здесь: reply_markup с клавиатурой живёт до замены, и
@@ -193,6 +211,8 @@ async function handleMessage(msg: TgMessage) {
         'Кнопки на карточке заявки: подтвердить, отменить, вернуть в работу.\n' +
         'Чтобы перенести бронь — ответьте на её карточку новым временем, ' +
         'например <code>20.08 18:00-21:00</code>.\n\n' +
+        '<b>/sert</b> — выпустить подарочный сертификат (прогулка 1 час).\n' +
+        '<b>/sert НОМЕР</b> — проверить и погасить сертификат.\n\n' +
         '<i>Панель с кнопками закреплена под полем ввода.</i>',
       parse_mode: 'HTML',
       reply_markup: await mainKeyboard(),
@@ -202,6 +222,12 @@ async function handleMessage(msg: TgMessage) {
   if (command === '/bron' || command === '/new') {
     await dropStaleDrafts()
     return beginManualBooking(chat, String(msg.from?.id ?? ''))
+  }
+
+  // Сертификаты: «/sert» — предложить выпуск; «/sert <номер>» — статус и погашение.
+  if (command === '/sert') {
+    const arg = text.split(/\s+/)[1]
+    return arg ? showStatus(arg) : offerIssue()
   }
 
   // Шаг незаконченного диалога создания брони.

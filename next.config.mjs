@@ -15,6 +15,13 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  /**
+   * Нативные модули не бандлить, а грузить из node_modules как есть.
+   * `sharp` Next выносит сам, а `@napi-rs/canvas` (рендер бланка сертификата,
+   * lib/certificate/render.ts) — нет: без этого сборка упаковала бы его .node,
+   * и в рантайме привязка не находилась бы.
+   */
+  serverExternalPackages: ['@napi-rs/canvas'],
   experimental: {
     serverActions: {
       /**

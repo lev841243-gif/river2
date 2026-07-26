@@ -179,3 +179,34 @@ model GalleryItem {
 
   @@index([isVisible, sortOrder])
 }
+
+// ─────────────────── Подарочные сертификаты ───────────────────
+// Сертификат на прогулку 1 час. Не именной: «Для/От» на бланке — пустые
+// линии для руки покупателя, в БД их нет. Менеджер выпускает сертификат в
+// боте (номер + QR печатаются на бланк), покупатель предъявляет его на
+// прогулке, менеджер гасит — по QR (страница /check, кнопка видна только
+// залогиненному менеджеру) или вручную командой /sert <номер> в боте.
+enum CertStatus {
+  ISSUED // Выдан, ещё не использован
+  REDEEMED // Погашён
+}
+
+model Certificate {
+  id String @id @default(uuid())
+  // DNO + YY + MM + NNNN, напр. DNO25060001. Счётчик NNNN сбрасывается
+  // помесячно. Печатается на бланк и служит ключом на странице /check.
+  number String     @unique
+  status CertStatus @default(ISSUED)
+  // Что за сертификат. Сейчас всегда «прогулка 1 час»; поле — задел под
+  // будущие номиналы, чтобы не мигрировать схему повторно.
+  title  String     @default("Прогулка на катере, 1 час")
+
+  issuedAt DateTime @default(now()) @db.Timestamptz(3)
+  issuedBy String? // менеджер, выпустивший сертификат («@ivan»)
+
+  redeemedAt DateTime? @db.Timestamptz(3)
+  redeemedBy String? // кто погасил
+
+  @@index([status])
+  @@index([issuedAt])
+}

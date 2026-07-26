@@ -199,6 +199,7 @@ export function renderBooking(b: BookingMessage): string {
 
 /** Подписи кнопок панели, когда режим приватности выключен. */
 export const PANEL_NEW = '➕ Создать бронь'
+export const PANEL_CERT = '🎟 Сертификат'
 export const PANEL_HELP = '❓ Помощь'
 
 let readsAll: { value: boolean; at: number } | null = null
@@ -239,8 +240,8 @@ export async function mainKeyboard(): Promise<Record<string, unknown>> {
   const pretty = await botReadsAllMessages()
   return {
     keyboard: pretty
-      ? [[{ text: PANEL_NEW }], [{ text: PANEL_HELP }]]
-      : [[{ text: '/bron' }], [{ text: '/help' }]],
+      ? [[{ text: PANEL_NEW }], [{ text: PANEL_CERT }], [{ text: PANEL_HELP }]]
+      : [[{ text: '/bron' }], [{ text: '/sert' }], [{ text: '/help' }]],
     resize_keyboard: true, // иначе панель занимает пол-экрана
     is_persistent: true, // не прячется после нажатия
   }
@@ -312,6 +313,34 @@ export async function updateBookingMessage(messageId: number, b: BookingMessage)
     reply_markup: bookingKeyboard(b),
     link_preview_options: { is_disabled: true },
   })
+}
+
+/**
+ * Отправить фото-буфер (PNG) в группу менеджера через multipart.
+ *
+ * Нужно для бланка сертификата: он рождается в памяти (Buffer), а не лежит
+ * файлом, поэтому шлём его напрямую, а не через file_id/URL. Пустая подпись —
+ * чтобы менеджер мог переслать картинку покупателю как есть (номер на бланке).
+ * Возвращает message_id отправленного фото.
+ */
+export async function sendAdminPhoto(
+  png: Buffer,
+  caption = '',
+  replyMarkup?: Record<string, unknown>,
+): Promise<number> {
+  const form = new FormData()
+  form.append('chat_id', adminChatId())
+  if (caption) {
+    form.append('caption', caption)
+    form.append('parse_mode', 'HTML')
+  }
+  if (replyMarkup) form.append('reply_markup', JSON.stringify(replyMarkup))
+  form.append('photo', new Blob([new Uint8Array(png)], { type: 'image/png' }), 'certificate.png')
+
+  const res = await fetch(`${API}${token()}/sendPhoto`, { method: 'POST', body: form })
+  const data = (await res.json()) as TelegramResponse<{ message_id: number }>
+  if (!data.ok) throw new TelegramApiError(data.error_code ?? 0, `sendPhoto: ${data.description}`)
+  return data.result!.message_id
 }
 
 /**
