@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { Menu, Phone, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SocialRow } from './social-row'
@@ -110,7 +111,16 @@ export function SiteNav({ lang = 'ru' }: { lang?: Lang }) {
       )}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10">
-        <a href="#top" className="flex items-baseline gap-2">
+        <a href="#top" className="flex items-center gap-2.5">
+          <Image
+            src="/logotip/logo.png"
+            alt=""
+            aria-hidden
+            width={40}
+            height={40}
+            priority
+            className="size-9 shrink-0 sm:size-10"
+          />
           <span className="font-[family-name:var(--font-display)] text-sm font-semibold uppercase tracking-[0.12em] text-foreground sm:text-base">
             {brand.wordmark}
           </span>

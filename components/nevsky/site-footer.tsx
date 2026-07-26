@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import Image from 'next/image'
 import {
   BRAND_COLORS,
   GoogleMapsIcon,
@@ -107,7 +108,15 @@ export function SiteFooter({ lang = 'ru' }: { lang?: Lang }) {
       <div className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
         <div className="flex flex-col gap-14 lg:flex-row lg:justify-between">
           <div className="max-w-sm">
-            <div className="flex items-baseline gap-2">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/logotip/logo.png"
+                alt=""
+                aria-hidden
+                width={44}
+                height={44}
+                className="size-11 shrink-0"
+              />
               <span className="font-[family-name:var(--font-display)] text-lg font-semibold uppercase tracking-[0.12em] text-foreground">
                 {brand.wordmark}
               </span>
