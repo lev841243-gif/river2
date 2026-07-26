@@ -160,7 +160,8 @@ export async function pickHour(chatId: string, hour: number) {
   const data = await updateDraft(chatId, 'minute', { hour })
 
   const rows = [
-    [0, 15, 30, 45].map((m) => ({ text: `${pad(hour)}:${pad(m)}`, callback_data: `mb_min:${m}` })),
+    // Только получас: предлагаем :00 и :30, без :15/:45 — как в клиентском боте.
+    [0, 30].map((m) => ({ text: `${pad(hour)}:${pad(m)}`, callback_data: `mb_min:${m}` })),
     [{ text: '✖️ Отмена', callback_data: 'mb_cancel:x' }],
   ]
   await say(stepLabel(data.mode, 'Шаг 4 из 8 — минуты?', 'Шаг 3 из 4 — минуты?'), {
