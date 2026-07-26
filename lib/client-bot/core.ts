@@ -26,6 +26,7 @@ import {
   pickMinute,
 } from './booking-flow'
 import { dropClientDraft, dropStaleClientDrafts, getClientDraft } from './draft'
+import { BOT_HIDDEN_SLUGS } from './config'
 
 // ── Типы Telegram: берём только используемые поля ──
 interface TgChat {
@@ -193,7 +194,7 @@ async function handleCallback(cb: TgCallbackQuery) {
  */
 async function showBoats(chatId: number) {
   const boats = await prisma.boat.findMany({
-    where: { isVisible: true },
+    where: { isVisible: true, slug: { notIn: BOT_HIDDEN_SLUGS } },
     select: { slug: true, nameRu: true, price: true, dir: true, cover: true },
     orderBy: { sortOrder: 'asc' },
   })
@@ -243,7 +244,7 @@ async function showBoat(chatId: number, slug: string) {
       dir: true, cover: true, isVisible: true, amenities: true,
     },
   })
-  if (!boat || !boat.isVisible) {
+  if (!boat || !boat.isVisible || BOT_HIDDEN_SLUGS.includes(slug)) {
     return send(chatId, 'Этот катер сейчас недоступен. Вернуться к списку: /start')
   }
 

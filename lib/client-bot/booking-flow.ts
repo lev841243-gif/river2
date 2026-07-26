@@ -20,6 +20,7 @@ import { rateLimit } from '@/lib/rate-limit'
 import { formatInterval, renderBooking, sendBookingNotification, telegramConfigured } from '@/lib/telegram'
 import { fromSpbParts, parseDayKey, spbDayKey, spbDayStart, spbTodayKey, toSpbParts } from '@/lib/spb-time'
 import { callClientTelegram, escapeHtml } from './telegram'
+import { BOT_HIDDEN_SLUGS } from './config'
 import {
   dropClientDraft,
   getClientDraft,
@@ -49,7 +50,7 @@ export async function beginBooking(chatId: number, boatSlug: string, tgUsername?
     where: { slug: boatSlug },
     select: { nameRu: true, isVisible: true },
   })
-  if (!boat || !boat.isVisible) {
+  if (!boat || !boat.isVisible || BOT_HIDDEN_SLUGS.includes(boatSlug)) {
     return say(chatId, 'Этот катер сейчас недоступен. Вернуться к списку: /start')
   }
   await startClientDraft(String(chatId), { boatSlug, boatName: boat.nameRu, tgUsername })
