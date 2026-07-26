@@ -110,8 +110,8 @@ export function SiteNav({ lang = 'ru' }: { lang?: Lang }) {
           : 'border-b border-transparent bg-transparent',
       )}
     >
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10">
-        <a href="#top" className="flex items-center gap-2.5">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
+        <a href="#top" className="flex items-center gap-2 sm:gap-2.5">
           <Image
             src="/logotip/logo.png"
             alt=""
@@ -119,7 +119,7 @@ export function SiteNav({ lang = 'ru' }: { lang?: Lang }) {
             width={40}
             height={40}
             priority
-            className="size-9 shrink-0 sm:size-10"
+            className="size-6 shrink-0 sm:size-10"
           />
           <span className="font-[family-name:var(--font-display)] text-sm font-semibold uppercase tracking-[0.12em] text-foreground sm:text-base">
             {brand.wordmark}
