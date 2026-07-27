@@ -488,6 +488,8 @@ export const dict: Record<Lang, Dict> = {
         { title: 'Корпоратив', caption: 'Впечатлите каждого гостя', image: '/images/exp-corporate.png', span: '' },
         { title: 'Фотосессия', caption: 'Золотой час на воде', image: '/images/exp-photo.png', span: '' },
         { title: 'Семейная прогулка', caption: 'Вместе и без спешки', image: '/images/exp-family.png', span: '' },
+        { title: 'Мальчишник', caption: 'Своей компанией, с размахом', image: '/images/exp-bachelor.png', span: '' },
+        { title: 'Девичник', caption: 'Особенный вечер для своих', image: '/images/exp-bachelorette.png', span: '' },
       ],
     },
     fleet: {
@@ -687,6 +689,8 @@ export const dict: Record<Lang, Dict> = {
         { title: 'Corporate Event', caption: 'Impress every guest', image: '/images/exp-corporate.png', span: '' },
         { title: 'Photo Session', caption: 'Golden-hour on the water', image: '/images/exp-photo.png', span: '' },
         { title: 'Family Cruise', caption: 'Together, unhurried', image: '/images/exp-family.png', span: '' },
+        { title: 'Bachelor Party', caption: 'The send-off he deserves', image: '/images/exp-bachelor.png', span: '' },
+        { title: 'Bachelorette Party', caption: 'Her night on the water', image: '/images/exp-bachelorette.png', span: '' },
       ],
     },
     fleet: {
