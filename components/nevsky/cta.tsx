@@ -3,7 +3,7 @@
 import { ArrowRight, Phone } from 'lucide-react'
 import { Reveal } from './reveal'
 import { useBooking } from './booking-context'
-import { InstagramIcon, TelegramIcon, WhatsappIcon } from '@/components/icons/brands'
+import { TelegramIcon, WhatsappIcon } from '@/components/icons/brands'
 import { contacts, dict, type Lang } from '@/lib/i18n'
 
 export function Cta({ lang = 'ru' }: { lang?: Lang }) {
@@ -72,20 +72,6 @@ export function Cta({ lang = 'ru' }: { lang?: Lang }) {
               <TelegramIcon className="size-4 text-[#229ED9]" />
               {c.telegram}
             </a>
-            {/* Instagram ещё не заведён: не ссылка, а подпись с подсказкой. */}
-            <span className="group relative inline-flex cursor-default items-center gap-2 rounded-full border border-border bg-foreground/5 px-5 py-2.5 text-sm text-foreground/40 backdrop-blur-md">
-              <InstagramIcon
-                className="size-4 opacity-60 grayscale transition-all group-hover:opacity-100 group-hover:grayscale-0"
-                gradientId="ig-cta"
-              />
-              Instagram
-              <span
-                role="tooltip"
-                className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-border bg-card px-2.5 py-1 text-xs text-foreground opacity-0 shadow-lg transition-opacity group-hover:opacity-100"
-              >
-                {c.inDevelopment}
-              </span>
-            </span>
           </div>
         </Reveal>
       </div>
