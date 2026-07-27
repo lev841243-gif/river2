@@ -47,8 +47,18 @@ export default async function CheckPage({ params }: { params: Promise<{ number: 
                 <Row label="Номер" value={certificate.number} mono />
                 <Row label="Выдан" value={formatSpbDate(certificate.issuedAt)} />
               </dl>
-              {admin && certificate.status === 'ISSUED' && (
+              {admin ? (
                 <RedeemButton number={certificate.number} />
+              ) : (
+                // Менеджер навёл камеру, но ещё не вошёл: даём войти и вернуться
+                // сюда же (next), чтобы сразу увидеть кнопку «Погасить». Клиенту
+                // ссылка не мешает — она неприметная и ведёт на вход в панель.
+                <a
+                  href={`/admin/login?next=${encodeURIComponent(`/check/${certificate.number}`)}`}
+                  className="mt-6 inline-block text-sm text-muted-foreground underline underline-offset-4 hover:text-card-foreground"
+                >
+                  Менеджер? Войдите, чтобы погасить
+                </a>
               )}
             </>
           ) : (

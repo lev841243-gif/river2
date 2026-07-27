@@ -72,7 +72,9 @@ export async function issueAndSend(who: string): Promise<Certificate> {
     text:
       `✅ Сертификат <b>${cert.number}</b> выпущен.\n` +
       'Перешлите картинку покупателю.\n\n' +
-      `Погашение: клиент наводит телефон на QR, либо команда <code>/sert ${cert.number}</code>.`,
+      'Погашение, когда клиент придёт: наведите камеру телефона на QR бланка — ' +
+      'откроется страница проверки, где под входом менеджера будет кнопка ' +
+      `«Погасить». Либо командой <code>/sert ${cert.number}</code>.`,
     parse_mode: 'HTML',
   })
 
