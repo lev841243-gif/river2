@@ -402,13 +402,19 @@ export function BookingModal({
               />
             </Field>
 
+            {/*
+              ym-disable-keys — Яндекс.Вебвизор не записывает содержимое этих
+              полей (ПДн клиента: имя, телефон, Telegram, комментарий): значения
+              заменяются звёздочками. Сами записи сеансов, карта кликов и
+              аналитика продолжают работать. Не убирать.
+            */}
             <Field label={t.nameLabel} error={errors.clientName}>
               <input
                 type="text"
                 placeholder={t.namePlaceholder}
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
-                className={inputClass(!!errors.clientName)}
+                className={`${inputClass(!!errors.clientName)} ym-disable-keys`}
               />
             </Field>
 
@@ -430,7 +436,7 @@ export function BookingModal({
                     // хотя не набрал ни цифры, а плейсхолдер не вернётся.
                     if (maskPhone && isRuPhoneEmpty(phone)) setPhone('')
                   }}
-                  className={inputClass(!!errors.phone)}
+                  className={`${inputClass(!!errors.phone)} ym-disable-keys`}
                 />
               </Field>
               <Field label={t.telegramLabel}>
@@ -439,7 +445,7 @@ export function BookingModal({
                   placeholder={t.telegramPlaceholder}
                   value={telegram}
                   onChange={(e) => setTelegram(e.target.value)}
-                  className={inputClass(false)}
+                  className={`${inputClass(false)} ym-disable-keys`}
                 />
               </Field>
             </div>
@@ -450,7 +456,7 @@ export function BookingModal({
                 placeholder={t.commentPlaceholder}
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                className={`${inputClass(false)} resize-none`}
+                className={`${inputClass(false)} resize-none ym-disable-keys`}
               />
             </Field>
 
