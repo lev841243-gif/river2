@@ -188,7 +188,7 @@ export function SiteFooter({ lang = 'ru' }: { lang?: Lang }) {
           <div className="mt-8 flex flex-col gap-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
             <p>© {new Date().getFullYear()} {brand.full}. {t.rights}</p>
             <div className="flex gap-6">
-              <a href="#" className="transition-colors hover:text-foreground">
+              <a href="/privacy" className="transition-colors hover:text-foreground">
                 {t.privacy}
               </a>
               <a href="#" className="transition-colors hover:text-foreground">

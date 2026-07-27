@@ -63,6 +63,7 @@ export function BookingModal({
   const [telegram, setTelegram] = useState('')
   const [comment, setComment] = useState('')
   const [website, setWebsite] = useState('') // honeypot
+  const [consent, setConsent] = useState(false) // согласие на обработку ПДн
 
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState(false)
@@ -166,6 +167,7 @@ export function BookingModal({
     if (clientName.trim().length < 2) next.clientName = t.nameError
     if (!phone.trim()) next.phone = t.requiredError
     else if ((phone.match(/\d/g)?.length ?? 0) < 10) next.phone = t.phoneError
+    if (!consent) next.consent = t.consentError
     setErrors(next)
     if (Object.keys(next).length > 0) return
 
@@ -463,6 +465,29 @@ export function BookingModal({
               onChange={(e) => setWebsite(e.target.value)}
               className="pointer-events-none absolute -left-[9999px] size-0 opacity-0"
             />
+
+            <div>
+              <label className="flex items-start gap-2.5 text-xs leading-relaxed text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={consent}
+                  onChange={(e) => setConsent(e.target.checked)}
+                  className="mt-0.5 size-4 shrink-0 accent-primary"
+                />
+                <span>
+                  {t.consentText}{' '}
+                  <a
+                    href="/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2 hover:text-foreground"
+                  >
+                    {t.consentPolicy}
+                  </a>
+                </span>
+              </label>
+              {errors.consent && <p className="mt-1 text-xs text-destructive">{errors.consent}</p>}
+            </div>
 
             <div className="mt-1 flex gap-3">
               <button

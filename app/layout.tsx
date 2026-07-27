@@ -1,7 +1,7 @@
-import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Playfair_Display, Inter } from 'next/font/google'
 import { UtmCapture } from '@/components/nevsky/utm-capture'
+import { CookieConsent } from '@/components/nevsky/cookie-consent'
 import './globals.css'
 
 const playfair = Playfair_Display({
@@ -38,7 +38,8 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <UtmCapture />
         {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        {/* Баннер cookie + аналитика грузится только после согласия. */}
+        <CookieConsent />
       </body>
     </html>
   )

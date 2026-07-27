@@ -418,6 +418,7 @@ export interface Dict {
   faq: { eyebrow: string; title: string; subtitle: string; items: FaqItem[] }
   cta: { eyebrow: string; title: string; subtitle: string; primary: string; secondary: string }
   footer: { tagline: string; explore: string; contact: string; follow: string; address: string[]; rights: string; privacy: string; terms: string; findUs: string; yandexMaps: string; googleMaps: string }
+  cookie: { text: string; accept: string; decline: string; policy: string }
   booking: {
     title: string; subtitle: string
     boatLabel: string; boatPlaceholder: string
@@ -430,6 +431,7 @@ export interface Dict {
     commentLabel: string; commentPlaceholder: string
     next: string; back: string; submit: string; submitting: string; close: string
     requiredError: string; phoneError: string; nameError: string
+    consentText: string; consentPolicy: string; consentError: string
     pickDateFirst: string; pickTimeFirst: string
     loadingSlots: string; noSlots: string
     durationLabel: string; hoursShort: string
@@ -592,6 +594,12 @@ export const dict: Record<Lang, Dict> = {
       yandexMaps: 'Яндекс.Карты',
       googleMaps: 'Google Maps',
     },
+    cookie: {
+      text: 'Мы используем файлы cookie для работы сайта и аналитики.',
+      accept: 'Принять',
+      decline: 'Отклонить',
+      policy: 'Политика конфиденциальности',
+    },
     booking: {
       title: 'Забронировать катер',
       subtitle: 'Выберите дату и время — свободные слоты показаны в календаре.',
@@ -618,6 +626,9 @@ export const dict: Record<Lang, Dict> = {
       requiredError: 'Заполните это поле',
       phoneError: 'Введите корректный номер телефона',
       nameError: 'Укажите имя полностью',
+      consentText: 'Я соглашаюсь с обработкой персональных данных и',
+      consentPolicy: 'политикой конфиденциальности',
+      consentError: 'Отметьте согласие на обработку данных',
       pickDateFirst: 'Сначала выберите дату',
       pickTimeFirst: 'Выберите время начала и окончания',
       loadingSlots: 'Загружаем занятость...',
@@ -789,6 +800,12 @@ export const dict: Record<Lang, Dict> = {
       yandexMaps: 'Yandex Maps',
       googleMaps: 'Google Maps',
     },
+    cookie: {
+      text: 'We use cookies to run the site and for analytics.',
+      accept: 'Accept',
+      decline: 'Decline',
+      policy: 'Privacy Policy',
+    },
     booking: {
       title: 'Book a Boat',
       subtitle: 'Pick a date and time — available slots are shown in the calendar.',
@@ -815,6 +832,9 @@ export const dict: Record<Lang, Dict> = {
       requiredError: 'Please fill in this field',
       phoneError: 'Enter a valid phone number',
       nameError: 'Please enter your full name',
+      consentText: 'I agree to the processing of my personal data and the',
+      consentPolicy: 'privacy policy',
+      consentError: 'Please accept the data processing consent',
       pickDateFirst: 'Choose a date first',
       pickTimeFirst: 'Choose start and end time',
       loadingSlots: 'Loading availability...',
