@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertCircle, CalendarClock, Clock, Loader2, X } from 'lucide-react'
 import { contacts, dict, type Boat, type Lang } from '@/lib/i18n'
 import { readUtmCookie } from '@/lib/utm'
@@ -8,6 +8,7 @@ import { MAX_GUESTS, type Interval } from '@/lib/booking-rules'
 import { formatRuPhone, isRuPhoneEmpty, RU_PHONE_START } from '@/lib/phone'
 import { durationLabel, durationLabelEn, durationOptions, slotDate, startOptions } from '@/lib/booking-slots'
 import { parseDayKey, spbTodayKey, toSpbParts } from '@/lib/spb-time'
+import { reachGoal } from '@/lib/metrika'
 import { BookingCalendar, type MonthCursor } from './booking-calendar'
 
 type Step = 'when' | 'details' | 'success'
@@ -78,6 +79,16 @@ export function BookingModal({
       window.removeEventListener('keydown', onKey)
     }
   }, [onClose])
+
+  // Цель: форма брони открыта. Модалка монтируется ровно при открытии → одна
+  // цель на одно открытие. Реф-страховка от повторного запуска эффекта: React
+  // StrictMode в dev прогоняет эффекты дважды на одном инстансе (в проде — раз).
+  const openedRef = useRef(false)
+  useEffect(() => {
+    if (openedRef.current) return
+    openedRef.current = true
+    reachGoal('booking_open')
+  }, [])
 
   // Занятость тянем на весь видимый месяц с запасом в месяц по краям —
   // так соседние месяцы уже прогреты, когда пользователь листает.
@@ -193,6 +204,9 @@ export function BookingModal({
       })
 
       if (res.ok) {
+        // Цель: заявка реально принята сервером (res.ok). После этого форма
+        // уходит на экран успеха и повторно не отправляется — двойной цели нет.
+        reachGoal('booking_submit')
         setStep('success')
         return
       }

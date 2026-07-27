@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
 import { BookingModal } from './booking-modal'
+import { reachGoal } from '@/lib/metrika'
 import type { Boat, Lang } from '@/lib/i18n'
 
 interface BookingContextValue {
@@ -23,6 +24,9 @@ export function BookingProvider({
   const [boatId, setBoatId] = useState<string | null>(null)
 
   const openBooking = useCallback((id?: string) => {
+    // Цель: клик по кнопке брони — до открытия формы. openBooking вызывают
+    // только кнопки «Забронировать»/«Забронировать катер»/«…этот катер».
+    reachGoal('booking_click')
     setBoatId(id ?? null)
     setOpen(true)
   }, [])
