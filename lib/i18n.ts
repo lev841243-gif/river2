@@ -14,8 +14,8 @@ export const contacts = {
   telegram: 'https://t.me/mariia_ulanova13',
   /** Номер администратора — тот же, что и для звонка. */
   whatsapp: 'https://wa.me/79219994996',
-  /** Instagram ещё не заведён — кнопка не кликается, показывает «в разработке». */
-  instagram: null as string | null,
+  /** Instagram-профиль компании. utm_source=qr — метка перехода из офлайна/QR. */
+  instagram: 'https://www.instagram.com/dno_sydoxodnaja_kompanija_spb?utm_source=qr' as string | null,
   /** MAX: нужен адрес канала (логотип уже есть). */
   max: null as string | null,
   /** Организация на Яндекс.Картах — «Причал 3». */
