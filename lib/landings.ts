@@ -598,7 +598,7 @@ const photo: Landing = {
       benefits: [
         { title: 'Золотой час', text: 'Подберём время под мягкий свет заката — лучшие кадры без пересвета.' },
         { title: 'Локации без толпы', text: 'Набережные, мосты и Эрмитаж в кадре — без прохожих и очередей.' },
-        { title: 'Свой фотограф', text: 'Приглашайте своего фотографа и команду — места на борту достаточно.' },
+        { title: 'Свой фотограф', text: 'Приглашайте своего фотографа и команду — места на борту достаточно. А если своего нет — у нас есть фотограф-профи, снимем сами.' },
         { title: 'Смена планов', text: 'За одну прогулку — разные фоны: открытая вода, каналы, мосты.' },
         { title: 'Капитан и комфорт', text: 'Капитан встанет там, где нужно для кадра; тёплый салон, чтобы переодеться.' },
         { title: 'Бронирование онлайн', text: 'Выберите катер и дату на сайте — менеджер подберёт время под свет.' },
@@ -628,7 +628,7 @@ const photo: Landing = {
       benefits: [
         { title: 'Golden hour', text: 'We pick the time for the soft light of sunset — the best shots with no blown highlights.' },
         { title: 'Locations without crowds', text: 'Embankments, bridges and the Hermitage in frame — no passers-by, no queues.' },
-        { title: 'Your own photographer', text: 'Bring your own photographer and crew — there is plenty of room on board.' },
+        { title: 'Your own photographer', text: 'Bring your own photographer and crew — there is plenty of room on board. No photographer of your own? We have a pro who will shoot for you.' },
         { title: 'Changing scenes', text: 'Different backdrops in one cruise: open water, canals, bridges.' },
         { title: 'Captain and comfort', text: 'The captain holds the boat where the shot needs it; a warm saloon to change in.' },
         { title: 'Book online', text: 'Pick a boat and a date on the site — a manager will set the time for the light.' },
