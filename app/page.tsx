@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { SiteNav } from '@/components/nevsky/site-nav'
 import { FaqJsonLd } from '@/components/nevsky/faq-jsonld'
+import { BusinessJsonLd } from '@/components/nevsky/business-jsonld'
 import { SITE_NAME, OG_IMAGES } from '@/lib/site'
 import { getBoats } from '@/lib/boats-db'
 import { BookingProvider } from '@/components/nevsky/booking-context'
@@ -51,6 +52,7 @@ export default async function Page() {
   return (
     <BookingProvider lang={lang} boats={boats}>
       <SiteNav lang={lang} />
+      <BusinessJsonLd lang={lang} />
       <FaqJsonLd lang={lang} />
       <main>
         <Hero lang={lang} />
