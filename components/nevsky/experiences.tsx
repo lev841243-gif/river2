@@ -24,31 +24,47 @@ export function Experiences({ lang = 'ru' }: { lang?: Lang }) {
             delay={i * 70}
             className={`group relative overflow-hidden rounded-3xl ${exp.span}`}
           >
-            <img
-              src={exp.image || '/placeholder.svg'}
-              alt={exp.title}
-              loading="lazy"
-              className="size-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent transition-opacity duration-500 group-hover:from-background/95" />
-            <div className="absolute inset-x-0 bottom-0 p-6">
-              <p className="text-[11px] uppercase tracking-[0.25em] text-primary opacity-0 transition-all duration-500 group-hover:opacity-100">
-                {exp.caption}
-              </p>
-              <h3 className="mt-1 text-pretty text-xl font-medium leading-snug text-foreground lg:text-2xl">
-                {exp.title}
-              </h3>
+            {/* Внутренняя обёртка отвечает за press-эффект (scale при тапе).
+                Своя быстрая transition-transform не мешает reveal-анимации
+                внешнего .reveal (у него transform на 1s для въезда снизу).
+                Сжатие включаем только у кликабельных плиток — через group-active
+                (:active всплывает от ссылки к группе-родителю, работает и на тапе). */}
+            <div
+              className={`relative size-full transition-transform duration-200 ease-out ${
+                exp.href ? 'group-active:scale-[0.97]' : ''
+              }`}
+            >
+              <img
+                src={exp.image || '/placeholder.svg'}
+                alt={exp.title}
+                loading="lazy"
+                className="size-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent transition-opacity duration-500 group-hover:from-background/95" />
+              <div className="absolute inset-x-0 bottom-0 p-6">
+                <p className="text-[11px] uppercase tracking-[0.25em] text-primary opacity-0 transition-all duration-500 group-hover:opacity-100">
+                  {exp.caption}
+                </p>
+                <h3 className="mt-1 text-pretty text-xl font-medium leading-snug text-foreground lg:text-2xl">
+                  {exp.title}
+                </h3>
+              </div>
+              {/* У тем с готовой посадочной страницей плитка — ссылка на неё
+                  (растянутый оверлей-линк) + значок-стрелка как подсказка.
+                  Гасим серый тап-хайлайт iOS — press-эффект даёт своё сжатие. */}
+              {exp.href && (
+                <>
+                  <span className="absolute right-5 top-5 flex size-9 items-center justify-center rounded-full bg-background/60 text-primary opacity-0 backdrop-blur-md transition-opacity duration-500 group-hover:opacity-100">
+                    <ArrowUpRight className="size-4" />
+                  </span>
+                  <a
+                    href={exp.href}
+                    aria-label={exp.title}
+                    className="absolute inset-0 z-10 [-webkit-tap-highlight-color:transparent]"
+                  />
+                </>
+              )}
             </div>
-            {/* У тем с готовой посадочной страницей плитка — ссылка на неё
-                (растянутый оверлей-линк) + значок-стрелка как подсказка. */}
-            {exp.href && (
-              <>
-                <span className="absolute right-5 top-5 flex size-9 items-center justify-center rounded-full bg-background/60 text-primary opacity-0 backdrop-blur-md transition-opacity duration-500 group-hover:opacity-100">
-                  <ArrowUpRight className="size-4" />
-                </span>
-                <a href={exp.href} aria-label={exp.title} className="absolute inset-0 z-10" />
-              </>
-            )}
           </Reveal>
         ))}
       </div>
