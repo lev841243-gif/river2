@@ -53,6 +53,7 @@ export function BusinessJsonLd({ lang }: { lang: Lang }) {
     sameAs: [
       'https://www.instagram.com/dno_sydoxodnaja_kompanija_spb',
       contacts.yandexMaps,
+      contacts.gis,
     ],
   }
 

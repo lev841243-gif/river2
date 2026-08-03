@@ -30,6 +30,8 @@ export const contacts = {
     'https://yandex.ru/maps/org/sudokhodnaya_kompaniya_dno/18284574311/reviews/',
   /** Google Maps ещё не заведён — кнопка не кликается. */
   googleMaps: null as string | null,
+  /** Карточка организации «Судоходная компания ДНО» в 2ГИС (firm 70000001064576480). */
+  gis: 'https://2gis.ru/spb/firm/70000001064576480' as string | null,
 }
 
 /**
@@ -417,7 +419,7 @@ export interface Dict {
   }
   faq: { eyebrow: string; title: string; subtitle: string; items: FaqItem[] }
   cta: { eyebrow: string; title: string; subtitle: string; primary: string; secondary: string }
-  footer: { tagline: string; explore: string; contact: string; follow: string; address: string[]; rights: string; privacy: string; terms: string; findUs: string; yandexMaps: string; googleMaps: string }
+  footer: { tagline: string; explore: string; contact: string; follow: string; address: string[]; rights: string; privacy: string; terms: string; findUs: string; yandexMaps: string; googleMaps: string; gis: string }
   cookie: { text: string; accept: string; decline: string; policy: string }
   booking: {
     title: string; subtitle: string
@@ -593,6 +595,7 @@ export const dict: Record<Lang, Dict> = {
       findUs: 'Как нас найти',
       yandexMaps: 'Яндекс.Карты',
       googleMaps: 'Google Maps',
+      gis: '2ГИС',
     },
     cookie: {
       text: 'Мы используем файлы cookie для работы сайта и аналитики.',
@@ -799,6 +802,7 @@ export const dict: Record<Lang, Dict> = {
       findUs: 'How to find us',
       yandexMaps: 'Yandex Maps',
       googleMaps: 'Google Maps',
+      gis: '2GIS',
     },
     cookie: {
       text: 'We use cookies to run the site and for analytics.',

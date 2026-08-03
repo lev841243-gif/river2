@@ -5,6 +5,7 @@ import {
   GoogleMapsIcon,
   InstagramIcon,
   TelegramIcon,
+  TwoGisIcon,
   WhatsappIcon,
   YandexMapsIcon,
 } from '@/components/icons/brands'
@@ -95,6 +96,12 @@ export function SiteFooter({ lang = 'ru' }: { lang?: Lang }) {
       href: contacts.yandexMaps,
       icon: <YandexMapsIcon className="size-4" />,
       color: BRAND_COLORS.yandex,
+    },
+    {
+      label: t.gis,
+      href: contacts.gis,
+      // Знак 2ГИС многоцветный (как Google Maps) — фирменный цвет не задаём.
+      icon: <TwoGisIcon className="size-4" />,
     },
     {
       label: t.googleMaps,
