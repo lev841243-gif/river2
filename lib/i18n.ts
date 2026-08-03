@@ -493,7 +493,7 @@ export const dict: Record<Lang, Dict> = {
         { title: 'Фотосессия', caption: 'Золотой час на воде', image: '/images/exp-photo.webp', span: '' },
         { title: 'Семейная прогулка', caption: 'Вместе и без спешки', image: '/images/exp-family.webp', span: '' },
         { title: 'Мальчишник', caption: 'Своей компанией, с размахом', image: '/images/exp-bachelor.webp', span: '', href: '/malchishnik-na-katere' },
-        { title: 'Девичник', caption: 'Особенный вечер для своих', image: '/images/exp-bachelorette.webp', span: '' },
+        { title: 'Девичник', caption: 'Особенный вечер для своих', image: '/images/exp-bachelorette.webp', span: '', href: '/devichnik-na-katere' },
       ],
     },
     fleet: {
@@ -704,7 +704,7 @@ export const dict: Record<Lang, Dict> = {
         { title: 'Photo Session', caption: 'Golden-hour on the water', image: '/images/exp-photo.webp', span: '' },
         { title: 'Family Cruise', caption: 'Together, unhurried', image: '/images/exp-family.webp', span: '' },
         { title: 'Bachelor Party', caption: 'The send-off he deserves', image: '/images/exp-bachelor.webp', span: '', href: '/en/bachelor-party' },
-        { title: 'Bachelorette Party', caption: 'Her night on the water', image: '/images/exp-bachelorette.webp', span: '' },
+        { title: 'Bachelorette Party', caption: 'Her night on the water', image: '/images/exp-bachelorette.webp', span: '', href: '/en/bachelorette-party' },
       ],
     },
     fleet: {

@@ -505,8 +505,78 @@ const birthday: Landing = {
   },
 }
 
+const bachelorette: Landing = {
+  key: 'bachelorette',
+  slugRu: 'devichnik-na-katere',
+  slugEn: 'bachelorette-party',
+  heroImage: '/images/exp-bachelorette.webp',
+  content: {
+    ru: {
+      eyebrow: 'Девичник в Санкт-Петербурге',
+      h1: 'Девичник на катере в Санкт-Петербурге',
+      heroSubtitle:
+        'Особенный вечер для своих — на воде, с музыкой, шампанским и огнями ночного города. Катер с капитаном, вечер по вашему сценарию.',
+      metaTitle:
+        'Девичник на катере в Санкт-Петербурге — аренда с капитаном | Судоходная компания «Дно»',
+      metaDescription:
+        'Аренда катера на девичник в Санкт-Петербурге с капитаном. Прогулка по Неве и каналам, музыка, свои напитки, фотосессия, ваш сценарий. Катера до 12 гостей. Онлайн-бронирование.',
+      intro: [
+        'Девичник на катере — это вечер только для своих, без чужих взглядов и шумного клуба. Весь борт ваш: подруги, музыка, шампанское и Петербург, проплывающий мимо на закате.',
+        'Мы берём на себя катер, капитана и маршрут — вам остаётся собрать компанию и выбрать дату. Хотите спокойный вечер с видами и фотосессией, а хотите — драйв на скорости по открытой воде.',
+      ],
+      benefitsTitle: 'Почему девичник на катере — это то, что нужно',
+      benefits: [
+        { title: 'Только свои', text: 'Катер целиком ваш — никаких чужих людей и общего зала.' },
+        { title: 'Фон для фото', text: 'Закат, набережные и развод мостов — идеальные кадры для вечера.' },
+        { title: 'Музыка и шампанское', text: 'Аудиосистема на борту, свои напитки и угощение — привозите что хотите.' },
+        { title: 'Оформление', text: 'Шары, цветы, декор под тематику вечера — поможем организовать.' },
+        { title: 'Капитан и комфорт', text: 'Опытный капитан, тёплый салон и пледы — уютно в любую погоду.' },
+        { title: 'Бронирование онлайн', text: 'Выберите катер и дату на сайте — менеджер подтвердит детали.' },
+      ],
+      faqTitle: 'Частые вопросы про девичник на катере',
+      faq: [
+        { q: 'Сколько человек помещается на катер?', a: 'В зависимости от судна — от 4 до 12 гостей. Вместимость указана в карточке каждого катера в разделе «Флот».' },
+        { q: 'Можно ли привезти свои напитки и угощение?', a: 'Да, шампанское, напитки и закуски можно взять с собой. Детали уточните у менеджера.' },
+        { q: 'Можно ли украсить катер?', a: 'Да, оформление (шары, цветы, декор) возможно — обсудите с менеджером при бронировании.' },
+        { q: 'Есть ли музыка на борту?', a: 'Да, на катерах есть аудиосистема — можно подключить свой плейлист.' },
+        { q: 'Как забронировать катер на девичник?', a: 'Выберите катер и дату в разделе «Флот» и оставьте заявку. Менеджер свяжется и подтвердит бронь.' },
+      ],
+    },
+    en: {
+      eyebrow: 'Bachelorette party in Saint Petersburg',
+      h1: 'Bachelorette Party on a Boat in Saint Petersburg',
+      heroSubtitle:
+        'A special night for your closest friends — on the water, with music, champagne and the city lights. A boat with a captain, the evening on your terms.',
+      metaTitle: 'Bachelorette Party Boat Rental in Saint Petersburg — With a Captain | Dno',
+      metaDescription:
+        'Rent a boat for a bachelorette party in Saint Petersburg with a captain. Cruise the Neva and canals, music, your own drinks, a photo session, your night. Boats for up to 12 guests. Book online.',
+      intro: [
+        'A bachelorette party on a boat is a night for your circle only — no strangers and no crowded club. The whole deck is yours: your friends, the music, the champagne and Saint Petersburg drifting past at sunset.',
+        'We take care of the boat, the captain and the route — you gather the group and pick the date. Keep it calm with the views and a photo session, or open the throttle for a rush across the open water.',
+      ],
+      benefitsTitle: 'Why a boat is made for a bachelorette party',
+      benefits: [
+        { title: 'Your circle only', text: 'The whole boat is yours — no strangers and no shared hall.' },
+        { title: 'A backdrop for photos', text: 'Sunset, embankments and the opening bridges — perfect shots for the night.' },
+        { title: 'Music and champagne', text: 'A sound system on board; bring your own drinks and treats.' },
+        { title: 'Decoration', text: 'Balloons, flowers and décor to match your theme — we help arrange it.' },
+        { title: 'Captain and comfort', text: 'An experienced captain, a warm saloon and blankets — cosy in any weather.' },
+        { title: 'Book online', text: 'Pick a boat and a date on the site — a manager will confirm the details.' },
+      ],
+      faqTitle: 'Bachelorette party boat — frequently asked questions',
+      faq: [
+        { q: 'How many people fit on a boat?', a: 'Between 4 and 12 guests depending on the boat. The exact capacity is listed on each boat card in the Fleet section.' },
+        { q: 'Can we bring our own drinks and treats?', a: 'Yes, champagne, drinks and snacks are welcome on board. Please confirm the details with the manager.' },
+        { q: 'Can the boat be decorated?', a: 'Yes, decoration (balloons, flowers, décor) is possible — discuss it with the manager when booking.' },
+        { q: 'Is there music on board?', a: 'Yes, the boats have a sound system — you can connect your own playlist.' },
+        { q: 'How do I book a boat for a bachelorette party?', a: 'Pick a boat and a date in the Fleet section and leave a request. A manager will contact you and confirm the booking.' },
+      ],
+    },
+  },
+}
+
 /** Все посадочные страницы. Добавление новой — один объект здесь + два тонких page.tsx. */
-export const landings: Landing[] = [bachelor, proposal, corporate, whitenights, birthday]
+export const landings: Landing[] = [bachelor, bachelorette, proposal, corporate, whitenights, birthday]
 
 /** Найти лендинг по ключу (для страниц). */
 export function getLanding(key: string): Landing {
