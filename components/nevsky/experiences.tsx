@@ -31,7 +31,7 @@ export function Experiences({ lang = 'ru' }: { lang?: Lang }) {
                 (:active всплывает от ссылки к группе-родителю, работает и на тапе). */}
             <div
               className={`relative size-full transition-transform duration-200 ease-out ${
-                exp.href ? 'group-active:scale-[0.97]' : ''
+                exp.href ? 'group-active:scale-[0.98]' : ''
               }`}
             >
               <img
@@ -54,6 +54,8 @@ export function Experiences({ lang = 'ru' }: { lang?: Lang }) {
                   Гасим серый тап-хайлайт iOS — press-эффект даёт своё сжатие. */}
               {exp.href && (
                 <>
+                  {/* Лёгкое затемнение при нажатии — вместе со сжатием читается как «press». */}
+                  <div className="pointer-events-none absolute inset-0 bg-background/0 transition-colors duration-200 group-active:bg-background/25" />
                   <span className="absolute right-5 top-5 flex size-9 items-center justify-center rounded-full bg-background/60 text-primary opacity-0 backdrop-blur-md transition-opacity duration-500 group-hover:opacity-100">
                     <ArrowUpRight className="size-4" />
                   </span>
