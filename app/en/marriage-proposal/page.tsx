@@ -2,10 +2,9 @@ import { LandingPage } from '@/components/nevsky/landing-page'
 import { getBoats } from '@/lib/boats-db'
 import { getLanding, buildLandingMetadata } from '@/lib/landings'
 
-const landing = getLanding('bachelor')
+const landing = getLanding('proposal')
 export const metadata = buildLandingMetadata(landing, 'en')
 
-// ISR: как на главной — флот из БД не «замерзает» на момент сборки.
 export const revalidate = 300
 
 export default async function Page() {

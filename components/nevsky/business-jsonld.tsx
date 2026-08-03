@@ -30,6 +30,7 @@ export function BusinessJsonLd({ lang }: { lang: Lang }) {
       '@type': 'PostalAddress',
       streetAddress: 'Кронверкская наб., 3, корп. 2',
       addressLocality: 'Санкт-Петербург',
+      postalCode: '197046',
       addressCountry: 'RU',
     },
     geo: {
