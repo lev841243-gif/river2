@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { SiteNav } from '@/components/nevsky/site-nav'
 import { FaqJsonLd } from '@/components/nevsky/faq-jsonld'
+import { FleetJsonLd } from '@/components/nevsky/fleet-jsonld'
 import { BusinessJsonLd } from '@/components/nevsky/business-jsonld'
 import { SITE_NAME, OG_IMAGES } from '@/lib/site'
 import { getBoats } from '@/lib/boats-db'
@@ -54,6 +55,7 @@ export default async function EnPage() {
       <SiteNav lang={lang} />
       <BusinessJsonLd lang={lang} />
       <FaqJsonLd lang={lang} />
+      <FleetJsonLd lang={lang} boats={boats} />
       <main>
         <Hero lang={lang} />
         <Experiences lang={lang} />

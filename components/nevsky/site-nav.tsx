@@ -41,10 +41,10 @@ function CallButton({ label }: { label: string }) {
  * мигания — оно удешевило бы премиальную подачу. Сам блик лежит отдельным
  * слоем поверх золота и обрезается overflow-hidden.
  */
-function CtaButton({ label, className }: { label: string; className?: string }) {
+function CtaButton({ label, className, href = '#fleet' }: { label: string; className?: string; href?: string }) {
   return (
     <a
-      href="#fleet"
+      href={href}
       className={cn(
         'cta-alive group relative overflow-hidden rounded-full bg-primary text-sm font-medium text-primary-foreground transition-transform duration-300 hover:scale-[1.04]',
         className,
@@ -87,7 +87,12 @@ function LangSwitch({ lang, className }: { lang: Lang; className?: string }) {
   )
 }
 
-export function SiteNav({ lang = 'ru' }: { lang?: Lang }) {
+/**
+ * `linkBase` — префикс для якорных ссылок меню. На главной пусто (`#fleet` —
+ * тот же документ), на посадочных страницах передаём `'/'`, чтобы пункты вели
+ * на разделы главной (`/#fleet`), а не в пустоту на подстранице.
+ */
+export function SiteNav({ lang = 'ru', linkBase = '' }: { lang?: Lang; linkBase?: string }) {
   const t = dict[lang].nav
   const c = dict[lang].contact
   const brand = dict[lang].brand
@@ -111,7 +116,7 @@ export function SiteNav({ lang = 'ru' }: { lang?: Lang }) {
       )}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
-        <a href="#top" className="flex items-center gap-2 sm:gap-2.5">
+        <a href={`${linkBase}#top`} className="flex items-center gap-2 sm:gap-2.5">
           <Image
             src="/logotip/logo.png"
             alt=""
@@ -135,7 +140,7 @@ export function SiteNav({ lang = 'ru' }: { lang?: Lang }) {
           {t.links.map((link) => (
             <a
               key={link.href}
-              href={link.href}
+              href={`${linkBase}${link.href}`}
               className="text-sm text-foreground/70 transition-colors hover:text-foreground"
             >
               {link.label}
@@ -152,7 +157,7 @@ export function SiteNav({ lang = 'ru' }: { lang?: Lang }) {
             <span className="h-5 w-px bg-border" />
           </div>
           <CallButton label={c.callAdmin} />
-          <CtaButton label={t.cta} className="px-6 py-2.5" />
+          <CtaButton label={t.cta} href={`${linkBase}#fleet`} className="px-6 py-2.5" />
         </div>
 
         <div className="flex items-center gap-3 lg:hidden">
@@ -181,7 +186,7 @@ export function SiteNav({ lang = 'ru' }: { lang?: Lang }) {
           {t.links.map((link) => (
             <a
               key={link.href}
-              href={link.href}
+              href={`${linkBase}${link.href}`}
               onClick={() => setOpen(false)}
               className="rounded-xl px-3 py-3 text-base text-foreground/80 transition-colors hover:bg-muted hover:text-foreground"
             >
@@ -190,7 +195,7 @@ export function SiteNav({ lang = 'ru' }: { lang?: Lang }) {
           ))}
           {/* В шапку телефона ряд не влезает — живёт в раскрытом меню. */}
           <SocialRow lang={lang} idPrefix="mobile" size="md" className="mt-3 px-3" />
-          <CtaButton label={t.cta} className="mt-3 px-6 py-3 text-center" />
+          <CtaButton label={t.cta} href={`${linkBase}#fleet`} className="mt-3 px-6 py-3 text-center" />
         </div>
       </div>
     </header>

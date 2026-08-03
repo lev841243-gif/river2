@@ -1,3 +1,4 @@
+import { ArrowUpRight } from 'lucide-react'
 import { Reveal } from './reveal'
 import { dict, type Lang } from '@/lib/i18n'
 
@@ -38,6 +39,16 @@ export function Experiences({ lang = 'ru' }: { lang?: Lang }) {
                 {exp.title}
               </h3>
             </div>
+            {/* У тем с готовой посадочной страницей плитка — ссылка на неё
+                (растянутый оверлей-линк) + значок-стрелка как подсказка. */}
+            {exp.href && (
+              <>
+                <span className="absolute right-5 top-5 flex size-9 items-center justify-center rounded-full bg-background/60 text-primary opacity-0 backdrop-blur-md transition-opacity duration-500 group-hover:opacity-100">
+                  <ArrowUpRight className="size-4" />
+                </span>
+                <a href={exp.href} aria-label={exp.title} className="absolute inset-0 z-10" />
+              </>
+            )}
           </Reveal>
         ))}
       </div>

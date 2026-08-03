@@ -384,7 +384,7 @@ export const boats: Boat[] = [
 ]
 
 interface NavLink { label: string; href: string }
-interface ExperienceItem { title: string; caption: string; image: string; span: string }
+interface ExperienceItem { title: string; caption: string; image: string; span: string; href?: string }
 interface Reason { title: string; text: string }
 interface RouteItem { title: string; description: string; image: string; duration: string; price: string; stops: string }
 /**
@@ -492,7 +492,7 @@ export const dict: Record<Lang, Dict> = {
         { title: 'Корпоратив', caption: 'Впечатлите каждого гостя', image: '/images/exp-corporate.webp', span: '' },
         { title: 'Фотосессия', caption: 'Золотой час на воде', image: '/images/exp-photo.webp', span: '' },
         { title: 'Семейная прогулка', caption: 'Вместе и без спешки', image: '/images/exp-family.webp', span: '' },
-        { title: 'Мальчишник', caption: 'Своей компанией, с размахом', image: '/images/exp-bachelor.webp', span: '' },
+        { title: 'Мальчишник', caption: 'Своей компанией, с размахом', image: '/images/exp-bachelor.webp', span: '', href: '/malchishnik-na-katere' },
         { title: 'Девичник', caption: 'Особенный вечер для своих', image: '/images/exp-bachelorette.webp', span: '' },
       ],
     },
@@ -703,7 +703,7 @@ export const dict: Record<Lang, Dict> = {
         { title: 'Corporate Event', caption: 'Impress every guest', image: '/images/exp-corporate.webp', span: '' },
         { title: 'Photo Session', caption: 'Golden-hour on the water', image: '/images/exp-photo.webp', span: '' },
         { title: 'Family Cruise', caption: 'Together, unhurried', image: '/images/exp-family.webp', span: '' },
-        { title: 'Bachelor Party', caption: 'The send-off he deserves', image: '/images/exp-bachelor.webp', span: '' },
+        { title: 'Bachelor Party', caption: 'The send-off he deserves', image: '/images/exp-bachelor.webp', span: '', href: '/en/bachelor-party' },
         { title: 'Bachelorette Party', caption: 'Her night on the water', image: '/images/exp-bachelorette.webp', span: '' },
       ],
     },
