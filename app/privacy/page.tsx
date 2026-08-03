@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   title: 'Политика конфиденциальности — Судоходная Компания «Дно»',
   description:
     'Политика в отношении обработки персональных данных пользователей сайта prokatkaterov.ru.',
+  alternates: { canonical: '/privacy' },
 }
 
 export default function PrivacyPage() {

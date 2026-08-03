@@ -1,4 +1,7 @@
+import type { Metadata } from 'next'
 import { SiteNav } from '@/components/nevsky/site-nav'
+import { FaqJsonLd } from '@/components/nevsky/faq-jsonld'
+import { SITE_NAME, OG_IMAGES } from '@/lib/site'
 import { getBoats } from '@/lib/boats-db'
 import { BookingProvider } from '@/components/nevsky/booking-context'
 import { Hero } from '@/components/nevsky/hero'
@@ -24,6 +27,20 @@ import { getGalleryItems } from '@/lib/gallery'
  * при сохранении — эта цифра лишь потолок на случай правки мимо неё (например,
  * прямо в базе).
  */
+export const metadata: Metadata = {
+  alternates: {
+    canonical: '/',
+    languages: { 'ru-RU': '/', 'en-US': '/en', 'x-default': '/' },
+  },
+  openGraph: {
+    type: 'website',
+    siteName: SITE_NAME,
+    locale: 'ru_RU',
+    url: '/',
+    images: OG_IMAGES,
+  },
+}
+
 export const revalidate = 300
 
 export default async function Page() {
@@ -34,6 +51,7 @@ export default async function Page() {
   return (
     <BookingProvider lang={lang} boats={boats}>
       <SiteNav lang={lang} />
+      <FaqJsonLd lang={lang} />
       <main>
         <Hero lang={lang} />
         <Experiences lang={lang} />

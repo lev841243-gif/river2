@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { SiteNav } from '@/components/nevsky/site-nav'
+import { FaqJsonLd } from '@/components/nevsky/faq-jsonld'
+import { SITE_NAME, OG_IMAGES } from '@/lib/site'
 import { getBoats } from '@/lib/boats-db'
 import { BookingProvider } from '@/components/nevsky/booking-context'
 import { Hero } from '@/components/nevsky/hero'
@@ -22,6 +24,20 @@ export const metadata: Metadata = {
   title: 'Dno Shipping Company — Private Boat Tours in Saint Petersburg',
   description:
     'Private luxury boat tours along the Neva River with professional captains — romantic evenings, White Nights, celebrations and corporate events in Saint Petersburg.',
+  alternates: {
+    canonical: '/en',
+    languages: { 'ru-RU': '/', 'en-US': '/en', 'x-default': '/' },
+  },
+  openGraph: {
+    type: 'website',
+    siteName: SITE_NAME,
+    locale: 'en_US',
+    url: '/en',
+    title: 'Dno Shipping Company — Private Boat Tours in Saint Petersburg',
+    description:
+      'Private luxury boat tours along the Neva River with professional captains — romantic evenings, White Nights and celebrations in Saint Petersburg.',
+    images: OG_IMAGES,
+  },
 }
 
 /** ISR — см. пояснение в app/page.tsx. Обе версии читают один и тот же флот. */
@@ -35,6 +51,7 @@ export default async function EnPage() {
   return (
     <BookingProvider lang={lang} boats={boats}>
       <SiteNav lang={lang} />
+      <FaqJsonLd lang={lang} />
       <main>
         <Hero lang={lang} />
         <Experiences lang={lang} />
