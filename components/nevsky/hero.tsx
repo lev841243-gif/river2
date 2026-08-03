@@ -9,7 +9,7 @@ export function Hero({ lang = 'ru' }: { lang?: Lang }) {
       {/* Background image with slow, continuous cinematic drift */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/images/hero-neva.png"
+          src="/images/hero-neva.webp"
           alt="Роскошный катер на Неве в Санкт-Петербурге на закате с разведённым мостом"
           className="hero-motion size-full object-cover"
         />

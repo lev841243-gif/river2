@@ -15,7 +15,7 @@ export function Cta({ lang = 'ru' }: { lang?: Lang }) {
     <section id="cta" className="relative flex min-h-[80svh] items-center overflow-hidden">
       <div className="absolute inset-0 -z-10">
         <img
-          src="/images/cta-evening.png"
+          src="/images/cta-evening.webp"
           alt="Пара любуется закатом с палубы катера на Неве"
           className="size-full object-cover"
         />
