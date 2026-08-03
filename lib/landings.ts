@@ -575,8 +575,148 @@ const bachelorette: Landing = {
   },
 }
 
+const photo: Landing = {
+  key: 'photo',
+  slugRu: 'fotosessiya-na-katere',
+  slugEn: 'photo-session',
+  heroImage: '/images/exp-photo.webp',
+  content: {
+    ru: {
+      eyebrow: 'Фотосессия на воде',
+      h1: 'Фотосессия на катере в Санкт-Петербурге',
+      heroSubtitle:
+        'Золотой час на воде, набережные в мягком свете и город без толпы в кадре. Катер с капитаном — площадка для съёмки, которую не повторить на суше.',
+      metaTitle:
+        'Фотосессия на катере в Санкт-Петербурге — аренда с капитаном | Судоходная компания «Дно»',
+      metaDescription:
+        'Аренда катера для фотосессии в Санкт-Петербурге с капитаном. Съёмка на Неве и каналах, золотой час, набережные и мосты в кадре. Онлайн-бронирование.',
+      intro: [
+        'Фотосессия на катере — это фон, который не купить: Нева, разводные мосты, фасады Эрмитажа и небо белой ночи. И всё это без прохожих в кадре и очередей у популярных точек.',
+        'Мы подбираем время под мягкий свет заката или золотой час и строим маршрут по нужным локациям. Своего фотографа берите с собой — на борту хватит места и для команды, и для реквизита.',
+      ],
+      benefitsTitle: 'Почему съёмка на воде получается лучше',
+      benefits: [
+        { title: 'Золотой час', text: 'Подберём время под мягкий свет заката — лучшие кадры без пересвета.' },
+        { title: 'Локации без толпы', text: 'Набережные, мосты и Эрмитаж в кадре — без прохожих и очередей.' },
+        { title: 'Свой фотограф', text: 'Приглашайте своего фотографа и команду — места на борту достаточно.' },
+        { title: 'Смена планов', text: 'За одну прогулку — разные фоны: открытая вода, каналы, мосты.' },
+        { title: 'Капитан и комфорт', text: 'Капитан встанет там, где нужно для кадра; тёплый салон, чтобы переодеться.' },
+        { title: 'Бронирование онлайн', text: 'Выберите катер и дату на сайте — менеджер подберёт время под свет.' },
+      ],
+      faqTitle: 'Частые вопросы про фотосессию на катере',
+      faq: [
+        { q: 'Можно ли взять своего фотографа?', a: 'Да, конечно. Приглашайте своего фотографа и команду — на борту хватит места.' },
+        { q: 'Когда лучший свет для съёмки?', a: 'Золотой час перед закатом и сами белые ночи. Поможем подобрать время выхода под нужный свет.' },
+        { q: 'Сколько длится съёмка?', a: 'Обычно 1–2 часа, но длительность гибкая — обсудим при бронировании.' },
+        { q: 'Можно ли привезти реквизит и наряды?', a: 'Да, места на борту достаточно; в салоне можно переодеться.' },
+        { q: 'Как забронировать катер для фотосессии?', a: 'Выберите катер и дату в разделе «Флот», оставьте заявку — менеджер подберёт время под свет.' },
+      ],
+    },
+    en: {
+      eyebrow: 'Photo session on the water',
+      h1: 'Photo Session on a Boat in Saint Petersburg',
+      heroSubtitle:
+        'Golden hour on the water, embankments in soft light and the city without crowds in the frame. A boat with a captain — a shooting location you cannot recreate on land.',
+      metaTitle: 'Boat Photo Session in Saint Petersburg — Rental With a Captain | Dno',
+      metaDescription:
+        'Rent a boat for a photo session in Saint Petersburg with a captain. Shoot on the Neva and canals, golden hour, embankments and bridges in the frame. Book online.',
+      intro: [
+        'A photo session on a boat gives you a backdrop money cannot buy: the Neva, the drawbridges, the façades of the Hermitage and the White Nights sky — all without passers-by in the frame or queues at the popular spots.',
+        'We choose the time for the soft light of sunset or golden hour and plan the route around the locations you need. Bring your own photographer — there is room on board for the crew and the props.',
+      ],
+      benefitsTitle: 'Why a shoot on the water turns out better',
+      benefits: [
+        { title: 'Golden hour', text: 'We pick the time for the soft light of sunset — the best shots with no blown highlights.' },
+        { title: 'Locations without crowds', text: 'Embankments, bridges and the Hermitage in frame — no passers-by, no queues.' },
+        { title: 'Your own photographer', text: 'Bring your own photographer and crew — there is plenty of room on board.' },
+        { title: 'Changing scenes', text: 'Different backdrops in one cruise: open water, canals, bridges.' },
+        { title: 'Captain and comfort', text: 'The captain holds the boat where the shot needs it; a warm saloon to change in.' },
+        { title: 'Book online', text: 'Pick a boat and a date on the site — a manager will set the time for the light.' },
+      ],
+      faqTitle: 'Boat photo session — frequently asked questions',
+      faq: [
+        { q: 'Can I bring my own photographer?', a: 'Yes, of course. Bring your own photographer and crew — there is enough room on board.' },
+        { q: 'When is the best light for shooting?', a: 'Golden hour before sunset and the White Nights themselves. We will help pick the departure time for the light you want.' },
+        { q: 'How long is the shoot?', a: 'Usually 1–2 hours, but the duration is flexible — we will discuss it when booking.' },
+        { q: 'Can we bring props and outfits?', a: 'Yes, there is enough room on board, and you can change in the saloon.' },
+        { q: 'How do I book a boat for a photo session?', a: 'Pick a boat and a date in the Fleet section and leave a request — a manager will set the time for the light.' },
+      ],
+    },
+  },
+}
+
+const family: Landing = {
+  key: 'family',
+  slugRu: 'semeynaya-progulka-na-katere',
+  slugEn: 'family-cruise',
+  heroImage: '/images/exp-family.webp',
+  content: {
+    ru: {
+      eyebrow: 'Семейная прогулка',
+      h1: 'Семейная прогулка на катере в Санкт-Петербурге',
+      heroSubtitle:
+        'Спокойный день на воде для всей семьи — без спешки, толпы и расписания. Катер с капитаном, город с воды и время друг для друга.',
+      metaTitle:
+        'Семейная прогулка на катере в Санкт-Петербурге — аренда с капитаном | Судоходная компания «Дно»',
+      metaDescription:
+        'Аренда катера для семейной прогулки в Санкт-Петербурге с капитаном. Неспешный маршрут по Неве и каналам, комфорт для детей и взрослых. Онлайн-бронирование.',
+      intro: [
+        'Семейная прогулка на катере — это редкий шанс собрать всех вместе без суеты: дети, родители, бабушки и дедушки на одной палубе, а вокруг — Петербург, который интереснее любого экрана.',
+        'Мы берём на себя катер, капитана и спокойный маршрут по рекам и каналам. Темп неспешный, салон тёплый, на каждого — спасательный жилет; можно взять с собой перекус и термос с чаем.',
+      ],
+      benefitsTitle: 'Почему семье понравится прогулка на катере',
+      benefits: [
+        { title: 'Все вместе', text: 'Катер целиком ваш — вся семья на одной палубе, без чужих людей.' },
+        { title: 'Спокойный темп', text: 'Неспешный маршрут по рекам и каналам — комфортно и детям, и старшим.' },
+        { title: 'Безопасность', text: 'Опытный капитан и спасательный жилет на каждого гостя, включая детей.' },
+        { title: 'Тепло и уют', text: 'Тёплый салон и пледы; можно взять перекус и термос с собой.' },
+        { title: 'Город как урок', text: 'Мосты, дворцы и корабли вживую — интереснее любого экрана.' },
+        { title: 'Бронирование онлайн', text: 'Выберите катер и дату на сайте — менеджер подтвердит детали.' },
+      ],
+      faqTitle: 'Частые вопросы про семейную прогулку на катере',
+      faq: [
+        { q: 'Можно ли с детьми?', a: 'Да, прогулка подходит для семей с детьми. На каждого гостя, включая ребёнка, есть спасательный жилет.' },
+        { q: 'Насколько спокойный маршрут?', a: 'Темп неспешный, по рекам и каналам. Если хотите тише или, наоборот, немного скорости — скажите капитану.' },
+        { q: 'Можно ли взять еду и напитки?', a: 'Да, перекус, термос и напитки можно взять с собой.' },
+        { q: 'Сколько человек помещается?', a: 'В зависимости от катера — от 4 до 12 гостей. Вместимость указана в карточке судна.' },
+        { q: 'Как забронировать катер для семейной прогулки?', a: 'Выберите катер и дату в разделе «Флот», оставьте заявку — менеджер свяжется и подтвердит бронь.' },
+      ],
+    },
+    en: {
+      eyebrow: 'Family cruise',
+      h1: 'Family Boat Cruise in Saint Petersburg',
+      heroSubtitle:
+        'A calm day on the water for the whole family — no rush, no crowds, no timetable. A boat with a captain, the city from the water and time for each other.',
+      metaTitle: 'Family Boat Cruise in Saint Petersburg — Rental With a Captain | Dno',
+      metaDescription:
+        'Rent a boat for a family cruise in Saint Petersburg with a captain. An unhurried route along the Neva and canals, comfortable for children and adults. Book online.',
+      intro: [
+        'A family cruise on a boat is a rare chance to gather everyone without the fuss: children, parents and grandparents on one deck, with Saint Petersburg all around — more interesting than any screen.',
+        'We take care of the boat, the captain and a calm route along the rivers and canals. The pace is unhurried, the saloon is warm, and there is a life vest for everyone; you are welcome to bring snacks and a thermos of tea.',
+      ],
+      benefitsTitle: 'Why families love a boat cruise',
+      benefits: [
+        { title: 'Everyone together', text: 'The whole boat is yours — the family on one deck, with no strangers.' },
+        { title: 'A calm pace', text: 'An unhurried route along the rivers and canals — comfortable for children and elders alike.' },
+        { title: 'Safety', text: 'An experienced captain and a life vest for every guest, children included.' },
+        { title: 'Warm and cosy', text: 'A warm saloon and blankets; you can bring snacks and a thermos.' },
+        { title: 'The city as a lesson', text: 'Bridges, palaces and ships up close — more interesting than any screen.' },
+        { title: 'Book online', text: 'Pick a boat and a date on the site — a manager will confirm the details.' },
+      ],
+      faqTitle: 'Family boat cruise — frequently asked questions',
+      faq: [
+        { q: 'Is it suitable for children?', a: 'Yes, the cruise is suitable for families with children. There is a life vest for every guest, children included.' },
+        { q: 'How calm is the route?', a: 'The pace is unhurried, along the rivers and canals. If you would like it quieter — or a little speed — just tell the captain.' },
+        { q: 'Can we bring food and drinks?', a: 'Yes, you are welcome to bring snacks, a thermos and drinks.' },
+        { q: 'How many people fit?', a: 'Between 4 and 12 guests depending on the boat. The capacity is listed on the boat card.' },
+        { q: 'How do I book a family cruise?', a: 'Pick a boat and a date in the Fleet section and leave a request — a manager will get in touch and confirm the booking.' },
+      ],
+    },
+  },
+}
+
 /** Все посадочные страницы. Добавление новой — один объект здесь + два тонких page.tsx. */
-export const landings: Landing[] = [bachelor, bachelorette, proposal, corporate, whitenights, birthday]
+export const landings: Landing[] = [bachelor, bachelorette, proposal, corporate, whitenights, birthday, photo, family]
 
 /** Найти лендинг по ключу (для страниц). */
 export function getLanding(key: string): Landing {
