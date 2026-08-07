@@ -16,6 +16,7 @@ import {
 import { Reveal } from './reveal'
 import { useBooking } from './booking-context'
 import { boatImg, dict, type Boat, type Lang } from '@/lib/i18n'
+import { boatPath } from '@/lib/boat-seo'
 
 function priceLabel(boat: Boat, lang: Lang, t: (typeof dict)['ru']['fleet']) {
   if (boat.price == null) return t.onRequest
@@ -127,8 +128,13 @@ export function Fleet({ lang = 'ru', boats }: { lang?: Lang; boats: Boat[] }) {
 
               <div className="flex flex-1 flex-col p-7">
                 <div className="flex items-baseline justify-between gap-4">
+                  {/* Название — ссылка на страницу катера: главная и лендинги
+                      должны давать поисковику обычную <a> на каждую лодку,
+                      кнопка-модалка для этого невидима. */}
                   <h3 className="font-[family-name:var(--font-display)] text-2xl font-medium tracking-tight text-foreground">
-                    {b.name[lang]}
+                    <a href={boatPath(b.id, lang)} className="transition-colors hover:text-primary">
+                      {b.name[lang]}
+                    </a>
                   </h3>
                   <span className="shrink-0 text-sm text-primary">{priceLabel(b, lang, t)}</span>
                 </div>
@@ -145,13 +151,15 @@ export function Fleet({ lang = 'ru', boats }: { lang?: Lang; boats: Boat[] }) {
                     {t.book}
                     <ArrowRight className="size-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setActive(i)}
+                  {/* «Подробнее» ведёт на страницу катера — теперь подробности
+                      живут именно там. Быстрый просмотр в модалке остался на
+                      клике по фото. */}
+                  <a
+                    href={boatPath(b.id, lang)}
                     className="inline-flex items-center justify-center rounded-full border border-border px-5 py-3 text-sm font-medium text-foreground transition-colors duration-300 hover:bg-foreground/5"
                   >
                     {t.details}
-                  </button>
+                  </a>
                 </div>
               </div>
             </Reveal>
@@ -324,17 +332,26 @@ export function Fleet({ lang = 'ru', boats }: { lang?: Lang; boats: Boat[] }) {
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setActive(null)
-                  openBooking(boat.id)
-                }}
-                className="mt-9 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground transition-transform duration-300 hover:scale-[1.03]"
-              >
-                {t.bookThis}
-                <ArrowRight className="size-4" />
-              </button>
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActive(null)
+                    openBooking(boat.id)
+                  }}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground transition-transform duration-300 hover:scale-[1.03]"
+                >
+                  {t.bookThis}
+                  <ArrowRight className="size-4" />
+                </button>
+                <a
+                  href={boatPath(boat.id, lang)}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-7 py-3.5 text-sm font-medium text-foreground transition-colors duration-300 hover:bg-foreground/5"
+                >
+                  {t.boatPage}
+                  <ArrowRight className="size-4" />
+                </a>
+              </div>
             </div>
           </div>
         </div>

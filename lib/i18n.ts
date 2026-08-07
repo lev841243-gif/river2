@@ -407,6 +407,8 @@ export interface Dict {
     isNew: string; premium: string; captainOnly: string
     specLabels: [string, string, string, string, string]
     amenitiesTitle: string; bookThis: string; specsOnRequest: string; close: string
+    /** Ссылка с карточки и из модалки на страницу катера `/boat/<slug>`. */
+    boatPage: string
     extrasTitle: string; extras: string[]
   }
   why: { eyebrow: string; title: string; reasons: Reason[]; rating: string; ratingText: string }
@@ -512,6 +514,7 @@ export const dict: Record<Lang, Dict> = {
       bookThis: 'Забронировать этот катер',
       specsOnRequest: 'Характеристики и стоимость — по запросу',
       close: 'Закрыть',
+      boatPage: 'Страница катера',
       extrasTitle: 'Организуем праздник под ключ',
       extras: ['Украшение шарами', 'Гендер-пати', 'Девичник', 'Мальчишник', 'Кейтеринг', 'Профессиональный фотограф', 'Музыкант'],
     },
@@ -723,6 +726,7 @@ export const dict: Record<Lang, Dict> = {
       bookThis: 'Book this boat',
       specsOnRequest: 'Specs and pricing on request',
       close: 'Close',
+      boatPage: 'Boat page',
       extrasTitle: 'We arrange the whole celebration',
       extras: ['Balloon decoration', 'Gender-reveal party', 'Hen party', 'Stag party', 'Catering', 'Professional photographer', 'Musician'],
     },
