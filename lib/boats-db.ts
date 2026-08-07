@@ -35,3 +35,14 @@ export async function getBoats(): Promise<Boat[]> {
     return staticBoats
   }
 }
+
+/**
+ * Один катер по слагу — для страниц `/boat/[slug]`. Идёт через `getBoats()`,
+ * а не отдельным запросом: так у страницы катера ровно та же видимость
+ * (`isVisible`) и тот же фолбэк на статику, что и у флота на главной.
+ * Список из 16 лодок, поэтому лишней выборки тут не жалко.
+ */
+export async function getBoat(slug: string): Promise<Boat | null> {
+  const all = await getBoats()
+  return all.find((b) => b.id === slug) ?? null
+}

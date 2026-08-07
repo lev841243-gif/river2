@@ -59,11 +59,21 @@ function CtaButton({ label, className, href = '#fleet' }: { label: string; class
   )
 }
 
-function LangSwitch({ lang, className }: { lang: Lang; className?: string }) {
+function LangSwitch({
+  lang,
+  className,
+  ruHref = '/',
+  enHref = '/en',
+}: {
+  lang: Lang
+  className?: string
+  ruHref?: string
+  enHref?: string
+}) {
   return (
     <div className={cn('flex items-center gap-1 text-xs font-medium tracking-wide', className)}>
       <a
-        href="/"
+        href={ruHref}
         aria-current={lang === 'ru' ? 'page' : undefined}
         className={cn(
           'rounded-full px-2.5 py-1 transition-colors',
@@ -74,7 +84,7 @@ function LangSwitch({ lang, className }: { lang: Lang; className?: string }) {
       </a>
       <span className="text-foreground/20">/</span>
       <a
-        href="/en"
+        href={enHref}
         aria-current={lang === 'en' ? 'page' : undefined}
         className={cn(
           'rounded-full px-2.5 py-1 transition-colors',
@@ -91,8 +101,23 @@ function LangSwitch({ lang, className }: { lang: Lang; className?: string }) {
  * `linkBase` — префикс для якорных ссылок меню. На главной пусто (`#fleet` —
  * тот же документ), на посадочных страницах передаём `'/'`, чтобы пункты вели
  * на разделы главной (`/#fleet`), а не в пустоту на подстранице.
+ *
+ * `ruHref`/`enHref` — куда ведёт переключатель языка. По умолчанию на главные
+ * (`/` и `/en`). Страницы катеров передают адреса своей же пары RU/EN: иначе
+ * переключение языка выкидывало бы посетителя с карточки катера на главную,
+ * хотя в hreflang указана вполне конкретная соседняя страница.
  */
-export function SiteNav({ lang = 'ru', linkBase = '' }: { lang?: Lang; linkBase?: string }) {
+export function SiteNav({
+  lang = 'ru',
+  linkBase = '',
+  ruHref,
+  enHref,
+}: {
+  lang?: Lang
+  linkBase?: string
+  ruHref?: string
+  enHref?: string
+}) {
   const t = dict[lang].nav
   const c = dict[lang].contact
   const brand = dict[lang].brand
@@ -149,7 +174,7 @@ export function SiteNav({ lang = 'ru', linkBase = '' }: { lang?: Lang; linkBase?
         </div>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <LangSwitch lang={lang} />
+          <LangSwitch lang={lang} ruHref={ruHref} enHref={enHref} />
           {/* Соцсети — только с xl. На 1024–1280 они не влезали: шапке нужно было
               1201px при 944 доступных, и строка разъезжалась. В футере они есть всегда. */}
           <div className="hidden items-center gap-3 xl:flex">
@@ -161,7 +186,7 @@ export function SiteNav({ lang = 'ru', linkBase = '' }: { lang?: Lang; linkBase?
         </div>
 
         <div className="flex items-center gap-3 lg:hidden">
-          <LangSwitch lang={lang} />
+          <LangSwitch lang={lang} ruHref={ruHref} enHref={enHref} />
           <CallButton label={c.callAdmin} />
           <button
             type="button"
