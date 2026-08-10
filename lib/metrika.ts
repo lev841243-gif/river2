@@ -39,6 +39,27 @@ export type MetrikaGoal =
   | 'telegram_click'
   | 'whatsapp_click'
 
+/**
+ * Цели прежнего сайта, уже заведённые в счётчике 43111299. К одной из них
+ * («Бронирование катера», ID 36523429) привязана кампания Директа, поэтому при
+ * отправке заявки дублируем событие ещё и старым идентификатором — так цель
+ * кампании работает без правок в кабинете.
+ *
+ * Шлём ТОЛЬКО в 43111299: в основном счётчике такой цели нет и заводить её не
+ * нужно, там своя `booking_submit` с чистой историей нынешнего сайта.
+ *
+ * ⚠️ В этой цели смешана статистика прежнего сайта — как источник правды она не
+ * годится. Когда директолог переключит стратегию на «Отправка заявки»
+ * (`booking_submit`), дубль можно снять.
+ *
+ * Остальные старые цели (`click-top`, `click-bottom`, `question`) не дублируем:
+ * ФОС на сайте нет, а телефон у нас один обработчик на все ссылки `tel:` —
+ * шапку и подвал он не различает.
+ */
+const LEGACY_ADS_GOALS: Partial<Record<MetrikaGoal, string>> = {
+  booking_submit: 'booking',
+}
+
 declare global {
   interface Window {
     ym?: (id: number, action: string, ...rest: unknown[]) => void
@@ -52,4 +73,7 @@ declare global {
 export function reachGoal(goal: MetrikaGoal): void {
   if (typeof window === 'undefined') return
   for (const id of METRIKA_COUNTER_IDS) window.ym?.(id, 'reachGoal', goal)
+
+  const legacy = LEGACY_ADS_GOALS[goal]
+  if (legacy) window.ym?.(METRIKA_ADS_COUNTER_ID, 'reachGoal', legacy)
 }
