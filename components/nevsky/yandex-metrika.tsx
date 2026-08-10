@@ -1,7 +1,16 @@
 'use client'
 
 /**
- * Счётчик Яндекс.Метрики (№ 111074489) + отслеживание целей по контактным ссылкам.
+ * Счётчики Яндекс.Метрики + отслеживание целей по контактным ссылкам.
+ *
+ * Счётчиков два (см. lib/metrika.ts): основной 111074489 и счётчик прежнего
+ * сайта 43111299, к которому привязана кампания Директа. tag.js — общая
+ * библиотека, грузим её ОДИН раз и просто вызываем init на каждый счётчик; это
+ * штатный способ Яндекса для нескольких счётчиков на странице.
+ *
+ * ⚠️ webvisor включён ТОЛЬКО в основном счётчике. Запись сессий — это телефоны
+ * и имена, которые клиенты вводят в форме брони; во второй счётчик (доступ к
+ * нему не наш) их слать не нужно. Тот же принцип, что и с исключением /admin.
  *
  * Код Яндекса подключается через next/script (strategy afterInteractive) — это
  * штатный способ для сторонней аналитики в Next.js вместо сырого <script> в
@@ -29,7 +38,13 @@
 import { useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import Script from 'next/script'
-import { METRIKA_COUNTER_ID, reachGoal } from '@/lib/metrika'
+import { METRIKA_COUNTER_ID, METRIKA_COUNTER_IDS, reachGoal } from '@/lib/metrika'
+
+/** Init-опции — ровно как выдал Яндекс; webvisor только в основном счётчике. */
+const initCalls = METRIKA_COUNTER_IDS.map(
+  (id) =>
+    `ym(${id}, 'init', {ssr:true, webvisor:${id === METRIKA_COUNTER_ID}, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});`,
+).join('\n')
 
 export function YandexMetrika() {
   const pathname = usePathname()
@@ -45,7 +60,7 @@ export function YandexMetrika() {
       first.current = false
       return
     }
-    window.ym?.(METRIKA_COUNTER_ID, 'hit', window.location.href)
+    for (const id of METRIKA_COUNTER_IDS) window.ym?.(id, 'hit', window.location.href)
   }, [pathname, enabled])
 
   // Делегированный клик по контактным ссылкам → одна цель на клик.
@@ -78,15 +93,18 @@ export function YandexMetrika() {
     k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
 })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=${METRIKA_COUNTER_ID}', 'ym');
 
-ym(${METRIKA_COUNTER_ID}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});`}
+${initCalls}`}
       </Script>
       <noscript>
         <div>
-          <img
-            src={`https://mc.yandex.ru/watch/${METRIKA_COUNTER_ID}`}
-            style={{ position: 'absolute', left: '-9999px' }}
-            alt=""
-          />
+          {METRIKA_COUNTER_IDS.map((id) => (
+            <img
+              key={id}
+              src={`https://mc.yandex.ru/watch/${id}`}
+              style={{ position: 'absolute', left: '-9999px' }}
+              alt=""
+            />
+          ))}
         </div>
       </noscript>
     </>
