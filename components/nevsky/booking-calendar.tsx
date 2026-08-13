@@ -131,11 +131,6 @@ export function BookingCalendar({
           ),
         )}
       </div>
-
-      <p className="mt-3 flex items-center gap-2 text-[11px] text-muted-foreground">
-        <span className="inline-block size-1.5 rounded-full bg-destructive/70" />
-        {lang === 'ru' ? 'Катер занят' : 'Boat is booked'}
-      </p>
     </div>
   )
 }
